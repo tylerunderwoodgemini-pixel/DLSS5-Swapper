@@ -1,7 +1,7 @@
 {
   "name": "dlss5-swapper",
-  "version": "2.2.0",
-  "description": "DLSS 5 (Neural Rendering) for your games - a library that finds them, and one click to install",
+  "version": "2.2.3-vr.1",
+  "description": "DLSS 5 Swapper VR compatibility fork with stereo foveation and temporal install checks",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -10,11 +10,12 @@
     "test:payload": "node scripts/test-feeder-payload.js",
     "test:optiscaler": "node scripts/test-optiscaler-payload.js",
     "payload": "node scripts/collect-payload.js",
-    "prebuild": "npm run payload",
+    "prebuild": "node scripts/verify-vr-payload.cjs",
     "build": "electron-builder --win",
     "build:linux": "electron-builder --linux AppImage deb",
     "icon": "electron scripts/make-icon.js",
-    "build:portable": "electron-builder --win portable"
+    "build:portable": "electron-builder --win portable",
+    "test:vr": "node tests/install-stability.cjs && node tests/vr-foveation-cache.cjs && node tests/vr-packaged-install.cjs && node tests/openxr-pose-install.cjs && node tests/vr-openxr-install.cjs"
   },
   "author": "Rakan Alkhaldi",
   "license": "MIT",
@@ -60,7 +61,10 @@
       "icon": "build/icon.ico"
     },
     "linux": {
-      "target": ["AppImage", "deb"],
+      "target": [
+        "AppImage",
+        "deb"
+      ],
       "category": "Game",
       "maintainer": "Rakan Alkhaldi",
       "icon": "app_iocn.png",

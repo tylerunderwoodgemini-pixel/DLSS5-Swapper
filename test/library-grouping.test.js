@@ -23,6 +23,7 @@ function launch(profile) {
         ipcMain: { handle: (channel, handler) => handlers.set(channel, handler) }
       };
       if (name === './package.json') return { version: 'test' };
+      if (name === './src/core/vr-auto') return { wrapBackendManager() {} };
       if (name.startsWith('./src/')) return {};
       return require(name);
     }

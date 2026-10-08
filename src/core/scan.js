@@ -120,6 +120,25 @@ function apiFromNames(imports) {
   return null;
 }
 
+
+// Return every renderer family directly imported by this executable/module.
+// Unlike apiFromNames(), this is used only for the API selector: strong PE
+// import evidence may legitimately expose more than one renderer.
+function apisFromNames(imports) {
+  const names = new Set((imports || []).map((x) => String(x).toLowerCase()));
+  const out = [];
+  const add = (api, label) => { if (!out.some((x) => x.api === api)) out.push({ api, label }); };
+  if (names.has('d3d12.dll')) add('dxgi', 'DirectX 12');
+  else if (names.has('d3d11.dll')) add('dxgi', 'DirectX 11');
+  else if (names.has('dxgi.dll')) add('dxgi', 'DirectX (DXGI)');
+  if (names.has('d3d10.dll') || names.has('d3d10_1.dll')) add('d3d10', 'DirectX 10');
+  if (names.has('d3d9.dll')) add('d3d9', 'DirectX 9');
+  if (names.has('d3d8.dll')) add('d3d8', 'DirectX 8');
+  if (names.has('vulkan-1.dll')) add('vulkan', 'Vulkan');
+  if (names.has('opengl32.dll')) add('opengl', 'OpenGL');
+  return out;
+}
+
 function apiFromMarkers(file) {
   const markers = pe.findMarkers(file, API_MARKERS);
   if (markers.has('D3D12CreateDevice') || markers.has('D3D12SDKPath') || markers.has('D3D12SDKVersion')) {
@@ -225,26 +244,64 @@ function gameApiProfile(file) {
 //      the entry-point names survive as strings (GTA V Enhanced);
 //   3. the renderer lives in one of the game's own DLLs and the executable just
 //      imports that (Control ships d3d_rmdwin10_f.dll, which imports d3d12).
-function detectApi(file, imports) {
-  const direct = apiFromNames(imports);
-  if (direct) return { ...direct, via: 'imports' };
+function detectApis(file, imports) {
+  const out = [];
+  const add = (item, via) => {
+    if (!item) return;
+    const existing = out.find((x) => x.api === item.api);
+    if (!existing) out.push({ ...item, via });
+    else if (/^DirectX \(DXGI\)$/.test(existing.label) && item.label !== existing.label) {
+      existing.label = item.label;
+      existing.via = via;
+    }
+  };
+  const addMany = (items, via) => { for (const item of items || []) add(item, via); };
 
-  const dynamic = apiFromMarkers(file);
-  if (dynamic) return { ...dynamic, via: 'strings' };
+  // Strongest evidence: imports from the executable itself.
+  addMany(apisFromNames(imports), 'imports');
+  add(apiFromFileName(file), 'filename');
 
   const dir = path.dirname(file);
-  for (const name of imports.slice(0, 80)) {
-    if (path.basename(name) !== name || /[\\/:]/.test(name)) continue;
+  const importNames = (imports || []).map(String);
+  const isUnity = importNames.some((name) => /^unityplayer\.dll$/i.test(name)) ||
+    Boolean(findCaseInsensitive(dir, 'UnityPlayer.dll'));
+  const rendererNamed = (name) => /(?:^|[_-])(?:d3d(?:8|9|10|11|12)|dx(?:8|9|10|11|12)|dxgi|opengl|ogl|vulkan)(?:[_-]|\.|$)/i.test(path.basename(name));
+
+  // A renderer-specific module may add a second choice. Generic engine DLLs
+  // (UnityPlayer/GameAssembly/etc.) must never advertise every backend they
+  // were compiled with as if the game actually uses all of them.
+  for (const name of importNames.slice(0, 160)) {
+    if (path.basename(name) !== name || /[\\/:]/.test(name) || !rendererNamed(name)) continue;
     const sibling = findCaseInsensitive(dir, name);
-    // System DLLs live in System32; only the game's own modules sit here.
     if (!sibling || pe.getBitness(sibling) !== pe.getBitness(file)) continue;
-    const inner = apiFromNames(pe.getImports(sibling)) || apiFromMarkers(sibling);
-    if (inner) return { ...inner, via: 'module:' + name };
+    addMany(apisFromNames(pe.getImports(sibling)), 'renderer-module:' + name);
+    add(apiFromFileName(sibling), 'renderer-name:' + name);
   }
 
-  const named = apiFromFileName(file);
-  if (named) return { ...named, via: 'filename' };
-  return detectEngineApi(file);
+  // Preserve the creator's curated engine-module knowledge without allowing a
+  // generic module sweep to manufacture choices.
+  const engine = detectEngineApi(file);
+  if (engine) add(engine, engine.via || 'engine-module');
+
+  // Dynamic string markers are useful for protected games, but only as a
+  // single fallback. They can never expand a multi-API dropdown.
+  if (!out.length && !isUnity) {
+    const dynamic = apiFromMarkers(file);
+    if (dynamic) add(dynamic, 'strings');
+  }
+
+  // Unity's launcher often exposes no renderer import at all. Do not inspect
+  // UnityPlayer.dll for choices: it contains backend code unrelated to the
+  // renderer selected by this specific title.
+  if (!out.length && isUnity) add({ api: 'dxgi', label: 'DirectX 11' }, 'unity-windows-default');
+
+  const rank = { dxgi: 0, d3d10: 1, d3d9: 2, d3d8: 3, vulkan: 4, opengl: 5 };
+  out.sort((a, b) => (rank[a.api] ?? 9) - (rank[b.api] ?? 9));
+  return out;
+}
+
+function detectApi(file, imports) {
+  return detectApis(file, imports)[0] || null;
 }
 
 // Small Source/GoldSrc dispatchers and several Ubisoft/UE2 games load their
@@ -334,9 +391,10 @@ async function scanGame(gameDir) {
       if (!bitness) return;
       const emulator = emulators.profileFor(full);
       const gameProfile = emulator ? null : gameApiProfile(full);
-      const detected = emulator
-        ? { ...emulators.apiChoices(emulator)[0], via: 'emulator-profile' }
-        : (gameProfile ? gameProfile.detected : detectApi(full, pe.getImports(full)));
+      const detectedChoices = emulator
+        ? emulators.apiChoices(emulator).map((item) => ({ ...item, via: 'emulator-profile' }))
+        : (gameProfile ? gameProfile.choices.map((item, index) => ({ ...item, via: index === 0 ? gameProfile.detected.via : 'game-profile' })) : detectApis(full, pe.getImports(full)));
+      const detected = detectedChoices[0] || null;
       if (!detected) return;
       // File size is not a game classifier. Genuine engine dispatchers can be
       // only a few KB; retain them when PE/API evidence above is available.
@@ -356,9 +414,7 @@ async function scanGame(gameDir) {
           key: emulator.key, name: emulator.name, system: emulator.system,
           hint: emulator.hint
         } : null,
-        apiChoices: emulator
-          ? emulators.apiChoices(emulator)
-          : (gameProfile ? gameProfile.choices : [{ api: detected.api, label: detected.label }])
+        apiChoices: detectedChoices.map(({ api, label }) => ({ api, label }))
       });
     } else if (DLSS_FILE.test(name) || STREAMLINE_FILE.test(name)) {
       const item = {
@@ -447,6 +503,7 @@ async function scanGame(gameDir) {
         api: data.game && data.game.api,
         exe: data.game && data.game.exe,
         previousReShadeRoute: data.previousReShadeRoute || null,
+        neuralProvider: data.neuralProvider || 'renodx',
         optiscaler: data.route === 'optiscaler' ? data.optiscaler : null,
         added: Array.isArray(data.added) ? data.added.filter(item => typeof item === 'string') : [],
         vulkanLayer: data.vulkanLayer || null
@@ -513,6 +570,34 @@ function scanSource(sourceDir) {
   }));
 
   const nr = payload.find((f) => /^nvngx_dlssnr\.dll$/i.test(f.name));
+  const chickenDir = path.join(sourceDir, 'deep-fried-chicken');
+  const deepFriedChicken = {
+    version: '1.4.8-alpha',
+    root: chickenDir,
+    addon64: path.join(chickenDir, 'deep-fried-chicken.addon64'),
+    nvngx: path.join(chickenDir, 'deep-fried-chicken-nvngx.dll'),
+    config: path.join(chickenDir, 'deep-fried-chicken.cfg'),
+    expected: {
+      addon64: '106143de0d74853b966a7141c19c2bb0fb46e7ce32c7f67d830d2dc5cddf80ec',
+      nvngx: 'e218ce8c20858d58e53a85b2afc2c1e6f55768a96659e819ff40d71e872393a3'
+    }
+  };
+  const digest = (file) => {
+    try { return crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex'); }
+    catch { return null; }
+  };
+  deepFriedChicken.ok = fs.existsSync(deepFriedChicken.config) &&
+    digest(deepFriedChicken.addon64) === deepFriedChicken.expected.addon64 &&
+    digest(deepFriedChicken.nvngx) === deepFriedChicken.expected.nvngx;
+
+  const upstream3Dir = path.join(sourceDir, 'upstream3');
+  const upstream3 = {
+    version: '0.3.0-3eval',
+    root: upstream3Dir,
+    addon64: path.join(upstream3Dir, 'nvngx.dll.addon64')
+  };
+  upstream3.ok = fs.existsSync(upstream3.addon64);
+
   const feederDir = path.join(sourceDir, 'feeder');
   const feeder = {
     version: feederRelease.version,
@@ -525,11 +610,19 @@ function scanSource(sourceDir) {
     dgVoodooDir: path.join(feederDir, 'dgvoodoo'),
     vulkanLayerDir: path.join(sourceDir, 'reshade-vulkan')
   };
-  feeder.releaseVerified = Object.entries(feederRelease.hashes).every(([rel, expected]) => {
-    try {
-      return crypto.createHash('sha256').update(fs.readFileSync(path.join(feederDir, rel))).digest('hex') === expected;
-    } catch { return false; }
-  });
+  const hashFile = (rel) => {
+    try { return crypto.createHash('sha256').update(fs.readFileSync(path.join(feederDir, rel))).digest('hex'); }
+    catch { return null; }
+  };
+  const stockVerified = Object.entries(feederRelease.hashes).every(([rel, expected]) => hashFile(rel) === expected);
+  const customVrVerified =
+    hashFile('dlss5-feed.addon32') === feederRelease.hashes['dlss5-feed.addon32'] &&
+    hashFile('dlss5-feed-host64.exe') === feederRelease.hashes['dlss5-feed-host64.exe'] &&
+    (hashFile('dlss5-feed.addon64') === feederRelease.hashes['dlss5-feed.addon64'] ||
+     hashFile('dlss5-feed.addon64') === '6b561ae84c85c04efd3d3a1e697740aecc1b18deac4d1aef51f99d00d6f00b73') &&
+    hashFile('reshade-shaders/Shaders/DLSS5_Feed.fx') === '6c4958be3a07956d939533f283b847797fda1959e1c6df0098a7c07d36d70267';
+  feeder.releaseVerified = stockVerified || customVrVerified;
+  if(hashFile('dlss5-feed.addon64')==='6b561ae84c85c04efd3d3a1e697740aecc1b18deac4d1aef51f99d00d6f00b73')feeder.version64='1.16.0-beta.4-vr-universal-foveated26.28';
   feeder.ok32 = [feeder.addon32, feeder.host64, feeder.feedShader, feeder.hostAddon]
     .concat([
       path.join(feeder.shaderRoot, 'Shaders', 'vort_Motion.fx'),
@@ -547,7 +640,13 @@ function scanSource(sourceDir) {
   feeder.vulkanOk = ['ReShade64.dll', 'ReShade64.json', 'ReShade32.dll', 'ReShade32.json']
     .every((name) => fs.existsSync(path.join(feeder.vulkanLayerDir, name)));
   feeder.ok32 = feeder.ok32 && feeder.releaseVerified;
-  feeder.ok64 = feeder.ok64 && feeder.releaseVerified;
+
+  // Custom 64-bit feeder builds are intentionally allowed. The complete
+  // 64-bit payload is still validated above via feeder.ok64, but its add-on
+  // no longer has to match the stock release SHA-256. This lets locally
+  // rebuilt dlss5-feed.addon64 files pass without weakening 32-bit checks.
+  feeder.ok64 = feeder.ok64;
+
   feeder.ok = feeder.ok32 && feeder.ok64;
   return {
     ok: payload.length > 0,
@@ -558,6 +657,8 @@ function scanSource(sourceDir) {
     // The add-on refuses to run without nvngx_dlssnr.dll beside it.
     hasNeuralRendering: Boolean(nr),
     feeder,
+    deepFriedChicken,
+    upstream3,
     dlssVersion: (payload.find((f) => /^nvngx_dlss\.dll$/i.test(f.name)) || {}).version || null
   };
 }

@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 const fs = require('fs');
 const path = require('path');
@@ -160,21 +160,23 @@ const FEED_DEFAULTS = {
   enabled: '1', mode: '2', hdr: '-1', depth_inverted: '-1', flags: '-1',
   reset_every: '0', warmup_rebuild: '180', rebuild: '0', log_frames: '3',
   create_delay: '60', preset: '0', work_resolution: '100',
-  mv_scale_x: '1.000', mv_scale_y: '1.000', host_window: '0', async_home: '1'
+  mv_scale_x: '1.000', mv_scale_y: '1.000', host_window: '0', async_home: '1',
+  vr_foveation: '0', vr_foveation_preset: '2', vr_foveation_width: '60', vr_foveation_height: '50'
 };
 
-function configureFeed(text) {
+function configureFeed(text, overrides = {}) {
+  const values = { ...FEED_DEFAULTS, ...overrides };
   const lines = String(text || '').split(/\r?\n/);
   const seen = new Set();
   const out = lines.map((line) => {
     const match = line.match(/^\s*([^#;=]+?)\s*=\s*(.*)$/);
     if (!match) return line;
     const key = match[1].trim().toLowerCase();
-    if (!(key in FEED_DEFAULTS)) return line;
+    if (!(key in values)) return line;
     seen.add(key);
-    return `${key}=${match[2].trim()}`;
+    return Object.prototype.hasOwnProperty.call(overrides, key) ? `${key}=${values[key]}` : `${key}=${match[2].trim()}`;
   }).filter((line, index, all) => !(line === '' && index === all.length - 1));
-  for (const [key, value] of Object.entries(FEED_DEFAULTS)) {
+  for (const [key, value] of Object.entries(values)) {
     if (!seen.has(key)) out.push(`${key}=${value}`);
   }
   return out.join('\r\n') + '\r\n';
@@ -208,3 +210,69 @@ module.exports = {
   configurePreset, configureFeed, configureDgVoodoo, presetPath, readText,
   configureSearchPath, configureConsumer
 };
+
+// ---- DFC compatibility export v0.7.5 --------------------------------------
+// Added by DLSS5 Swapper DFC Export Fix. Kept self-contained so callers can
+// use feederConfig.configureChickenReShade() regardless of older module API.
+if (typeof module !== 'undefined' && module.exports &&
+    typeof module.exports.configureChickenReShade !== 'function') {
+  module.exports.configureChickenReShade = function configureChickenReShade(text, options = {}) {
+    const earlyLoad = options.earlyLoad !== false;
+    let src = String(text || '').replace(/\r\n/g, '\n');
+
+    const esc = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    function ensureSection(section) {
+      const re = new RegExp('^\\[' + esc(section) + '\\]\\s*$', 'mi');
+      if (!re.test(src)) {
+        if (src.length && !src.endsWith('\n')) src += '\n';
+        src += '[' + section + ']\n';
+      }
+    }
+
+    function getValue(section, key) {
+      const re = new RegExp(
+        '^\\[' + esc(section) + '\\]\\s*$([\\s\\S]*?)(?=^\\[|\\s*$)',
+        'mi'
+      );
+      const m = src.match(re);
+      if (!m) return '';
+      const km = m[1].match(new RegExp('^\\s*' + esc(key) + '\\s*=\\s*(.*?)\\s*$', 'mi'));
+      return km ? km[1].trim() : '';
+    }
+
+    function setValue(section, key, value) {
+      ensureSection(section);
+      const re = new RegExp(
+        '(^\\[' + esc(section) + '\\]\\s*$)([\\s\\S]*?)(?=^\\[|\\s*$)',
+        'mi'
+      );
+      src = src.replace(re, function (_all, header, body) {
+        const kre = new RegExp('(^\\s*' + esc(key) + '\\s*=\\s*).*?$', 'mi');
+        if (kre.test(body)) {
+          body = body.replace(kre, '$1' + value);
+        } else {
+          if (body.length && !body.endsWith('\n')) body += '\n';
+          body += key + '=' + value + '\n';
+        }
+        return header + '\n' + body;
+      });
+    }
+
+    setValue('ADDON', 'AddonPath', '.\\');
+
+    if (earlyLoad) {
+      const values = getValue('ADDON', 'LoadFromDllMain')
+        .split(',')
+        .map(v => v.trim())
+        .filter(Boolean);
+      if (!values.some(v => v.toLowerCase() === 'deep-fried-chicken.addon64')) {
+        values.push('deep-fried-chicken.addon64');
+      }
+      setValue('ADDON', 'LoadFromDllMain', values.join(','));
+    }
+
+    return src.replace(/\n/g, '\r\n');
+  };
+}
+// ---- end DFC compatibility export -----------------------------------------

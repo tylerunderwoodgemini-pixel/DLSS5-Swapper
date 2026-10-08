@@ -568,6 +568,9 @@ let jobRunning = false;
 const exeChoice = new Map();
 const routeChoice = new Map();
 const apiChoice = new Map();
+const neuralProviderChoice = new Map();
+const vrModeChoice = new Map();
+const vrFoveationChoice = new Map();
 
 // One row per fact, in a single panel. A wrapping grid of bordered tiles left
 // an orphan on its own line whenever the count was odd, and repeated the same
@@ -638,9 +641,31 @@ function selectedRoute(d, pick, dir, api = selectedApi(pick, dir).api) {
   return routes[0];
 }
 
+function selectedNeuralProvider(d, dir, route) {
+  if (route !== 'feeder' && route !== 'native') return 'renodx';
+  const wanted = neuralProviderChoice.get(dir);
+  if (wanted === 'deep-fried-chicken' || wanted === 'renodx' || wanted === 'upstream3') return wanted;
+  return ['deep-fried-chicken','upstream3','renodx'].includes(d.installedNeuralProvider) ? d.installedNeuralProvider : 'renodx';
+}
+
+function selectedVrMode(d, dir) {
+  const wanted=vrModeChoice.get(dir);
+  if (['auto','off','openxr','openvr'].includes(wanted)) return wanted;
+  return 'auto';
+}
+
+function selectedVrFoveation(d, pick, dir, route) {
+  if (route !== 'feeder' || Number(pick?.bitness || d.bitness) !== 64) return 'off';
+  const wanted=vrFoveationChoice.get(dir);
+  if (['off','small','balanced','wide','large'].includes(wanted)) return wanted;
+  return d.vrDetected && d.vrDetected !== 'none' ? 'balanced' : 'off';
+}
+
 function installLabel(d, pick, dir) {
   const route = pick && selectedRoute(d, pick, dir);
-  if (d.installedRoute && route !== d.installedRoute) return t('applyBackend');
+  const provider = route ? selectedNeuralProvider(d, dir, route) : 'renodx';
+  if (d.installedRoute && (route !== d.installedRoute ||
+      ((route === 'feeder' || route === 'native') && d.installedNeuralProvider && provider !== d.installedNeuralProvider))) return t('applyBackend');
   return route === 'optiscaler' ? t('installOpti') : t('install');
 }
 
@@ -653,6 +678,9 @@ function installOptions(d, pick, dir) {
   const apis = pick.apiChoices || [{ api: pick.api, label: pick.apiLabel }];
   const routes = routesFor(pick, api.api);
   const opti = route === 'optiscaler';
+  const neuralProvider = selectedNeuralProvider(d, dir, route);
+  const vrMode = selectedVrMode(d, dir);
+  const vrFoveation = selectedVrFoveation(d, pick, dir, route);
   const optiReason = window.installRoutes.optiReason(pick, api.api);
   if (!routes.length) return `<div class="emu-note">${t('unsupportedRendererHint')}</div>${warning}`;
   return `
@@ -665,11 +693,30 @@ function installOptions(d, pick, dir) {
       </select></label>
       ${!opti ? `<label><span>${t('fRoute')}</span><select id="routeChoice">${routes.filter(item => item !== 'optiscaler').map((item) =>
         `<option value="${item}"${item === route ? ' selected' : ''}>${t(item === 'feeder' ? 'routeFeeder' : 'routeNative')}</option>`).join('')}</select></label>
-      ` : ''}
+      ${(route === 'feeder' || route === 'native') ? `<label><span>Neural provider</span><select id="neuralProviderChoice">
+        <option value="renodx"${neuralProvider === 'renodx' ? ' selected' : ''}>RenoDX DLSS 5</option>
+        <option value="upstream3"${neuralProvider === 'upstream3' ? ' selected' : ''}>TRUE Upstream (pre-DLSS SR)</option>
+        <option value="deep-fried-chicken"${neuralProvider === 'deep-fried-chicken' ? ' selected' : ''}>Deep Fried Chicken</option>
+      </select></label>` : ''}` : ''}
+      ${!opti && (route === 'feeder' || route === 'native') ? `<label><span>VR mode</span><select id="vrModeChoice">
+        <option value="auto"${vrMode === 'auto' ? ' selected' : ''}>Auto detect</option>
+        <option value="off"${vrMode === 'off' ? ' selected' : ''}>Off</option>
+        <option value="openxr"${vrMode === 'openxr' ? ' selected' : ''}>Force OpenXR</option>
+        <option value="openvr"${vrMode === 'openvr' ? ' selected' : ''}>Force OpenVR</option>
+      </select></label>` : ''}
+      ${!opti && route === 'feeder' && Number(pick.bitness) === 64 ? `<label><span>VR foveation</span><select id="vrFoveationChoice">
+        <option value="off"${vrFoveation === 'off' ? ' selected' : ''}>Off (full frame)</option>
+        <option value="small"${vrFoveation === 'small' ? ' selected' : ''}>Small 50x45 (22.5%)</option>
+        <option value="balanced"${vrFoveation === 'balanced' ? ' selected' : ''}>Balanced 60x50 (30%)</option>
+        <option value="wide"${vrFoveation === 'wide' ? ' selected' : ''}>Wide 70x50 (35%)</option>
+        <option value="large"${vrFoveation === 'large' ? ' selected' : ''}>Large 75x60 (45%)</option>
+      </select></label>` : ''}
     </div>
     <div class="emu-note backend-note" id="backendHint"><span>${t(opti ? 'optiHint' : 'backendHint')}</span>
       ${optiReason ? `<span>${t(optiReason)}</span>` : ''}
       ${route === 'native' ? `<span>${t('nativeEffectsHint')}</span>` : ''}
+      ${neuralProvider === 'upstream3' ? `<span><b>TRUE pre-upscale:</b> three NR network evaluations run on the DLSS render-resolution input before the original DLSS SR evaluate. Feeder mode forces work_upscale=2.</span>` : ''}
+      ${route === 'feeder' && neuralProvider === 'deep-fried-chicken' ? `<span>Deep Fried Chicken replaces RenoDX as the Feeder neural provider. They are mutually exclusive; switching removes the currently managed provider first.</span>` : ''}
       ${opti && (api.api === 'vulkan' || api.label === 'DirectX 11') ? `<span>${t('optiBridgeHint')}</span>` : ''}
       ${api.api === 'vulkan' ? `<span>${t('optiVulkanHint')}</span>` : ''}
     </div>
@@ -708,6 +755,7 @@ async function openSheet(dir, keepLog = false) {
   }
   if (!apiChoice.has(dir) && d.installedApi) apiChoice.set(dir, d.installedApi);
   if (!routeChoice.has(dir) && d.installedRoute) routeChoice.set(dir, d.installedRoute);
+  if (!neuralProviderChoice.has(dir) && d.installedNeuralProvider) neuralProviderChoice.set(dir, d.installedNeuralProvider);
 
   const info = art && !art.error && !art.none ? art : null;
   const cover = (info && info.cover) || (g.poster && g.poster.tall ? g.poster.url : null);
@@ -744,7 +792,7 @@ async function openSheet(dir, keepLog = false) {
         ${showExeFact && pick ? spec(t('fExe'), esc(pick.rel.split(/[\/]/).pop()), null, pick.rel) : ''}
         ${pick ? spec(t('fArchitecture'), `${pick.bitness || '?'}-bit`) : ''}
         ${spec(t('fApi'), esc((pick && selectedApi(pick, dir).label) || reasonText(d.reason) || '—'), pick && selectedApi(pick, dir).api === 'dxgi' ? 'on' : 'off')}
-        ${spec(t('installedBackend'), esc(d.installedRoute === 'optiscaler' ? 'OptiScaler DLSS-NR' : d.installedRoute ? 'ReShade' : t('none')), d.installedRoute ? 'on' : 'off')}
+        ${spec(t('installedBackend'), esc(d.installedRoute === 'optiscaler' ? 'OptiScaler DLSS-NR' : d.installedRoute === 'feeder' ? `ReShade / Feeder / ${d.installedNeuralProvider === 'deep-fried-chicken' ? 'Deep Fried Chicken' : 'RenoDX'}` : d.installedRoute ? 'ReShade / RenoDX' : t('none')), d.installedRoute ? 'on' : 'off')}
         ${spec('DLSS', pick && selectedRoute(d, pick, dir) === 'optiscaler' ? esc(inGameDlss || t('none')) : dlssValue(inGameDlss, d.newDlss, upToDate))}
         ${d.optiscaler ? spec('OptiScaler', esc(d.optiscaler.installed ? d.optiscaler.version : t('notInstalled')), d.optiscaler.installed ? 'on' : 'off') : ''}
         ${spec(t('fAddon'), esc(d.addon ? t('installed') : t('notPresent')), d.addon ? 'on' : 'off')}
@@ -758,6 +806,7 @@ async function openSheet(dir, keepLog = false) {
 
       <div class="sheet-actions">
         <button class="btn-install" id="doInstall"${d.ok && pick && !pick.installIssue && routesFor(pick, selectedApi(pick, dir).api).length ? '' : ' disabled'}>${installLabel(d, pick, dir)}</button>
+        <button class="btn-restore" id="doLaunch"${pick ? '' : ' disabled'} title="${pick ? esc('Launch ' + pick.rel + ' directly') : ''}">Launch Game</button>
         <button class="btn-restore" id="doRestore"${d.hasBackup ? '' : ' disabled'}>${t('restore')}</button>
       </div>
       <div class="job-toolbar"><button class="ghost sm" id="copyJob"${jobLines.length ? '' : ' disabled'}>${t('copyLog')}</button></div>
@@ -771,6 +820,12 @@ async function openSheet(dir, keepLog = false) {
   if (apiSelect) apiSelect.onchange = () => { apiChoice.set(dir, apiSelect.value); openSheet(dir); };
   const routeSelect = $('routeChoice');
   if (routeSelect) routeSelect.onchange = () => { routeChoice.set(dir, routeSelect.value); openSheet(dir, true); };
+  const neuralSelect = $('neuralProviderChoice');
+  if (neuralSelect) neuralSelect.onchange = () => { neuralProviderChoice.set(dir, neuralSelect.value); openSheet(dir, true); };
+  const vrModeSelect = $('vrModeChoice');
+  if (vrModeSelect) vrModeSelect.onchange = () => { vrModeChoice.set(dir, vrModeSelect.value); openSheet(dir, true); };
+  const vrFovSelect = $('vrFoveationChoice');
+  if (vrFovSelect) vrFovSelect.onchange = () => { vrFoveationChoice.set(dir, vrFovSelect.value); openSheet(dir, true); };
   const backendSelect = $('backendChoice');
   if (backendSelect) backendSelect.onchange = () => {
     const available = routesFor(pick, selectedApi(pick, dir).api).filter(route => route !== 'optiscaler');
@@ -779,6 +834,41 @@ async function openSheet(dir, keepLog = false) {
     openSheet(dir, true);
   };
   $('doInstall').onclick = () => runJob('install', dir);
+  $('doLaunch').onclick = async () => {
+    if (jobRunning) return;
+    const selected = sheetDetails ? chosenExe(sheetDetails, dir) : null;
+    if (!selected) return;
+
+    const button = $('doLaunch');
+    const previous = button.textContent;
+    button.disabled = true;
+    button.textContent = 'Launching…';
+
+    let result;
+    try {
+      result = await window.lab.launchGame(dir, selected.path);
+    } catch (error) {
+      result = { ok: false, message: error.message };
+    }
+
+    if (result && result.ok) {
+      jobLog(`launched: ${selected.rel}${result.apiLabel ? '  [' + result.apiLabel + ']' : ''}`);
+      log(`Launched: ${selected.path}`);
+      state.recents = await window.lab.touch(dir);
+      renderRecent();
+      button.textContent = 'Launched';
+      setTimeout(() => {
+        if (sheetGame?.dir === dir && $('doLaunch')) {
+          $('doLaunch').disabled = false;
+          $('doLaunch').textContent = previous;
+        }
+      }, 1200);
+    } else {
+      jobLog('launch failed: ' + ((result && result.message) || 'unknown error'));
+      button.disabled = false;
+      button.textContent = previous;
+    }
+  };
   $('doRestore').onclick = () => runJob('restore', dir);
 }
 
@@ -800,6 +890,7 @@ function wireExePicker(dir) {
     exeChoice.set(dir, option.dataset.path);
     apiChoice.delete(dir);
     routeChoice.delete(dir);
+    neuralProviderChoice.delete(dir); vrModeChoice.delete(dir); vrFoveationChoice.delete(dir);
     openSheet(dir);
   };
 }
@@ -809,7 +900,9 @@ async function runJob(kind, dir) {
   jobRunning = true;
   const install = $('doInstall');
   const restoreBtn = $('doRestore');
+  const launchBtn = $('doLaunch');
   install.disabled = restoreBtn.disabled = true;
+  if (launchBtn) launchBtn.disabled = true;
   document.querySelectorAll('#sheet select, #exeSelect, #sheetClose').forEach(e => { e.disabled = true; });
   install.textContent = kind === 'install' ? t('installing') : t('install');
   jobLines = [];
@@ -822,7 +915,10 @@ async function runJob(kind, dir) {
       dir,
       exeChoice.get(dir) || null,
       pick ? selectedRoute(sheetDetails, pick, dir) : null,
-      pick ? selectedApi(pick, dir).api : null
+      pick ? selectedApi(pick, dir).api : null,
+      pick ? selectedNeuralProvider(sheetDetails, dir, selectedRoute(sheetDetails, pick, dir)) : 'renodx',
+      selectedVrMode(sheetDetails || {}, dir),
+      pick ? selectedVrFoveation(sheetDetails, pick, dir, selectedRoute(sheetDetails, pick, dir)) : 'off'
     )
     : await window.lab.restoreGame(dir);
   } catch (error) { res = { ok: false, message: error.message }; }
@@ -838,7 +934,7 @@ async function runJob(kind, dir) {
     renderRecent();
     const g = state.games.find((x) => x.dir === dir);
     if (g) { g.cached = await window.lab.scan(dir); renderGames(); renderRecent(); }
-    if (kind === 'restore') routeChoice.delete(dir);
+    if (kind === 'restore') { routeChoice.delete(dir); neuralProviderChoice.delete(dir); vrModeChoice.delete(dir); vrFoveationChoice.delete(dir); }
     setTimeout(() => { if (sheetGame?.dir === dir) openSheet(dir, true); }, 400);
   } else {
     const translated = res.code && t(res.code);

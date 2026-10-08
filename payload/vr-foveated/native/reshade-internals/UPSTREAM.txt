@@ -1,0 +1,3 @@
+Unmodified ReShade SDK/internal queue-layout headers.
+https://github.com/crosire/reshade/tree/18deaa52de0c425a78b329e9cb3c497281cd00ec
+BSD-3-Clause; see LICENSE.md. This is not the source of the binary-patched OpenXR DLL.

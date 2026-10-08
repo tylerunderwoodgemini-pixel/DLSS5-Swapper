@@ -73,3 +73,14 @@ SOFTWARE.
 
 DLSS5-Autopilot downloads third-party components at runtime. Those components
 remain under their own licences.
+
+
+## VR fork additions
+
+Modified feeder: jlrouzies-fr/DLSS5-Feeder v1.16.0-beta.4, MIT notice retained in payload/feeder/licenses. The transformation script and helper source are in payload/vr-foveated. DFC/RenoDX notices remain beside their components.
+
+ReShade queue-layout headers are unmodified extracts of crosire/reshade commit 18deaa52de0c425a78b329e9cb3c497281cd00ec (BSD-3-Clause); see payload/vr-foveated/native/reshade-internals/LICENSE.md. Modified ReShade V19 is a binary patch; modified source is not supplied.
+
+Detours: Microsoft/Detours commit e4bfd6b03e50de46b47abfbd1e46b384f0c5f833, third_party/Detours/LICENSE.md. OpenXR headers retain Khronos copyright and SPDX notices.
+
+NVIDIA material in the portable application remains under the NVIDIA RTX SDK licence and per-component notices in resources/payload/streamline; it is not covered by MIT or stored in Git history.

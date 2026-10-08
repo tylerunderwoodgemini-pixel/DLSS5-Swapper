@@ -36,6 +36,60 @@ function missingVCRuntime(bitness, exeDir, systemRoot = process.env.SystemRoot, 
   });
 }
 
+const NEURAL_UPSTREAM = {
+  version: 'v0.3.0',
+  url: 'https://github.com/matiasLombo/neural-upstream/releases/download/v0.3.0/nvngx.dll.addon64',
+  filename: 'nvngx.dll.addon64'
+};
+
+async function ensureNeuralUpstream(cacheRoot) {
+  const dir = path.join(path.resolve(cacheRoot), 'components', `neural-upstream-${NEURAL_UPSTREAM.version}`);
+  const file = path.join(dir, NEURAL_UPSTREAM.filename);
+  if (!fs.existsSync(file)) await download(NEURAL_UPSTREAM.url, file);
+  // Basic PE sanity check. The upstream project intentionally ships a loose .addon64.
+  if (pe.getBitness(file) !== 64) { try { await fs.promises.unlink(file); } catch {} throw new Error('Neural Upstream download is not a 64-bit PE add-on'); }
+  return file;
+}
+
+
+const AIO_UPSTREAM = {
+  version: 'v2.1.1',
+  url: 'https://github.com/kibblerz/DLSS5-Reshade-AIO/releases/download/v2.1.1/DLSS5-ReShade-AIO-v2.1.1-64-bit.zip',
+  filename: 'DLSS5-ReShade-AIO-v2.1.1-64-bit.zip'
+};
+
+async function ensureAioUpstream(cacheRoot) {
+  const base = path.join(path.resolve(cacheRoot), 'components', `DLSS5-ReShade-AIO-${AIO_UPSTREAM.version}`);
+  const archive = path.join(path.dirname(base), AIO_UPSTREAM.filename);
+  const marker = path.join(base, '.ready');
+  if (!fs.existsSync(archive)) await download(AIO_UPSTREAM.url, archive);
+  if (!fs.existsSync(marker)) {
+    await fs.promises.rm(base, { recursive: true, force: true });
+    await fs.promises.mkdir(base, { recursive: true });
+    await extractZip(archive, { dir: base });
+  }
+  const find = (name) => {
+    const stack=[base];
+    while(stack.length){
+      const d=stack.pop();
+      for(const e of fs.readdirSync(d,{withFileTypes:true})){
+        const q=path.join(d,e.name);
+        if(e.isDirectory()) stack.push(q); else if(e.name.toLowerCase()===name.toLowerCase()) return q;
+      }
+    }
+    return null;
+  };
+  const addon=find('standalone-dlssnr.addon64');
+  const bridge=find('nvngx.dll');
+  if(!addon || !bridge || pe.getBitness(addon)!==64 || pe.getBitness(bridge)!==64) {
+    await fs.promises.rm(base,{recursive:true,force:true});
+    throw new Error('DLSS5 ReShade AIO archive layout/architecture is invalid');
+  }
+  await fs.promises.writeFile(marker, AIO_UPSTREAM.version, 'utf8');
+  const shaderRoot = path.join(path.dirname(addon), 'reshade-shaders');
+  return { root:path.dirname(addon), addon, bridge, shaderRoot: fs.existsSync(shaderRoot) ? shaderRoot : null, version:AIO_UPSTREAM.version };
+}
+
 const LUMENITE = {
   commit: '76fa3e4d601c97e9bc63f119c01405b7b9938885',
   url: 'https://codeload.github.com/umar-afzaal/LumeniteFX/zip/76fa3e4d601c97e9bc63f119c01405b7b9938885',
@@ -86,4 +140,4 @@ async function ensureLumenite(cacheRoot) {
   return root;
 }
 
-module.exports = { LUMENITE, DGVOODOO, ensureLumenite, ensureDgVoodoo, missingVCRuntime, digest, download };
+module.exports = { LUMENITE, DGVOODOO, NEURAL_UPSTREAM, AIO_UPSTREAM, ensureNeuralUpstream, ensureAioUpstream, ensureLumenite, ensureDgVoodoo, missingVCRuntime, digest, download };

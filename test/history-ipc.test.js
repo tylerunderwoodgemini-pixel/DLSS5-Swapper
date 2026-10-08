@@ -23,6 +23,7 @@ test('install/restore IPC records all backends, not failures/cancels, and valida
   const riskDialogs = [], installedConfigs = [];
   let menuItems;
   const stubs = {
+    './src/core/vr-auto': { wrapBackendManager() {} },
     electron: { app: { setAppUserModelId() {}, whenReady: () => ({ then() {} }), on() {}, getPath: () => root },
       BrowserWindow: { fromWebContents: () => ({ isDestroyed: () => false, getContentSize: () => [1280, 860] }) },
       Menu: { buildFromTemplate: items => {
