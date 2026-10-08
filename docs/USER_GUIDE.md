@@ -33,7 +33,7 @@ An Unreal executable often ends in `-Win64-Shipping.exe`, although demos can use
 | **Rendering API** | Match the API selected in the game's launcher/settings. For example, choose DirectX 11 when launching with DX11, or DirectX 12 when launching with DX12. The picker appears only when multiple choices are available. |
 | **Rendering backend** | Use **ReShade (default)** for the VR/UEVR path described here. **OptiScaler DLSS-NR** is a separate optional backend with its own hardware requirements and controls. |
 | **Installation route** | Use **Native DLSS (RenoDX)** when you want to use the game's existing DLSS pipeline. Use **DLSS5-Feeder (games without DLSS)** for a game without native DLSS, or for this fork's configurable Feeder foveation path. |
-| **Neural provider** | **Deep Fried Chicken** is the provider used in the reported VR/UEVR repairs. **RenoDX DLSS 5** is the default alternative. **TRUE Upstream (pre-DLSS SR)** is a separate pre-upscale route; start with a single known working provider. |
+| **Neural provider** | **Deep Fried Chicken** is the provider used in the reported VR/UEVR repairs. **RenoDX DLSS 5** is the default alternative. **TRUE Upstream (pre-DLSS SR)** chains neural passes before SR and has its own controls described below. |
 | **VR mode** | **Off** for flat play. **Auto detect** for native VR. **Force OpenXR** or **Force OpenVR** when you know the runtime and automatic detection misses it. |
 | **VR foveation** | Offered for the 64-bit Feeder route. Start with **Balanced 60x50 (30%)** for VR, or **Off (full frame)** for flat play. |
 
@@ -116,6 +116,16 @@ Keep these guide/history controls at the stable baseline for the repaired 64-bit
 - Keep the shipped Feed shader's pose, camera-motion, validation and history-relief settings initially. Pose rows/validity are bridge data, not ordinary artistic sliders.
 
 Use Deep Fried Chicken's **Enabled** switch for an A/B comparison. **Arm feature-1 interception on startup** is a different startup setting and needs a full restart. **Refresh neural contract** can rebuild after a presentation change; do not repeatedly reset a stable scene. **Export <game>.cfg** and **Load <game>.cfg** manage provider presets. ReShade's shader preset is separate, and changing it can change which Feed techniques are active.
+
+### Using TRUE Neural Upstream instead
+
+With the game closed, select **TRUE Upstream (pre-DLSS SR)** as **Neural provider**, then apply/install. On the native route, enable the game's DLSS/DLAA. On Feeder, retain its provider/Feed techniques; the installer selects 67% work resolution and SR expand-back (`work_upscale=2`) for this provider.
+
+In ReShade's **Add-ons**, find **NR Pre-Upscale / DLSS5 NR Pre-Upscale**. The bundled add-on contains **TRUE chained multipass** and **Number of NR passes**. The preserved latest patch specifies **1–4** passes, default **3**; start with **1** for a comparison and increase gradually. Each pass consumes the preceding result before the original SR upscale. The Swapper hint saying three evaluations describes the default, not the adjustable limit.
+
+Expand **NR Pass 1**, then the other used passes. Each exposes **Render preset hint**, **NR Style**, **Intensity**, **Local tone**, **Local structure**, **Skin structure**, and **Automatic mask**. **Copy Pass 1 to every pass** copies the first pass's appearance settings. A skin-structure value of **-1** leaves that choice to the network. Settings use the `NRPreUpscale` section of ReShade's config; they are separate from DFC presets. This provider is not the older **Standalone DLSS-NR + SR** AIO experiment and does not use DFC's tab.
+
+See [the complete fork comparison](FORK_DIFFERENCES.md) for provider variants, component versions and what remains experimental.
 
 ## Checking success and troubleshooting
 

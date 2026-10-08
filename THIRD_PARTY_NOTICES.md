@@ -84,3 +84,6 @@ ReShade queue-layout headers are unmodified extracts of crosire/reshade commit 1
 Detours: Microsoft/Detours commit e4bfd6b03e50de46b47abfbd1e46b384f0c5f833, third_party/Detours/LICENSE.md. OpenXR headers retain Khronos copyright and SPDX notices.
 
 NVIDIA material in the portable application remains under the NVIDIA RTX SDK licence and per-component notices in resources/payload/streamline; it is not covered by MIT or stored in Git history.
+# CreatorBase provider integration credits
+
+Deep Fried Chicken and its neural controls are credited to Alexander and remain subject to the supplied component licence. Neural Upstream is credited to the [matiasLombo/neural-upstream project](https://github.com/matiasLombo/neural-upstream). CreatorBase integrates these providers and includes customized pre-SR/chained and compatibility binaries; complete transformed source provenance is not included for every binary. See `docs/FORK_DIFFERENCES.md` and the component notices. These credits do not change redistribution terms or make third-party binaries MIT-licensed.

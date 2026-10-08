@@ -1,0 +1,2653 @@
+{
+  "auditDate": "2026-10-08",
+  "scope": "Runtime code snapshot and complete active payload; later documentation edits are outside this snapshot.",
+  "runtimeCodeCommit": "030d43ee778c53fc0eb25dcd8e0f62134bb78dc6",
+  "base": {
+    "tag": "v2.2.0",
+    "commit": "cc1633f6ceff6166b970d63f7fbf3c8eb80b5d1c"
+  },
+  "comparedUpstream": {
+    "tag": "v2.2.9",
+    "commit": "9fb0b7c3563d350aa46eaa01d3e5ca4cbab4a7cb"
+  },
+  "statusLegend": {
+    "A": "present only in fork",
+    "M": "different bytes",
+    "D": "present only in compared upstream"
+  },
+  "differencesFromBase": [
+    {
+      "status": "M",
+      "path": ".gitignore"
+    },
+    {
+      "status": "M",
+      "path": "README.md"
+    },
+    {
+      "status": "A",
+      "path": "RELEASE_NOTES_VR.md"
+    },
+    {
+      "status": "M",
+      "path": "THIRD_PARTY_NOTICES.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/UPSTREAM-README-v2.2.0.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/USER_GUIDE.md"
+    },
+    {
+      "status": "M",
+      "path": "main.js"
+    },
+    {
+      "status": "M",
+      "path": "package-lock.json"
+    },
+    {
+      "status": "M",
+      "path": "package.json"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/COMPATIBILITY-TEST.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/FEEDER-COMPATIBILITY.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/FEEDER-INTEROP-v1.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/INSTALL-LAYOUTS.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/LEGACY-API-ADAPTER.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/LICENSE-Deep-Fried-Chicken.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/LICENSE-Microsoft-Detours.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/LICENSE-NIGos-dlss5-bridge.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/LICENSE-ReShade.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/LICENSE-RenoDX.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/LICENSE-dlss5-bridge-vulkan-shader.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/NOTE-TO-DLSS5-FEEDER-DEVELOPER.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/QUICK-START.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/README-dlss5-bridge.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/README.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/RELEASE-NOTES.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/SHA256SUMS.txt"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/deep-fried-chicken.cfg"
+    },
+    {
+      "status": "A",
+      "path": "payload/feeder/licenses/DLSS5-Feeder-LICENSE.txt"
+    },
+    {
+      "status": "A",
+      "path": "payload/feeder/licenses/THIRD-PARTY-SOURCES.txt"
+    },
+    {
+      "status": "A",
+      "path": "payload/feeder/licenses/VORT-LICENSE.txt"
+    },
+    {
+      "status": "A",
+      "path": "payload/openxr/DLSS5OpenXRRouter.dll"
+    },
+    {
+      "status": "A",
+      "path": "payload/openxr/ReShade64.dll"
+    },
+    {
+      "status": "A",
+      "path": "payload/openxr/ReShade_Setup_6.8.0_OpenXR_EarlyLoad_V19_Addon.exe"
+    },
+    {
+      "status": "A",
+      "path": "payload/openxr/build-router.cmd"
+    },
+    {
+      "status": "A",
+      "path": "payload/openxr/dlss5-openxr-router.cpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/Build-And-Install-VRUniversalFoveated-v26.bat"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/Build-And-Install-VRUniversalFoveated-v26.ps1"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/Build-VRPoseBridge-v2.cmd"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/Build-VRRuntimeCompat.cmd"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/DLSS5OpenXRPose.dll"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/DLSS5_Feed.fx"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/README.txt"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/dlss5-vr-compat.addon64"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/Patch-D3D12-VRFoveation.ps1"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/openxr-pose-layer.cpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/openxr/LICENSE"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/openxr/openxr.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/openxr/openxr_loader_negotiation.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/openxr/openxr_platform.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/openxr/openxr_platform_defines.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/pose-data.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/projection-depth.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade-internals/LICENSE.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade-internals/UPSTREAM.txt"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade-internals/include/reshade_api_device.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade-internals/include/reshade_api_format.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade-internals/include/reshade_api_pipeline.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade-internals/include/reshade_api_resource.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade-internals/source/com_ptr.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade-internals/source/d3d12/d3d12_impl_command_list.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade-internals/source/d3d12/d3d12_impl_command_list_immediate.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade-internals/source/d3d12/d3d12_impl_command_queue.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade-internals/source/reshade_api_object_impl.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade/LICENSE.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade/reshade.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade/reshade_api.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade/reshade_api_device.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade/reshade_api_format.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade/reshade_api_pipeline.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade/reshade_api_resource.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade/reshade_events.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade/reshade_overlay.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vcvars.bat"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vr-current-input.cpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vr-depth-bridge.cpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vr-depth-layout.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vr-foveated-d3d12.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vr-pose-bridge.cpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vr-projection-bridge.cpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vr-runtime-compat.cpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/prebuilt/DLSS5_Feed.fx"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/prebuilt/VR_FOVEATED_V26.txt"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/prebuilt/build-manifest.json"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/prebuilt/dlss5-feed.addon64"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/prebuilt/vr-current-input.addon64"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/prebuilt/vr-depth-bridge.addon64"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/prebuilt/vr-pose-bridge-v1.addon64"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/prebuilt/vr-projection-bridge.addon64"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/vr-current-input.addon64"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/vr-depth-bridge.addon64"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/vr-pose-bridge-v1.addon64"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/vr-projection-bridge.addon64"
+    },
+    {
+      "status": "M",
+      "path": "preload.js"
+    },
+    {
+      "status": "A",
+      "path": "scripts/refresh-vr-manifest.cjs"
+    },
+    {
+      "status": "A",
+      "path": "scripts/verify-vr-payload.cjs"
+    },
+    {
+      "status": "A",
+      "path": "src/core/agility-runtime.js"
+    },
+    {
+      "status": "M",
+      "path": "src/core/apply.js"
+    },
+    {
+      "status": "M",
+      "path": "src/core/backend-manager.js"
+    },
+    {
+      "status": "A",
+      "path": "src/core/deep-fried-chicken.js"
+    },
+    {
+      "status": "M",
+      "path": "src/core/feeder-config.js"
+    },
+    {
+      "status": "M",
+      "path": "src/core/feeder-release.js"
+    },
+    {
+      "status": "A",
+      "path": "src/core/install-stability.js"
+    },
+    {
+      "status": "A",
+      "path": "src/core/openxr-pose-install.js"
+    },
+    {
+      "status": "M",
+      "path": "src/core/runtime-components.js"
+    },
+    {
+      "status": "M",
+      "path": "src/core/scan.js"
+    },
+    {
+      "status": "A",
+      "path": "src/core/vr-auto.js"
+    },
+    {
+      "status": "A",
+      "path": "src/core/vr-foveation.js"
+    },
+    {
+      "status": "M",
+      "path": "src/renderer/renderer.js"
+    },
+    {
+      "status": "M",
+      "path": "test/history-ipc.test.js"
+    },
+    {
+      "status": "M",
+      "path": "test/library-grouping.test.js"
+    },
+    {
+      "status": "A",
+      "path": "tests/agility-runtime.cjs"
+    },
+    {
+      "status": "A",
+      "path": "tests/build-vr-projection.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/build-vr-runtime-compat-d3d11.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/build-vr-runtime-compat.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/build-xr-router-real.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/build-xr-router-tests.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/fake-reshade/reshade.hpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/install-stability.cjs"
+    },
+    {
+      "status": "A",
+      "path": "tests/openxr-pose-install.cjs"
+    },
+    {
+      "status": "A",
+      "path": "tests/openxr-pose-test.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/prepare-vr-6dof-test.py"
+    },
+    {
+      "status": "A",
+      "path": "tests/prepare-vr-copy-test.py"
+    },
+    {
+      "status": "A",
+      "path": "tests/prepare-vr-temporal-test.py"
+    },
+    {
+      "status": "A",
+      "path": "tests/run-openxr-pose-test.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/run-vr-6dof-test.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/run-vr-copy-test.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/run-vr-depth-test.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/run-vr-temporal-test.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/vr-6dof-test.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/vr-copy-test.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/vr-depth-test.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/vr-foveation-cache.cjs"
+    },
+    {
+      "status": "A",
+      "path": "tests/vr-openxr-install.cjs"
+    },
+    {
+      "status": "A",
+      "path": "tests/vr-packaged-install.cjs"
+    },
+    {
+      "status": "A",
+      "path": "tests/vr-projection-test.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/vr-runtime-compat-d3d11.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/vr-runtime-compat.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/vr-temporal-test.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/xr-router-real.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/xr-router-stub.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/xr-router-test.cpp"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/CREDITS.TXT"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/LICENSE.md"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/Makefile"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/README.md"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/include/detours.h"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/include/detver.h"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/lib.X64/detours.lib"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/src/Makefile"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/src/creatwth.cpp"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/src/detours.cpp"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/src/detours.h"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/src/detver.h"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/src/disasm.cpp"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/src/disolarm.cpp"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/src/disolarm64.cpp"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/src/disolia64.cpp"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/src/disolx64.cpp"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/src/disolx86.cpp"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/src/image.cpp"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/src/modules.cpp"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/src/uimports.cpp"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/system.mak"
+    }
+  ],
+  "differencesFromCurrentUpstream": [
+    {
+      "status": "D",
+      "path": ".github/FUNDING.yml"
+    },
+    {
+      "status": "M",
+      "path": ".gitignore"
+    },
+    {
+      "status": "M",
+      "path": "README.md"
+    },
+    {
+      "status": "A",
+      "path": "RELEASE_NOTES_VR.md"
+    },
+    {
+      "status": "M",
+      "path": "THIRD_PARTY_NOTICES.md"
+    },
+    {
+      "status": "M",
+      "path": "app_iocn.png"
+    },
+    {
+      "status": "D",
+      "path": "build/installer.nsh"
+    },
+    {
+      "status": "A",
+      "path": "docs/UPSTREAM-README-v2.2.0.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/USER_GUIDE.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/releases/v2.2.1.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/releases/v2.2.2.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/releases/v2.2.3.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/releases/v2.2.4.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/releases/v2.2.5.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/releases/v2.2.6.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/releases/v2.2.7.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/releases/v2.2.8.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/screenshots/01-home.png"
+    },
+    {
+      "status": "M",
+      "path": "docs/screenshots/02-games.png"
+    },
+    {
+      "status": "M",
+      "path": "docs/screenshots/03-library.png"
+    },
+    {
+      "status": "M",
+      "path": "docs/screenshots/04-game.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/screenshots/07-overlay.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/screenshots/08-overlay-create-theme.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/screenshots/09-overlay-preview.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/screenshots/10-community.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/screenshots/11-community-card.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/screenshots/12-games-menu.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/screenshots/13-community-report.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/screenshots/14-settings-community.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/screenshots/15-feature-gpu-filter.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/screenshots/16-feature-gpu-reviews.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/screenshots/17-feature-my-games.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/screenshots/18-feature-before-install.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/screenshots/19-feature-theme2-game.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/screenshots/20-feature-theme2-library.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/screenshots/21-feature-theme2-settings.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/support-qr.png"
+    },
+    {
+      "status": "M",
+      "path": "main.js"
+    },
+    {
+      "status": "D",
+      "path": "overlay-preload.js"
+    },
+    {
+      "status": "D",
+      "path": "overlay/LICENSE"
+    },
+    {
+      "status": "D",
+      "path": "overlay/README.md"
+    },
+    {
+      "status": "D",
+      "path": "overlay/feeder-controls.hpp"
+    },
+    {
+      "status": "D",
+      "path": "overlay/imgui-abi.cpp"
+    },
+    {
+      "status": "D",
+      "path": "overlay/live-controls.hpp"
+    },
+    {
+      "status": "D",
+      "path": "overlay/overlay-hotkey.hpp"
+    },
+    {
+      "status": "D",
+      "path": "overlay/overlay.cpp"
+    },
+    {
+      "status": "D",
+      "path": "overlay/renodx-ui-bridge.hpp"
+    },
+    {
+      "status": "D",
+      "path": "overlay/renodx-ui-probe.hpp"
+    },
+    {
+      "status": "D",
+      "path": "overlay/smoke-host-dx12.cpp"
+    },
+    {
+      "status": "D",
+      "path": "overlay/smoke-host.cpp"
+    },
+    {
+      "status": "D",
+      "path": "overlay/status-badge.hpp"
+    },
+    {
+      "status": "M",
+      "path": "package-lock.json"
+    },
+    {
+      "status": "M",
+      "path": "package.json"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/COMPATIBILITY-TEST.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/FEEDER-COMPATIBILITY.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/FEEDER-INTEROP-v1.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/INSTALL-LAYOUTS.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/LEGACY-API-ADAPTER.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/LICENSE-Deep-Fried-Chicken.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/LICENSE-Microsoft-Detours.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/LICENSE-NIGos-dlss5-bridge.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/LICENSE-ReShade.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/LICENSE-RenoDX.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/LICENSE-dlss5-bridge-vulkan-shader.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/NOTE-TO-DLSS5-FEEDER-DEVELOPER.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/QUICK-START.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/README-dlss5-bridge.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/README.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/RELEASE-NOTES.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/SHA256SUMS.txt"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/deep-fried-chicken.cfg"
+    },
+    {
+      "status": "A",
+      "path": "payload/feeder/licenses/DLSS5-Feeder-LICENSE.txt"
+    },
+    {
+      "status": "A",
+      "path": "payload/feeder/licenses/THIRD-PARTY-SOURCES.txt"
+    },
+    {
+      "status": "A",
+      "path": "payload/feeder/licenses/VORT-LICENSE.txt"
+    },
+    {
+      "status": "A",
+      "path": "payload/openxr/DLSS5OpenXRRouter.dll"
+    },
+    {
+      "status": "A",
+      "path": "payload/openxr/ReShade64.dll"
+    },
+    {
+      "status": "A",
+      "path": "payload/openxr/ReShade_Setup_6.8.0_OpenXR_EarlyLoad_V19_Addon.exe"
+    },
+    {
+      "status": "A",
+      "path": "payload/openxr/build-router.cmd"
+    },
+    {
+      "status": "A",
+      "path": "payload/openxr/dlss5-openxr-router.cpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/Build-And-Install-VRUniversalFoveated-v26.bat"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/Build-And-Install-VRUniversalFoveated-v26.ps1"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/Build-VRPoseBridge-v2.cmd"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/Build-VRRuntimeCompat.cmd"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/DLSS5OpenXRPose.dll"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/DLSS5_Feed.fx"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/README.txt"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/dlss5-vr-compat.addon64"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/Patch-D3D12-VRFoveation.ps1"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/openxr-pose-layer.cpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/openxr/LICENSE"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/openxr/openxr.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/openxr/openxr_loader_negotiation.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/openxr/openxr_platform.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/openxr/openxr_platform_defines.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/pose-data.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/projection-depth.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade-internals/LICENSE.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade-internals/UPSTREAM.txt"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade-internals/include/reshade_api_device.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade-internals/include/reshade_api_format.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade-internals/include/reshade_api_pipeline.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade-internals/include/reshade_api_resource.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade-internals/source/com_ptr.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade-internals/source/d3d12/d3d12_impl_command_list.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade-internals/source/d3d12/d3d12_impl_command_list_immediate.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade-internals/source/d3d12/d3d12_impl_command_queue.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade-internals/source/reshade_api_object_impl.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade/LICENSE.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade/reshade.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade/reshade_api.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade/reshade_api_device.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade/reshade_api_format.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade/reshade_api_pipeline.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade/reshade_api_resource.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade/reshade_events.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade/reshade_overlay.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vcvars.bat"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vr-current-input.cpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vr-depth-bridge.cpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vr-depth-layout.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vr-foveated-d3d12.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vr-pose-bridge.cpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vr-projection-bridge.cpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vr-runtime-compat.cpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/prebuilt/DLSS5_Feed.fx"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/prebuilt/VR_FOVEATED_V26.txt"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/prebuilt/build-manifest.json"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/prebuilt/dlss5-feed.addon64"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/prebuilt/vr-current-input.addon64"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/prebuilt/vr-depth-bridge.addon64"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/prebuilt/vr-pose-bridge-v1.addon64"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/prebuilt/vr-projection-bridge.addon64"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/vr-current-input.addon64"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/vr-depth-bridge.addon64"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/vr-pose-bridge-v1.addon64"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/vr-projection-bridge.addon64"
+    },
+    {
+      "status": "M",
+      "path": "preload.js"
+    },
+    {
+      "status": "D",
+      "path": "scripts/build-overlay.ps1"
+    },
+    {
+      "status": "D",
+      "path": "scripts/capture-chat-ui.js"
+    },
+    {
+      "status": "M",
+      "path": "scripts/collect-payload.js"
+    },
+    {
+      "status": "D",
+      "path": "scripts/prepare-overlay.ps1"
+    },
+    {
+      "status": "A",
+      "path": "scripts/refresh-vr-manifest.cjs"
+    },
+    {
+      "status": "D",
+      "path": "scripts/shoot-readme.js"
+    },
+    {
+      "status": "D",
+      "path": "scripts/shoot-theme2.js"
+    },
+    {
+      "status": "M",
+      "path": "scripts/test-feeder-payload.js"
+    },
+    {
+      "status": "M",
+      "path": "scripts/test-game-filters-ui.js"
+    },
+    {
+      "status": "M",
+      "path": "scripts/test-optiscaler-payload.js"
+    },
+    {
+      "status": "A",
+      "path": "scripts/verify-vr-payload.cjs"
+    },
+    {
+      "status": "D",
+      "path": "src/admin-vault.js"
+    },
+    {
+      "status": "D",
+      "path": "src/community-client.js"
+    },
+    {
+      "status": "A",
+      "path": "src/core/agility-runtime.js"
+    },
+    {
+      "status": "M",
+      "path": "src/core/apply.js"
+    },
+    {
+      "status": "M",
+      "path": "src/core/backend-manager.js"
+    },
+    {
+      "status": "M",
+      "path": "src/core/compatibility.js"
+    },
+    {
+      "status": "A",
+      "path": "src/core/deep-fried-chicken.js"
+    },
+    {
+      "status": "D",
+      "path": "src/core/diagnostics.js"
+    },
+    {
+      "status": "M",
+      "path": "src/core/feeder-config.js"
+    },
+    {
+      "status": "M",
+      "path": "src/core/feeder-release.js"
+    },
+    {
+      "status": "M",
+      "path": "src/core/game-menu.js"
+    },
+    {
+      "status": "M",
+      "path": "src/core/install-guards.js"
+    },
+    {
+      "status": "A",
+      "path": "src/core/install-stability.js"
+    },
+    {
+      "status": "A",
+      "path": "src/core/openxr-pose-install.js"
+    },
+    {
+      "status": "M",
+      "path": "src/core/optiscaler.js"
+    },
+    {
+      "status": "D",
+      "path": "src/core/palette.js"
+    },
+    {
+      "status": "D",
+      "path": "src/core/payload-guidance.js"
+    },
+    {
+      "status": "D",
+      "path": "src/core/project-links.js"
+    },
+    {
+      "status": "D",
+      "path": "src/core/renodx-release.js"
+    },
+    {
+      "status": "M",
+      "path": "src/core/runtime-components.js"
+    },
+    {
+      "status": "M",
+      "path": "src/core/scan.js"
+    },
+    {
+      "status": "A",
+      "path": "src/core/vr-auto.js"
+    },
+    {
+      "status": "A",
+      "path": "src/core/vr-foveation.js"
+    },
+    {
+      "status": "D",
+      "path": "src/game-overlay.js"
+    },
+    {
+      "status": "M",
+      "path": "src/library.js"
+    },
+    {
+      "status": "D",
+      "path": "src/overlay-bridge.js"
+    },
+    {
+      "status": "D",
+      "path": "src/overlay-ipc.js"
+    },
+    {
+      "status": "D",
+      "path": "src/overlay-preferences.js"
+    },
+    {
+      "status": "D",
+      "path": "src/overlay-protocol.js"
+    },
+    {
+      "status": "D",
+      "path": "src/overlays.js"
+    },
+    {
+      "status": "D",
+      "path": "src/renderer/ask.js"
+    },
+    {
+      "status": "D",
+      "path": "src/renderer/chat.css"
+    },
+    {
+      "status": "D",
+      "path": "src/renderer/chat.js"
+    },
+    {
+      "status": "D",
+      "path": "src/renderer/cheer.js"
+    },
+    {
+      "status": "D",
+      "path": "src/renderer/community.js"
+    },
+    {
+      "status": "M",
+      "path": "src/renderer/i18n-extra.js"
+    },
+    {
+      "status": "M",
+      "path": "src/renderer/i18n.js"
+    },
+    {
+      "status": "M",
+      "path": "src/renderer/icon.png"
+    },
+    {
+      "status": "M",
+      "path": "src/renderer/index.html"
+    },
+    {
+      "status": "D",
+      "path": "src/renderer/mentions.js"
+    },
+    {
+      "status": "D",
+      "path": "src/renderer/overlay-controls.css"
+    },
+    {
+      "status": "D",
+      "path": "src/renderer/overlay-gallery.js"
+    },
+    {
+      "status": "D",
+      "path": "src/renderer/overlay-lab.css"
+    },
+    {
+      "status": "D",
+      "path": "src/renderer/overlay-live.js"
+    },
+    {
+      "status": "D",
+      "path": "src/renderer/overlay-panel.html"
+    },
+    {
+      "status": "D",
+      "path": "src/renderer/overlay-panel.js"
+    },
+    {
+      "status": "D",
+      "path": "src/renderer/overlay-surface.css"
+    },
+    {
+      "status": "D",
+      "path": "src/renderer/overlay-surface.js"
+    },
+    {
+      "status": "M",
+      "path": "src/renderer/renderer.js"
+    },
+    {
+      "status": "M",
+      "path": "src/renderer/style.css"
+    },
+    {
+      "status": "D",
+      "path": "src/renderer/support-coffee.png"
+    },
+    {
+      "status": "D",
+      "path": "src/renderer/support-qr.png"
+    },
+    {
+      "status": "D",
+      "path": "src/renderer/theme2.css"
+    },
+    {
+      "status": "D",
+      "path": "src/renderer/theme2.js"
+    },
+    {
+      "status": "D",
+      "path": "src/shared/community-keys.js"
+    },
+    {
+      "status": "M",
+      "path": "src/shared/feature-i18n.js"
+    },
+    {
+      "status": "D",
+      "path": "src/shared/gpu-model.js"
+    },
+    {
+      "status": "M",
+      "path": "src/shared/install-routes.js"
+    },
+    {
+      "status": "D",
+      "path": "src/shared/rendering-api.js"
+    },
+    {
+      "status": "D",
+      "path": "test/admin-vault.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/api-override-ipc.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/apply-vulkan-wrapper.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/backend-profile.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/chat-ui.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/close-to-tray.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/community-client.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/community-keys.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/community-strings.test.js"
+    },
+    {
+      "status": "M",
+      "path": "test/compatibility-regressions.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/component-download.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/consumer-conflict.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/diagnostics.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/directdraw.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/driver-barrier.test.js"
+    },
+    {
+      "status": "M",
+      "path": "test/feeder-config.test.js"
+    },
+    {
+      "status": "M",
+      "path": "test/fixtures/game-filters-preload.js"
+    },
+    {
+      "status": "D",
+      "path": "test/folder-add.test.js"
+    },
+    {
+      "status": "M",
+      "path": "test/history-ipc.test.js"
+    },
+    {
+      "status": "M",
+      "path": "test/install-routes.test.js"
+    },
+    {
+      "status": "M",
+      "path": "test/library-grouping.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/library-state-race.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/library-ubisoft.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/library-xbox.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/mentions.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/multipass.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/optiscaler-build-choice.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/optiscaler-debug-helper.test.js"
+    },
+    {
+      "status": "M",
+      "path": "test/optiscaler.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/overlay-bridge-takeover.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/overlay-missing-addon.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/overlay-protocol-feed.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/overlay-update.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/palette.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/payload-guidance.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/rdr2-renderer.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/readonly-attribute.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/release-227.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/release-228.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/renderer-dll.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/rendering-api.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/reshade-writable.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/restore-recovery.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/scan-undetected-api.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/scan-vulkan-wrapper.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/shader-compiler.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/single-instance.test.js"
+    },
+    {
+      "status": "D",
+      "path": "test/update-check.test.js"
+    },
+    {
+      "status": "A",
+      "path": "tests/agility-runtime.cjs"
+    },
+    {
+      "status": "A",
+      "path": "tests/build-vr-projection.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/build-vr-runtime-compat-d3d11.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/build-vr-runtime-compat.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/build-xr-router-real.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/build-xr-router-tests.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/fake-reshade/reshade.hpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/install-stability.cjs"
+    },
+    {
+      "status": "A",
+      "path": "tests/openxr-pose-install.cjs"
+    },
+    {
+      "status": "A",
+      "path": "tests/openxr-pose-test.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/prepare-vr-6dof-test.py"
+    },
+    {
+      "status": "A",
+      "path": "tests/prepare-vr-copy-test.py"
+    },
+    {
+      "status": "A",
+      "path": "tests/prepare-vr-temporal-test.py"
+    },
+    {
+      "status": "A",
+      "path": "tests/run-openxr-pose-test.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/run-vr-6dof-test.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/run-vr-copy-test.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/run-vr-depth-test.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/run-vr-temporal-test.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/vr-6dof-test.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/vr-copy-test.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/vr-depth-test.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/vr-foveation-cache.cjs"
+    },
+    {
+      "status": "A",
+      "path": "tests/vr-openxr-install.cjs"
+    },
+    {
+      "status": "A",
+      "path": "tests/vr-packaged-install.cjs"
+    },
+    {
+      "status": "A",
+      "path": "tests/vr-projection-test.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/vr-runtime-compat-d3d11.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/vr-runtime-compat.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/vr-temporal-test.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/xr-router-real.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/xr-router-stub.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/xr-router-test.cpp"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/CREDITS.TXT"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/LICENSE.md"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/Makefile"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/README.md"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/include/detours.h"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/include/detver.h"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/lib.X64/detours.lib"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/src/Makefile"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/src/creatwth.cpp"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/src/detours.cpp"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/src/detours.h"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/src/detver.h"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/src/disasm.cpp"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/src/disolarm.cpp"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/src/disolarm64.cpp"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/src/disolia64.cpp"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/src/disolx64.cpp"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/src/disolx86.cpp"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/src/image.cpp"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/src/modules.cpp"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/src/uimports.cpp"
+    },
+    {
+      "status": "A",
+      "path": "third_party/Detours/system.mak"
+    }
+  ],
+  "activePayloadFiles": [
+    {
+      "path": "agility/618/D3D12Core.dll",
+      "bytes": 4725304,
+      "sha256": "625bd40005b1c3708695d5256ecf230d278e6b8edba5a88af70f3d91324f3052"
+    },
+    {
+      "path": "deep-fried-chicken/COMPATIBILITY-TEST.md",
+      "bytes": 21285,
+      "sha256": "7484080718bf463fa3503d55b83d6e4c8d56e8e874511bb61f2b8cb67c133767"
+    },
+    {
+      "path": "deep-fried-chicken/deep-fried-chicken-nms.addon64",
+      "bytes": 641024,
+      "sha256": "19c3f85b3d7a05648d4f2d1af600aa9f323176e2c2aa717c030faae7a724d5a9"
+    },
+    {
+      "path": "deep-fried-chicken/deep-fried-chicken-nvngx.dll",
+      "bytes": 3072,
+      "sha256": "e218ce8c20858d58e53a85b2afc2c1e6f55768a96659e819ff40d71e872393a3"
+    },
+    {
+      "path": "deep-fried-chicken/deep-fried-chicken.addon64",
+      "bytes": 641024,
+      "sha256": "106143de0d74853b966a7141c19c2bb0fb46e7ce32c7f67d830d2dc5cddf80ec"
+    },
+    {
+      "path": "deep-fried-chicken/deep-fried-chicken.cfg",
+      "bytes": 9754,
+      "sha256": "5c0c5c75bfcea2ab00a4417b8e318b2fed90e883276df08eb852a3d9c3e8d279"
+    },
+    {
+      "path": "deep-fried-chicken/dfc-universal-lifecycle-v19.addon64",
+      "bytes": 164864,
+      "sha256": "44d7e93ba0c63eb181d7b5cf3d2cd194dd9553c0b40d50a7f3ba97de0c8a8766"
+    },
+    {
+      "path": "deep-fried-chicken/dfc-universal-lifecycle-v20.addon64",
+      "bytes": 165888,
+      "sha256": "f240881b46dc4ee2381d571fd3e7c2ad67608df63277efdfb3644b9c87546dd1"
+    },
+    {
+      "path": "deep-fried-chicken/dfc-universal-lifecycle.addon64",
+      "bytes": 641024,
+      "sha256": "e7c7ad6664805ea7decb5164d3bc80a847a0ce89654671383fa2229a6d513418"
+    },
+    {
+      "path": "deep-fried-chicken/dlss5-dx11-bridge.addon64",
+      "bytes": 410624,
+      "sha256": "014ab26c0437fd6180595452c2acc3ecba50b1df42c088212f1b20baaeff4cec"
+    },
+    {
+      "path": "deep-fried-chicken/FEEDER-COMPATIBILITY.md",
+      "bytes": 11134,
+      "sha256": "8b20e8a3660fa9be5c95b81afbf05c58c0c69c07ee7b428eb82d721fb1514cef"
+    },
+    {
+      "path": "deep-fried-chicken/FEEDER-INTEROP-v1.md",
+      "bytes": 5764,
+      "sha256": "34c2313372a72fd2e7a97eb8a4980b4e948899a648ce57c43b973fb329e352e4"
+    },
+    {
+      "path": "deep-fried-chicken/INSTALL-LAYOUTS.md",
+      "bytes": 4947,
+      "sha256": "2c30d268fa4a714a1c6562e7b0cd58a5340a163538dc3f76006a6053d226f13c"
+    },
+    {
+      "path": "deep-fried-chicken/LEGACY-API-ADAPTER.md",
+      "bytes": 2822,
+      "sha256": "f466c658b98c87980fec8564ca66efbfb57a2bc5cf1e613258a67d2e60a75c99"
+    },
+    {
+      "path": "deep-fried-chicken/LICENSE-Deep-Fried-Chicken.md",
+      "bytes": 3132,
+      "sha256": "fea0a6c8e985b6f5a57815feec7bbd652b56d760026946de97c565db8dc877b6"
+    },
+    {
+      "path": "deep-fried-chicken/LICENSE-dlss5-bridge-vulkan-shader.md",
+      "bytes": 1220,
+      "sha256": "9781afcd5a09c9b7ae1792d3732ca450e79524fdec1c23dc6d99eb0ccd0e2df7"
+    },
+    {
+      "path": "deep-fried-chicken/LICENSE-Microsoft-Detours.md",
+      "bytes": 1122,
+      "sha256": "f854ae8aabc0404652b48a2b3bf7f21ec174c69d73f5596934c20884eb0639ef"
+    },
+    {
+      "path": "deep-fried-chicken/LICENSE-NIGos-dlss5-bridge.md",
+      "bytes": 1083,
+      "sha256": "e9755305941ee76fdd77a520b6f402898907ceb64f6e2180bb262307ce5e0d33"
+    },
+    {
+      "path": "deep-fried-chicken/LICENSE-RenoDX.md",
+      "bytes": 1074,
+      "sha256": "47def2aa276739962f0fce2937a1440336e50315fbd191417b23ab15bed2a56c"
+    },
+    {
+      "path": "deep-fried-chicken/LICENSE-ReShade.md",
+      "bytes": 1490,
+      "sha256": "d2bb5eb908e9aa7ac2f7f4cf6441d62e1f6ac1256cf22bb5289516c9f30e5f0a"
+    },
+    {
+      "path": "deep-fried-chicken/NOTE-TO-DLSS5-FEEDER-DEVELOPER.md",
+      "bytes": 4633,
+      "sha256": "e779a68b15ec16f85eac40941f4f488c7ff40db43d05458794701fc5f5390337"
+    },
+    {
+      "path": "deep-fried-chicken/QUICK-START.md",
+      "bytes": 19999,
+      "sha256": "b50b8cccb59c9c69167e0b80003e50efba8342abd7667d6f2d99b4d854c64a84"
+    },
+    {
+      "path": "deep-fried-chicken/README-dlss5-bridge.md",
+      "bytes": 21537,
+      "sha256": "2dec681567bbd4423d7d797060a9cc061ce115f3062476d0e14f89c1a6ca344c"
+    },
+    {
+      "path": "deep-fried-chicken/README.md",
+      "bytes": 33368,
+      "sha256": "ac81b5486d3eedf45fb8df3a4d1eb8b55d7e765aa755009bb3fd92f61da38763"
+    },
+    {
+      "path": "deep-fried-chicken/RELEASE-NOTES.md",
+      "bytes": 11893,
+      "sha256": "07d58d7bf8b77d7923b93f7e1435136154da38d8ac56a711bf7dfa0b89394e7e"
+    },
+    {
+      "path": "deep-fried-chicken/SHA256SUMS.txt",
+      "bytes": 538,
+      "sha256": "2ed756bbc31d8c1900ab9ba795644cc9ac1c5a849b12577d64657e2efc6710c3"
+    },
+    {
+      "path": "feeder/dlss5-feed-host64.exe",
+      "bytes": 107008,
+      "sha256": "397dbf49c3a2b5f3bc13cfa0e0b3df4316edae9c45be7379bcacad066ebb07f2"
+    },
+    {
+      "path": "feeder/dlss5-feed-original.addon64",
+      "bytes": 224256,
+      "sha256": "1a32f0ab63de6e35f9b6ecfec8ac418b9d8bfc8134dcc0c5bcee4d7a7cdd5893"
+    },
+    {
+      "path": "feeder/dlss5-feed-vulkan-sr-v10.addon64",
+      "bytes": 228864,
+      "sha256": "dada805194b1a0d5accc349334e785cc1caaae83b89822bfbe213485683f40e1"
+    },
+    {
+      "path": "feeder/dlss5-feed.addon32",
+      "bytes": 141824,
+      "sha256": "d2df9fbf9b5e0cc24291b9240e4f8dd2aae063592571bbed37302878b6dac74c"
+    },
+    {
+      "path": "feeder/dlss5-feed.addon64",
+      "bytes": 334336,
+      "sha256": "6b561ae84c85c04efd3d3a1e697740aecc1b18deac4d1aef51f99d00d6f00b73"
+    },
+    {
+      "path": "feeder/host64/renodx-dlss5.addon64",
+      "bytes": 1694720,
+      "sha256": "9150097cdee2953cdc9894d2e5606ea5100e6c8f95fc7bb1b407328b4391a07a"
+    },
+    {
+      "path": "feeder/licenses/DLSS5-Feeder-LICENSE.txt",
+      "bytes": 1187,
+      "sha256": "6562d5a5e3d7534711e34f4b34335f23f067acc839ae5274c1250bf5f4654b8b"
+    },
+    {
+      "path": "feeder/licenses/THIRD-PARTY-SOURCES.txt",
+      "bytes": 450,
+      "sha256": "4e929322d0ced6696dcec121949594f2f9685a4f0d279cb1db35781bbdbd2593"
+    },
+    {
+      "path": "feeder/licenses/VORT-LICENSE.txt",
+      "bytes": 1068,
+      "sha256": "800bacb0f9db4df8203f0dad1f99947109a44f4097380807e0483bd62dee0d41"
+    },
+    {
+      "path": "feeder/reshade-shaders/Shaders/DLSS5_Feed.fx",
+      "bytes": 44306,
+      "sha256": "6c4958be3a07956d939533f283b847797fda1959e1c6df0098a7c07d36d70267"
+    },
+    {
+      "path": "feeder/reshade-shaders/Shaders/Includes/vort_ACES.fxh",
+      "bytes": 36642,
+      "sha256": "967cb4914457f18cc91e8844e6f7ccef0b353e4091e38f9c8667d36d45309b61"
+    },
+    {
+      "path": "feeder/reshade-shaders/Shaders/Includes/vort_Bloom.fxh",
+      "bytes": 8242,
+      "sha256": "a3ab7942b73c61dcabe9b83ae42dafe65956c7a60d627aea27ede48a7cfb3c04"
+    },
+    {
+      "path": "feeder/reshade-shaders/Shaders/Includes/vort_BlueNoise.fxh",
+      "bytes": 354,
+      "sha256": "a1eca01ddc6bdfef2b0c52601d297c59d7dabd71039d1489b7092532407cb455"
+    },
+    {
+      "path": "feeder/reshade-shaders/Shaders/Includes/vort_ColorChanges.fxh",
+      "bytes": 12499,
+      "sha256": "0cbd91dff9aa5ab615a206f56ba760378810a5540d4f2928e35138c7980b1538"
+    },
+    {
+      "path": "feeder/reshade-shaders/Shaders/Includes/vort_ColorTex.fxh",
+      "bytes": 497,
+      "sha256": "f5eef2db313c73b0419503295731c03bc4365fe1ed219f4afa618707b59e8d6c"
+    },
+    {
+      "path": "feeder/reshade-shaders/Shaders/Includes/vort_Defs.fxh",
+      "bytes": 23415,
+      "sha256": "a00e99ece8b07899a7918a5248a2d603fd7f98882c795e3d31b9470cfe70a61c"
+    },
+    {
+      "path": "feeder/reshade-shaders/Shaders/Includes/vort_Depth.fxh",
+      "bytes": 1892,
+      "sha256": "92d4f0a93b3945452c861e580117bb875bb594157694b3c8741790eaf3826205"
+    },
+    {
+      "path": "feeder/reshade-shaders/Shaders/Includes/vort_Filters.fxh",
+      "bytes": 4848,
+      "sha256": "8d98a78f2fd7fe91f34bf4044d81094bd40fbb2c7b8f520ef66c5043f720f98d"
+    },
+    {
+      "path": "feeder/reshade-shaders/Shaders/Includes/vort_HDRTex.fxh",
+      "bytes": 166,
+      "sha256": "5d3d002a6d4d0fc6e67dcdd4a68497163268fbb590c7477220dac8f1293f916e"
+    },
+    {
+      "path": "feeder/reshade-shaders/Shaders/Includes/vort_Motion_UI.fxh",
+      "bytes": 4934,
+      "sha256": "29783705b01d7b83a408d29a9d4b72c5a90012a91fb05ebdf1166ba9e9aeac2b"
+    },
+    {
+      "path": "feeder/reshade-shaders/Shaders/Includes/vort_MotionBlur_Cheap.fxh",
+      "bytes": 13122,
+      "sha256": "0837c8151a50ef57c77bab7a3b14dd4c3b92354e4021ee37f54eb47f3f5589c7"
+    },
+    {
+      "path": "feeder/reshade-shaders/Shaders/Includes/vort_MotionBlur.fxh",
+      "bytes": 19846,
+      "sha256": "67edbc5db1645d3c10c08375eb0bec0911c59c4fc1d3dde2d3e9c46a292ea35b"
+    },
+    {
+      "path": "feeder/reshade-shaders/Shaders/Includes/vort_MotionUtils.fxh",
+      "bytes": 5765,
+      "sha256": "2d353b23cea6961ca40308a6aebf1e56d509485a728399d5f6b36427b7023027"
+    },
+    {
+      "path": "feeder/reshade-shaders/Shaders/Includes/vort_MotionVectors.fxh",
+      "bytes": 17148,
+      "sha256": "22d5c8f8a5f2cccee0ddde994ba04a7bc5379c54b1b3e9c7cf7d46f1f8ead87d"
+    },
+    {
+      "path": "feeder/reshade-shaders/Shaders/Includes/vort_OKColors.fxh",
+      "bytes": 16191,
+      "sha256": "5a0a8468e97eaa9e8e018246e12002a86e3fb0c7a9cb97a3bc38390fc3f854e2"
+    },
+    {
+      "path": "feeder/reshade-shaders/Shaders/Includes/vort_Static_UI.fxh",
+      "bytes": 8274,
+      "sha256": "ccd75ef28359b5324cf479fe568fbad7586ac203f6b1921f1b6fae48ae19bef2"
+    },
+    {
+      "path": "feeder/reshade-shaders/Shaders/Includes/vort_TAA.fxh",
+      "bytes": 5837,
+      "sha256": "9b5c701fdacb37f15e565ca1aa3a861e4df3f55db493cd6589d509927ed08ede"
+    },
+    {
+      "path": "feeder/reshade-shaders/Shaders/Includes/vort_Tonemap.fxh",
+      "bytes": 2903,
+      "sha256": "9413eef6190303e920356310bc3aa2a270c052a1bcfde44f024f0a8986095f30"
+    },
+    {
+      "path": "feeder/reshade-shaders/Shaders/ReShade.fxh",
+      "bytes": 4250,
+      "sha256": "6dabfbbaf968c3871905d2ea17f96572ff7b1cec01310b5d0e5252b66b30174f"
+    },
+    {
+      "path": "feeder/reshade-shaders/Shaders/ReShadeUI.fxh",
+      "bytes": 9930,
+      "sha256": "78adf672df47460297eb9fe6dd238d2aafa24510b52b84feb1a745dff70eb901"
+    },
+    {
+      "path": "feeder/reshade-shaders/Shaders/vort_Motion.fx",
+      "bytes": 2359,
+      "sha256": "71ef3086ccf86792f5a333346eebb7b857434583712d3a51b9998db99e562edc"
+    },
+    {
+      "path": "feeder/reshade-shaders/Textures/vort_BlueNoise.png",
+      "bytes": 262548,
+      "sha256": "050d26db9283fbaece3b6883e300d22403631d83a12a5f2f79dc8b789b860305"
+    },
+    {
+      "path": "feeder/reshade-shaders/Textures/vort_MLUT.png",
+      "bytes": 3892952,
+      "sha256": "acb25ed926e7e847aeb0ef521745287d4ddda3c7f22e472ee42d61bb3064bbd7"
+    },
+    {
+      "path": "feeder/Verify-DLSS5Feeder.ps1",
+      "bytes": 58596,
+      "sha256": "6c8769b1f848705fb83943ea6109e9df92f9e63254bf64eb56cd59bbe34e5212"
+    },
+    {
+      "path": "feeder.rar",
+      "bytes": 5025577,
+      "sha256": "f20b07e345715a242202802dae9470832c0bcf022ba42bd340c8ff9ac3f72662"
+    },
+    {
+      "path": "feeder.zip",
+      "bytes": 5365746,
+      "sha256": "000d9442f24127ba621833e082ae97d7e77259df01ee6c095e81ad87a910e9d6"
+    },
+    {
+      "path": "openxr/build-router.cmd",
+      "bytes": 291,
+      "sha256": "e9103347b2e78ba7a4bd198ba0707feeaf40520c9cb9836935e2fd21d7291568"
+    },
+    {
+      "path": "openxr/dlss5-openxr-router.cpp",
+      "bytes": 6262,
+      "sha256": "c1a8b9c3554c2e19498bd99842113fc141d7b925c823b3822301c4ba97a837e9"
+    },
+    {
+      "path": "openxr/DLSS5OpenXRRouter.dll",
+      "bytes": 150528,
+      "sha256": "260f72be8ace3cf4acdab9356461c2cefe18b4a4640fe8688433bcb9cdf3b314"
+    },
+    {
+      "path": "openxr/ReShade_Setup_6.8.0_OpenXR_EarlyLoad_V19_Addon.exe",
+      "bytes": 4271118,
+      "sha256": "2ecbf623cbf23d2f25a1e233cb78c3bcd59fcba8bea2176cef97307a0aaffb42"
+    },
+    {
+      "path": "openxr/ReShade64.dll",
+      "bytes": 5586944,
+      "sha256": "8a50139092dba3a0fcbb83b8a8eaa8724621b1324bbbcdadef6a7ab248538d98"
+    },
+    {
+      "path": "renodx-dlss5.addon64",
+      "bytes": 1703424,
+      "sha256": "245c06137ad13b1ca03afaad5100c1e8f0dce8c11fe50a9272ea562f33cea601"
+    },
+    {
+      "path": "ReShade_Setup_6.8.0_Addon.exe",
+      "bytes": 4318424,
+      "sha256": "afe4c8f13048306307983b8b3d41d5bf00a86820440b0e57dea10950e1176445"
+    },
+    {
+      "path": "reshade-vulkan/ReShade32.dll",
+      "bytes": 4398080,
+      "sha256": "da430e0a9c6eecefa0d1b27d05e16c426fb5d04e808b194d914eaac4b31bc0f8"
+    },
+    {
+      "path": "reshade-vulkan/ReShade32.json",
+      "bytes": 526,
+      "sha256": "dbfdbadb8c64b398b2f8bf30469841ab8c35e10c9da40ba69b966559d5fa15f6"
+    },
+    {
+      "path": "reshade-vulkan/ReShade64.dll",
+      "bytes": 5587456,
+      "sha256": "316f07cc99e032ab6fc6237a6626f9523002c69eb168b2335ba1359c40f87a21"
+    },
+    {
+      "path": "reshade-vulkan/ReShade64.json",
+      "bytes": 526,
+      "sha256": "aa21713718843e531da396e2bfc80772c9cb3c369d6c30b836be6b0ae812d503"
+    },
+    {
+      "path": "streamline/LICENSE-NVIDIA-RTX.txt",
+      "bytes": 27176,
+      "sha256": "21b5daec892b12bea692e66bc8fe45cf5902ccaf3a7b831e78050d8859881c37"
+    },
+    {
+      "path": "streamline/nis.license.txt",
+      "bytes": 1199,
+      "sha256": "f80ecfbce8a84a5b4c1c59dc5a9f0ee9cf5a989c9fba3a9486ee874f7595a454"
+    },
+    {
+      "path": "streamline/nvngx_dlss.dll",
+      "bytes": 58956400,
+      "sha256": "c85f971ce023c9f3492fc7455f0b01a24ba18ea39636407a846902c4360b0b7e"
+    },
+    {
+      "path": "streamline/nvngx_dlss.license.txt",
+      "bytes": 27316,
+      "sha256": "b6f4b4b6f582c9523ed4dfe89a4fae4cfc9c61f9c57e335e00ccee5f9b2b2e4b"
+    },
+    {
+      "path": "streamline/nvngx_dlssg.dll",
+      "bytes": 7453808,
+      "sha256": "5d5cbf14d2727d47f93fd10bf77bd91708ae122482a6f86fd564971641ebd47b"
+    },
+    {
+      "path": "streamline/nvngx_dlssnr.dll",
+      "bytes": 165840496,
+      "sha256": "8270b350cd82de5ce89806872cdd6b6a9249b80836b91bbeb3573470744cc206"
+    },
+    {
+      "path": "streamline/reflex.license.txt",
+      "bytes": 20504,
+      "sha256": "ebf83c07fb3b2939908c3795d887afde3161c89a28ba391724efc784ce1bdabe"
+    },
+    {
+      "path": "streamline/sl.common.dll",
+      "bytes": 830592,
+      "sha256": "a4b2b5acbe49fbc6d44dd432cac19cd53218f698b2539dc7ed0fb268c72cfc8d"
+    },
+    {
+      "path": "streamline/sl.dlss_g.dll",
+      "bytes": 625792,
+      "sha256": "b8b5effd7debdb750abd216de43385fb653261712bc315d85eba68811fb3ee02"
+    },
+    {
+      "path": "streamline/sl.dlss_nr.dll",
+      "bytes": 401024,
+      "sha256": "9f6672e5e0170dc118a3188d21bda187e1fc1aa3502895b21ab846d23165c11d"
+    },
+    {
+      "path": "streamline/sl.dlss.dll",
+      "bytes": 421504,
+      "sha256": "1eb5fb3d6f01d340fe086d981cc2de4f18aa6d05ee276e5cf28ecd54818dcc8b"
+    },
+    {
+      "path": "streamline/sl.interposer.dll",
+      "bytes": 651392,
+      "sha256": "27b2190057994c0b287c2c5716953bf1586f6499ac12fbbb2092b9aaf8396570"
+    },
+    {
+      "path": "streamline/sl.nis.dll",
+      "bytes": 1155200,
+      "sha256": "6039e38a1af56c8e86f3e936596e2db910bf3d76bbf4268562a3b13763049dfa"
+    },
+    {
+      "path": "streamline/sl.pcl.dll",
+      "bytes": 360064,
+      "sha256": "12aa4e76c28a27c735e4ecb3072f44d09428acb107b70ac38e4bd48ddb05f88d"
+    },
+    {
+      "path": "streamline/sl.reflex.dll",
+      "bytes": 382080,
+      "sha256": "ecf12973cdcec2ffced2ea77b1c7e45f4d387e7c864ddb5531b66a6f947effb3"
+    },
+    {
+      "path": "upstream3/BUILD-INFO.txt",
+      "bytes": 463,
+      "sha256": "d67cad486ae2b6f2e96471712e10088ea0fc45c5002f80035b4a2df0561c02cd"
+    },
+    {
+      "path": "upstream3/nvngx.dll.addon64",
+      "bytes": 658364,
+      "sha256": "5999d16ec45edbfe3124bf46806e1a6324c85a9924cce6c17a8de310859fc504"
+    },
+    {
+      "path": "upstream3/nvngx.dll.nms.addon64",
+      "bytes": 658364,
+      "sha256": "817d4aba95c7404c78bf309330c0e553790c2229f1b10646ba34ca1dc9814f1a"
+    },
+    {
+      "path": "upstream3/PATCH-NMS-UPSTREAM.ps1",
+      "bytes": 3821,
+      "sha256": "8fee64d87a377eb02ae1efe96646b23dd93508ab2ccaa5052018ba08975bb421"
+    },
+    {
+      "path": "vr-foveated/Build-And-Install-VRUniversalFoveated-v26.bat",
+      "bytes": 146,
+      "sha256": "b9c6670e8b7c088037295d01b0c00e93e72cb76dae44e7edd46a46b663170d83"
+    },
+    {
+      "path": "vr-foveated/Build-And-Install-VRUniversalFoveated-v26.ps1",
+      "bytes": 98812,
+      "sha256": "6381d03cf1ca5952e5f2bb36b316b3d57579cd60e80da611ff43ff1c7cde286e"
+    },
+    {
+      "path": "vr-foveated/Build-VRPoseBridge-v2.cmd",
+      "bytes": 659,
+      "sha256": "9486f7915c16abb1cb864b8dba0656530d3a833d5ed000051eab6ccf145a4273"
+    },
+    {
+      "path": "vr-foveated/Build-VRRuntimeCompat.cmd",
+      "bytes": 572,
+      "sha256": "676a1e44585d9636185024e640113c0f0a33dfa19ea504031a42ae6af7085c1a"
+    },
+    {
+      "path": "vr-foveated/DLSS5_Feed.fx",
+      "bytes": 68510,
+      "sha256": "83be76fc83a7f8f77d557651133695d45ec222e123136152ecc5f9dfe6b4ea23"
+    },
+    {
+      "path": "vr-foveated/dlss5-vr-compat.addon64",
+      "bytes": 201728,
+      "sha256": "55cf3aeeb663437750f34983891b60397f4ae67281aeefe979ae4eb2e0ea5243"
+    },
+    {
+      "path": "vr-foveated/DLSS5OpenXRPose.dll",
+      "bytes": 126976,
+      "sha256": "9a5a7d50d00b3d83733f76338329d95c620873d2060b2220b8842a3167d81a8a"
+    },
+    {
+      "path": "vr-foveated/native/openxr/LICENSE",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "path": "vr-foveated/native/openxr/openxr_loader_negotiation.h",
+      "bytes": 5009,
+      "sha256": "8b15d2802a65629a7c18eebc163a1767d8e5979714c2761f561e52523d386d4b"
+    },
+    {
+      "path": "vr-foveated/native/openxr/openxr_platform_defines.h",
+      "bytes": 4026,
+      "sha256": "7dc30ad27f1082a71f84f5f5adf10762558fc9fe57fdc7628d796d22be3b0dbe"
+    },
+    {
+      "path": "vr-foveated/native/openxr/openxr_platform.h",
+      "bytes": 36022,
+      "sha256": "150939f39aaf1159e9f59ab53b5d5863c08d5777efa13820b5cbcd3562eb068d"
+    },
+    {
+      "path": "vr-foveated/native/openxr/openxr.h",
+      "bytes": 709040,
+      "sha256": "2277c9426c1874e44b0fa0629381356204cf24b28707d1d023301f7d05955b8d"
+    },
+    {
+      "path": "vr-foveated/native/openxr-pose-layer.cpp",
+      "bytes": 11310,
+      "sha256": "7bbf35a52c408b999664a92540974f0e6cd23ccb3cddfc4f5ed5c5d5a649b3ee"
+    },
+    {
+      "path": "vr-foveated/native/Patch-D3D12-VRFoveation.ps1",
+      "bytes": 3173,
+      "sha256": "8563ab1a7e06e4fb0feaa2b6fadb6a714b0020d7f10716e1115abdf7fd9af8b1"
+    },
+    {
+      "path": "vr-foveated/native/pose-data.h",
+      "bytes": 3020,
+      "sha256": "5e18206d75e41f787f7fdcdd038146764846850bcd4fdf9cb5005011c26d9b54"
+    },
+    {
+      "path": "vr-foveated/native/projection-depth.h",
+      "bytes": 2091,
+      "sha256": "9fb0f34e849ee55dce40511c3c3523bd729c99ea70560c5adb556e4b83c1167c"
+    },
+    {
+      "path": "vr-foveated/native/reshade/LICENSE.md",
+      "bytes": 1490,
+      "sha256": "d2bb5eb908e9aa7ac2f7f4cf6441d62e1f6ac1256cf22bb5289516c9f30e5f0a"
+    },
+    {
+      "path": "vr-foveated/native/reshade/reshade_api_device.hpp",
+      "bytes": 87997,
+      "sha256": "a716c44b6fbb064dbbb0826687728f21aa71ed45e13564e4dc1cdf36da5bdfa0"
+    },
+    {
+      "path": "vr-foveated/native/reshade/reshade_api_format.hpp",
+      "bytes": 18134,
+      "sha256": "68caa17fef712043e810ab88770c15af009aa3c7693e5c115ddc324f2d0809a7"
+    },
+    {
+      "path": "vr-foveated/native/reshade/reshade_api_pipeline.hpp",
+      "bytes": 49493,
+      "sha256": "5bda8e07260c2c60f0fd18a78b11782aed8f69e5d24b5757874614caafdf416f"
+    },
+    {
+      "path": "vr-foveated/native/reshade/reshade_api_resource.hpp",
+      "bytes": 28761,
+      "sha256": "32cdafe6d783813f3ac72ad43e426638d8d0fef56bcb558fad218a14cfb75ee3"
+    },
+    {
+      "path": "vr-foveated/native/reshade/reshade_api.hpp",
+      "bytes": 58030,
+      "sha256": "8d83ec8a620c48da7a20d975bd27b3345b24d3f0d5b78ae4c4fe633d61b804eb"
+    },
+    {
+      "path": "vr-foveated/native/reshade/reshade_events.hpp",
+      "bytes": 124513,
+      "sha256": "2717f56e2bd89af6d708c9c316353d6581c5a41d4526629fadba51d13be57a89"
+    },
+    {
+      "path": "vr-foveated/native/reshade/reshade_overlay.hpp",
+      "bytes": 95106,
+      "sha256": "ed914b12fbc41ed038287b0163c0bc934772afcff2c22392044c6008adc5ae79"
+    },
+    {
+      "path": "vr-foveated/native/reshade/reshade.hpp",
+      "bytes": 19416,
+      "sha256": "cf3cd150920ea310b4b1e2e4f11ab8d7221a9fc18755f4891a026563311b524c"
+    },
+    {
+      "path": "vr-foveated/native/reshade-internals/include/reshade_api_device.hpp",
+      "bytes": 89369,
+      "sha256": "8492cb9a4352ab9a25140828226a411be36c480c23d53d0fcc806a0515076212"
+    },
+    {
+      "path": "vr-foveated/native/reshade-internals/include/reshade_api_format.hpp",
+      "bytes": 18738,
+      "sha256": "d5fcdf598a9adbd18db6ccd0d15133d08c4dfa4909ec8335f76edaf735ae39cf"
+    },
+    {
+      "path": "vr-foveated/native/reshade-internals/include/reshade_api_pipeline.hpp",
+      "bytes": 50915,
+      "sha256": "2c592013e46e72c62119c0652786ac21c6536a29a1bad30973a6069d1d7f7351"
+    },
+    {
+      "path": "vr-foveated/native/reshade-internals/include/reshade_api_resource.hpp",
+      "bytes": 29552,
+      "sha256": "cae6d40cbd37e314e5ce5fc2cd22e77d7042892284212972bd986ffabb96363e"
+    },
+    {
+      "path": "vr-foveated/native/reshade-internals/LICENSE.md",
+      "bytes": 1490,
+      "sha256": "d2bb5eb908e9aa7ac2f7f4cf6441d62e1f6ac1256cf22bb5289516c9f30e5f0a"
+    },
+    {
+      "path": "vr-foveated/native/reshade-internals/source/com_ptr.hpp",
+      "bytes": 3314,
+      "sha256": "97e721fbf762cd5c7a16043fe98dbd60b243fac43cb7df88a5ccf2281f6e491d"
+    },
+    {
+      "path": "vr-foveated/native/reshade-internals/source/d3d12/d3d12_impl_command_list_immediate.hpp",
+      "bytes": 1578,
+      "sha256": "7298868a591d9956343e7783207662bb6cbf060e0ac55454512609d153dba46e"
+    },
+    {
+      "path": "vr-foveated/native/reshade-internals/source/d3d12/d3d12_impl_command_list.hpp",
+      "bytes": 7204,
+      "sha256": "2e5997aa41841d4fd51720c1ea225cae7320f4bb1842eb53f8c87b348d72bb86"
+    },
+    {
+      "path": "vr-foveated/native/reshade-internals/source/d3d12/d3d12_impl_command_queue.hpp",
+      "bytes": 1437,
+      "sha256": "dbfc5f6f23c3137c1e29ad8ccae640d25abdd33992ea4d82e4df3c1c52133a41"
+    },
+    {
+      "path": "vr-foveated/native/reshade-internals/source/reshade_api_object_impl.hpp",
+      "bytes": 2941,
+      "sha256": "bd72683cdf7e8372dba377a93a9f530d5060b866c7e55a433ab6c09db5a5ade7"
+    },
+    {
+      "path": "vr-foveated/native/reshade-internals/UPSTREAM.txt",
+      "bytes": 225,
+      "sha256": "74cace805b93c923e2220a78966a1a65526e2c81bd05c4cf5949dfbba4557a70"
+    },
+    {
+      "path": "vr-foveated/native/vcvars.bat",
+      "bytes": 1850,
+      "sha256": "271dcb349d11b430a67fe51e479103c777f8d17cc721e8a1c72281c8658f01b9"
+    },
+    {
+      "path": "vr-foveated/native/vr-current-input.cpp",
+      "bytes": 11113,
+      "sha256": "0ede45b8e6929037369b17c2543077c49c72a557a9c730af284b1b2d9933fbb3"
+    },
+    {
+      "path": "vr-foveated/native/vr-depth-bridge.cpp",
+      "bytes": 19086,
+      "sha256": "099fbad266952df8f934eeb6e455808f72224e7bd4573001a30879debdc2651a"
+    },
+    {
+      "path": "vr-foveated/native/vr-depth-layout.h",
+      "bytes": 2205,
+      "sha256": "ddbe057a33ce8289895f39681c4aa08f79c4ad0f2a916bfb4cf7883d803a2674"
+    },
+    {
+      "path": "vr-foveated/native/vr-foveated-d3d12.h",
+      "bytes": 8299,
+      "sha256": "2ade78c473ad27a8dae4d1e758a1d17ccaa81d90021fae3c599df6499551da70"
+    },
+    {
+      "path": "vr-foveated/native/vr-pose-bridge.cpp",
+      "bytes": 9599,
+      "sha256": "0e0e4944ef4e11bc6d719ab3181785dfdc734e849214f28cfb65358cedc59cc0"
+    },
+    {
+      "path": "vr-foveated/native/vr-projection-bridge.cpp",
+      "bytes": 6402,
+      "sha256": "cc86d8c63154d7435ff4d667934d561ae11b45f5f4bc7da3a007967cb0e8ec1d"
+    },
+    {
+      "path": "vr-foveated/native/vr-runtime-compat.cpp",
+      "bytes": 20033,
+      "sha256": "7e39d654723db37f67a57886dc25c96fb9ec0182484bcc72ff0eee20a092204b"
+    },
+    {
+      "path": "vr-foveated/prebuilt/build-manifest.json",
+      "bytes": 842,
+      "sha256": "1b114669cbc4688e730cc0d325341dd4ed9d8f129bcd67183a02fc9cf50e6057"
+    },
+    {
+      "path": "vr-foveated/prebuilt/DLSS5_Feed.fx",
+      "bytes": 68510,
+      "sha256": "83be76fc83a7f8f77d557651133695d45ec222e123136152ecc5f9dfe6b4ea23"
+    },
+    {
+      "path": "vr-foveated/prebuilt/dlss5-feed.addon64",
+      "bytes": 334336,
+      "sha256": "6b561ae84c85c04efd3d3a1e697740aecc1b18deac4d1aef51f99d00d6f00b73"
+    },
+    {
+      "path": "vr-foveated/prebuilt/VR_FOVEATED_V26.txt",
+      "bytes": 155,
+      "sha256": "bfef7eb5aed59f2a25cec2f0dc0b9ae987babc62bdb750f62a2b66b60f863f12"
+    },
+    {
+      "path": "vr-foveated/prebuilt/vr-current-input.addon64",
+      "bytes": 194560,
+      "sha256": "b63f208998a89e3c9697eb248e7262733a63021c33f798e4a9a37d5b3dcdf0df"
+    },
+    {
+      "path": "vr-foveated/prebuilt/vr-depth-bridge.addon64",
+      "bytes": 189440,
+      "sha256": "7ff2ea7901e3a57731dd51b9bb57f354ca7efbd51a461bac3483fb2242534371"
+    },
+    {
+      "path": "vr-foveated/prebuilt/vr-pose-bridge-v1.addon64",
+      "bytes": 150528,
+      "sha256": "a562afdd30474e3362cf585efc6409853d42649a2bc5fc374c84f2b3a47f48a6"
+    },
+    {
+      "path": "vr-foveated/prebuilt/vr-projection-bridge.addon64",
+      "bytes": 175616,
+      "sha256": "bbba0b23e0d9146de1967f2598be29ec736ebf9a176b536bf195314f9b14fac8"
+    },
+    {
+      "path": "vr-foveated/README.txt",
+      "bytes": 2874,
+      "sha256": "80b2999ad068d60ebd44d3e2d4cd20c7cacff91767912cdb29cf4e3d066b811a"
+    },
+    {
+      "path": "vr-foveated/vr-current-input.addon64",
+      "bytes": 194560,
+      "sha256": "b63f208998a89e3c9697eb248e7262733a63021c33f798e4a9a37d5b3dcdf0df"
+    },
+    {
+      "path": "vr-foveated/vr-depth-bridge.addon64",
+      "bytes": 189440,
+      "sha256": "7ff2ea7901e3a57731dd51b9bb57f354ca7efbd51a461bac3483fb2242534371"
+    },
+    {
+      "path": "vr-foveated/vr-pose-bridge-v1.addon64",
+      "bytes": 150528,
+      "sha256": "a562afdd30474e3362cf585efc6409853d42649a2bc5fc374c84f2b3a47f48a6"
+    },
+    {
+      "path": "vr-foveated/vr-projection-bridge.addon64",
+      "bytes": 175616,
+      "sha256": "bbba0b23e0d9146de1967f2598be29ec736ebf9a176b536bf195314f9b14fac8"
+    }
+  ]
+}
