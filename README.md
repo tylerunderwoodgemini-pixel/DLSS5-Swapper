@@ -4,6 +4,8 @@ Fork of [Rakan Alkhaldi's DLSS5-Swapper](https://github.com/rakanki911/DLSS5-Swa
 
 ## Use
 
+**[Read the usage guide](docs/USER_GUIDE.md)** for game selection, install options, flat/native VR/UEVR setup, ReShade controls, live foveation, appearance settings, updating and restoring.
+
 Download the portable ZIP from this fork's Releases, extract it completely, and run `DLSS 5 Swapper.exe`. Use VR mode Auto and select the desired foveation size. Repair/reinstall older game installations to update their local helpers. This is an experimental **prerelease**, not a guarantee of compatibility with every game.
 
 ## Changes
@@ -30,6 +32,8 @@ Reported improvements: FreelandVR, Battlemarked, TMNT Empire City, Palia/UEVR, a
 Successful neural evaluation does not prove correctly aligned visible output. Reset-every-frame and motion-scale overrides can reintroduce instability if changed after installation.
 
 ## Source and build
+
+First extract this fork's portable release and copy `resources/payload` into the checkout's `payload` directory; tests and packaging need the full runtime payload, including binaries not stored in Git.
 
 ```powershell
 npm ci
