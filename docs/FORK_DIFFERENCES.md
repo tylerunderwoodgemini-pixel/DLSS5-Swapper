@@ -1,6 +1,6 @@
 # CreatorBase fork: additions, alterations and upstream comparison
 
-Audit date: **October 8, 2026**. Runtime/application audited from fork commit **030d43e**, portable **2.2.3-vr.2**. Original base: upstream **v2.2.0**. Current upstream comparison: **v2.2.9**, commit **9fb0b7c**. This documents the shipped fork, not every superseded experiment as an active feature.
+Audit date: **October 10, 2026**. Runtime/application audited from fork commit **cb4a1e7**, portable **2.2.3-vr.2**. Original base: upstream **v2.2.0**. Current upstream comparison: **v2.2.9**, commit **9fb0b7c**. This documents the shipped fork, not every superseded experiment as an active feature.
 
 [Usage guide](USER_GUIDE.md) · [Machine-readable file audit](FORK_AUDIT.json) · [Original project](https://github.com/rakanki911/DLSS5-Swapper) · [Upstream comparison snapshot](https://github.com/rakanki911/DLSS5-Swapper/tree/9fb0b7c)
 
@@ -166,6 +166,6 @@ Checked against upstream source and its [v2.2.9 release](https://github.com/raka
 
 `FORK_AUDIT.json` includes every tracked path differing from the v2.2.0 base and v2.2.9 snapshot at the audited runtime commit, plus every file in the active runtime payload with size and SHA-256. This captures headers, licences, test fixtures, packaging changes, binary variants and documentation that do not each warrant a feature claim. It contains relative paths, not local game logs or private installation records.
 
-Application source changes from the v2.2.0 base are in `main.js`, `preload.js`, `src/core/agility-runtime.js`, `apply.js`, `backend-manager.js`, `deep-fried-chicken.js`, `feeder-config.js`, `feeder-release.js`, `install-stability.js`, `openxr-pose-install.js`, `runtime-components.js`, `scan.js`, `vr-auto.js`, `vr-foveation.js`, and `src/renderer/renderer.js`. Remaining changes are packaging/docs, tests, native helper/build source, binaries and third-party dependencies/notices. A large line diff in `main.js`/`apply.js` also includes reformatting and is not counted as thousands of separate features.
+Application source changes from the v2.2.0 base are in `main.js`, `preload.js`, `src/core/agility-runtime.js`, `apply.js`, `backend-manager.js`, `deep-fried-chicken.js`, `feeder-config.js`, `feeder-release.js`, `install-stability.js`, `native-foveation-install.js`, `openxr-pose-install.js`, `runtime-components.js`, `scan.js`, `vr-auto.js`, `vr-foveation.js`, and `src/renderer/renderer.js`. Remaining changes are packaging/docs, tests, native helper/build source, binaries and third-party dependencies/notices. A large line diff in `main.js`/`apply.js` also includes reformatting and is not counted as thousands of separate features.
 
 This audit records implemented/shipped differences and observed metadata. It does not replace game testing, resolve every older UI description, or establish universal API/GPU/game compatibility.

@@ -1,7 +1,7 @@
 {
-  "auditDate": "2026-10-08",
+  "auditDate": "2026-10-10",
   "scope": "Runtime code snapshot and complete active payload; later documentation edits are outside this snapshot.",
-  "runtimeCodeCommit": "030d43ee778c53fc0eb25dcd8e0f62134bb78dc6",
+  "runtimeCodeCommit": "cb4a1e7ee7135967c997863ab9b29c62cdd7e812",
   "base": {
     "tag": "v2.2.0",
     "commit": "cc1633f6ceff6166b970d63f7fbf3c8eb80b5d1c"
@@ -31,6 +31,14 @@
     {
       "status": "M",
       "path": "THIRD_PARTY_NOTICES.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/FORK_AUDIT.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/FORK_DIFFERENCES.md"
     },
     {
       "status": "A",
@@ -190,7 +198,39 @@
     },
     {
       "status": "A",
+      "path": "payload/vr-foveated/native-vr-foveation-nvngx.dll.addon64"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/Build-NativeFoveation.cmd"
+    },
+    {
+      "status": "A",
       "path": "payload/vr-foveated/native/Patch-D3D12-VRFoveation.ps1"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/imgui/LICENSE.txt"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/imgui/imconfig.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/imgui/imgui.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/native-foveation-layout.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/native-ngx-parameters.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/native-vr-foveation.cpp"
     },
     {
       "status": "A",
@@ -390,6 +430,10 @@
     },
     {
       "status": "A",
+      "path": "scripts/audit-fork-differences.cjs"
+    },
+    {
+      "status": "A",
       "path": "scripts/refresh-vr-manifest.cjs"
     },
     {
@@ -423,6 +467,10 @@
     {
       "status": "A",
       "path": "src/core/install-stability.js"
+    },
+    {
+      "status": "A",
+      "path": "src/core/native-foveation-install.js"
     },
     {
       "status": "A",
@@ -490,6 +538,14 @@
     },
     {
       "status": "A",
+      "path": "tests/native-foveation-install.cjs"
+    },
+    {
+      "status": "A",
+      "path": "tests/native-foveation-test.cpp"
+    },
+    {
+      "status": "A",
       "path": "tests/openxr-pose-install.cjs"
     },
     {
@@ -507,6 +563,10 @@
     {
       "status": "A",
       "path": "tests/prepare-vr-temporal-test.py"
+    },
+    {
+      "status": "A",
+      "path": "tests/run-native-foveation-test.cmd"
     },
     {
       "status": "A",
@@ -697,6 +757,14 @@
     {
       "status": "D",
       "path": "build/installer.nsh"
+    },
+    {
+      "status": "A",
+      "path": "docs/FORK_AUDIT.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/FORK_DIFFERENCES.md"
     },
     {
       "status": "A",
@@ -1020,7 +1088,39 @@
     },
     {
       "status": "A",
+      "path": "payload/vr-foveated/native-vr-foveation-nvngx.dll.addon64"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/Build-NativeFoveation.cmd"
+    },
+    {
+      "status": "A",
       "path": "payload/vr-foveated/native/Patch-D3D12-VRFoveation.ps1"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/imgui/LICENSE.txt"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/imgui/imconfig.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/imgui/imgui.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/native-foveation-layout.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/native-ngx-parameters.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/native-vr-foveation.cpp"
     },
     {
       "status": "A",
@@ -1219,6 +1319,10 @@
       "path": "preload.js"
     },
     {
+      "status": "A",
+      "path": "scripts/audit-fork-differences.cjs"
+    },
+    {
       "status": "D",
       "path": "scripts/build-overlay.ps1"
     },
@@ -1313,6 +1417,10 @@
     {
       "status": "A",
       "path": "src/core/install-stability.js"
+    },
+    {
+      "status": "A",
+      "path": "src/core/native-foveation-install.js"
     },
     {
       "status": "A",
@@ -1724,6 +1832,14 @@
     },
     {
       "status": "A",
+      "path": "tests/native-foveation-install.cjs"
+    },
+    {
+      "status": "A",
+      "path": "tests/native-foveation-test.cpp"
+    },
+    {
+      "status": "A",
       "path": "tests/openxr-pose-install.cjs"
     },
     {
@@ -1741,6 +1857,10 @@
     {
       "status": "A",
       "path": "tests/prepare-vr-temporal-test.py"
+    },
+    {
+      "status": "A",
+      "path": "tests/run-native-foveation-test.cmd"
     },
     {
       "status": "A",
@@ -2400,6 +2520,41 @@
       "sha256": "9a5a7d50d00b3d83733f76338329d95c620873d2060b2220b8842a3167d81a8a"
     },
     {
+      "path": "vr-foveated/native/Build-NativeFoveation.cmd",
+      "bytes": 795,
+      "sha256": "4908f7cb6e5ed49c0b8238c5df9aaeb65ca62f6f97da044e44ef10799c735c82"
+    },
+    {
+      "path": "vr-foveated/native/imgui/imconfig.h",
+      "bytes": 12289,
+      "sha256": "fb8e32b9af9aa7dad5ec5c5bc862537f5624cb39a814e6d3b36b4629a50b6599"
+    },
+    {
+      "path": "vr-foveated/native/imgui/imgui.h",
+      "bytes": 454459,
+      "sha256": "2ca314d19c7e1ea85687a9c1e37079e0cc823939a551b3e6b2453ff0af9fbf13"
+    },
+    {
+      "path": "vr-foveated/native/imgui/LICENSE.txt",
+      "bytes": 1104,
+      "sha256": "55e058cc5899e6077a819ad1005d6d1f4528f65ae100795c9692f9fa6525a8ce"
+    },
+    {
+      "path": "vr-foveated/native/native-foveation-layout.h",
+      "bytes": 1511,
+      "sha256": "27da4b99cd6420d59b3709efb123a08f4f615e0f00d80adbaae94af9e25c23d5"
+    },
+    {
+      "path": "vr-foveated/native/native-ngx-parameters.h",
+      "bytes": 2292,
+      "sha256": "6271e5969b68759db6664806ec910c7f44975c376af520e686753616ab58287c"
+    },
+    {
+      "path": "vr-foveated/native/native-vr-foveation.cpp",
+      "bytes": 28841,
+      "sha256": "c897c35a9461923598c4d18e87a5467c7f1ac0eb1e2a24bb410d9c84e5b829e8"
+    },
+    {
       "path": "vr-foveated/native/openxr/LICENSE",
       "bytes": 11358,
       "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
@@ -2583,6 +2738,11 @@
       "path": "vr-foveated/native/vr-runtime-compat.cpp",
       "bytes": 20033,
       "sha256": "7e39d654723db37f67a57886dc25c96fb9ec0182484bcc72ff0eee20a092204b"
+    },
+    {
+      "path": "vr-foveated/native-vr-foveation-nvngx.dll.addon64",
+      "bytes": 240128,
+      "sha256": "7ebbe1002e73d0dfe18789f86316f041efb917d9f8a0391685ebfd7829c37f42"
     },
     {
       "path": "vr-foveated/prebuilt/build-manifest.json",
