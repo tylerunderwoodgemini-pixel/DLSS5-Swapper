@@ -1,6 +1,6 @@
 # Using the CreatorBase DLSS 5 Swapper fork
 
-For the **2.2.3-vr.1 prerelease**, with feeder **v26.28**. These instructions use the English UI labels. The Swapper selects and installs files; ReShade provides the controls while the game is running.
+For the **2.2.3-vr.2 prerelease**, with feeder **v26.28**. These instructions use the English UI labels. The Swapper selects and installs files; ReShade provides the controls while the game is running.
 
 ## Quick start: VR or UEVR without native DLSS
 
@@ -35,9 +35,9 @@ An Unreal executable often ends in `-Win64-Shipping.exe`, although demos can use
 | **Installation route** | Use **Native DLSS (RenoDX)** when you want to use the game's existing DLSS pipeline. Use **DLSS5-Feeder (games without DLSS)** for a game without native DLSS, or for this fork's configurable Feeder foveation path. |
 | **Neural provider** | **Deep Fried Chicken** is the provider used in the reported VR/UEVR repairs. **RenoDX DLSS 5** is the default alternative. **TRUE Upstream (pre-DLSS SR)** chains neural passes before SR and has its own controls described below. |
 | **VR mode** | **Off** for flat play. **Auto detect** for native VR. **Force OpenXR** or **Force OpenVR** when you know the runtime and automatic detection misses it. |
-| **VR foveation** | Offered for the 64-bit Feeder route. Start with **Balanced 60x50 (30%)** for VR, or **Off (full frame)** for flat play. |
+| **VR foveation** | Offered for the 64-bit Feeder route and D3D12 native DLSS route. Start with **Balanced 60x50 (30%)** for VR, or **Off (full frame)** for flat play. |
 
-The native route's label still says “RenoDX” even when you choose another neural provider. Read **Neural provider** and **Installed backend** to identify the actual selection. Foveation is not offered on the native route.
+The native route's label still says “RenoDX” even when you choose another neural provider. Read **Neural provider** and **Installed backend** to identify the actual selection. Native foveation has a dedicated bridge and settings panel; it does not install Feeder.
 
 For native DLSS, enable **DLSS or DLAA in the game's graphics settings** after installation; an idle DLSS pipeline cannot provide frames. Feeder games do not need a native DLSS option. Do not load RenoDX DLSS, Deep Fried Chicken, and another neural cascade together. The Swapper switches its managed provider files when you apply a provider change; independently installed mods can still conflict.
 
@@ -84,7 +84,17 @@ If you change presets, verify that the motion-provider technique stays above Fee
 
 On the **native DLSS route**, “No effects found” is not itself a failure: native neural rendering uses add-on hooks rather than these Feeder shader techniques.
 
-## Adjusting VR foveation live
+## Native DLSS foveation
+
+For a 64-bit **DirectX 12** game with native DLSS, keep the **Native DLSS** installation route, select your neural provider and **VR foveation → Balanced**, then install. Enable DLSS/DLAA in the game. Reinstall an existing native installation to receive the new bridge. Native SR remains full frame; only the neural-rendering center is cropped. DFC runs this after SR; TRUE Upstream runs it before SR.
+
+Open **ReShade → Add-ons → Native DLSS VR foveation**. Its preset selector changes Off/Small/Balanced/Wide/Large live. **Native NR stereo layout** defaults to **Separate eye / mono features**. Choose **Packed side-by-side** if the native NR color buffer contains both eyes in one texture. Each original feature/resource pair and each packed eye receives its own crop history. The outer image is the current input and the border is feathered.
+
+Confirm **Native foveation active** and an increasing **Cropped NR calls** counter. Full-frame fallback states explain an unsupported resource format, missing guide, unobserved state, cache limit or rejected cropped feature. A selected preset alone does not prove it is active. The bridge does not reinitialize NGX or replace the game's native DLSS call; crop creation uses DFC's existing companion or an initialized NGX core. Providers without either path retain full-frame rendering.
+
+This new native bridge is experimental. Installer/regression tests and a WARP GPU test using a fake NR backend passed; proprietary NVIDIA-model execution and headset image quality still need game testing. Array textures, in-place color/output, mismatched color/output viewports and unsupported/unknown resource states retain the normal native path. Native D3D11/Vulkan foveation is not implemented by this bridge. Sharing the same original handle and same buffers between alternating separate eyes cannot establish eye identity; use a supported per-eye or packed path.
+
+## Adjusting Feeder VR foveation live
 
 In **ReShade → Add-ons → DLSS 5 Feed**, find **VR foveation**:
 
@@ -138,7 +148,7 @@ Test in actual gameplay, not only a static menu. Watch nearby objects, distant e
 | ReShade menu absent | Focus the game window, check the overlay shortcut and correct executable/API, wait until injection finishes, then check `ReShade.log`. Repair using this fork's bundled modified ReShade rather than replacing it with stock ReShade. |
 | Menu works but no visual change | Check provider **Enabled**, native DLSS/DLAA when using the native route, Feed techniques when using Feeder, frames delivered, provider status and headset fallback status. Compare the headset, not just the mirror. |
 | Lighting shakes or head motion smears | Return guide/history controls to the baseline above; start with one pass and remove competing neural providers through their installers. Record status/logs if it persists. |
-| Foveation controls present but no crop | Confirm 64-bit Feeder, VR mode, an enabled foveation size, and a supported headset stereo layout. |
+| Foveation controls present but no crop | For Feeder, confirm 64-bit, VR mode and supported headset layout. For native, check Native DLSS VR foveation status, cropped-call counter, D3D12 and the correct native NR stereo layout. |
 | FPS collapses | Return to one pass, disable optional detail/cleanup features, and try a smaller center region. |
 
 For a report, include the game name, actual executable, API, GPU/driver, native VR or UEVR build/runtime/stereo method, selections in the Swapper, and whether the problem occurs in the headset or desktop. Collect **Copy log** plus the newest `ReShade.log`, `dlss5-feed.log`, `deep-fried-chicken.log` and `dlss5-vr-compat.log` beside the real game executable, where present. For UEVR also include its game-profile `log.txt`. Review logs for personal paths before posting them publicly.

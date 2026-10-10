@@ -310,7 +310,7 @@ async function preflight({ mode, api, bitness, reshadeSetup, neuralProvider, pay
     throw new Error('Deep Fried Chicken selected for VR, but lifecycle v20 is missing from the active payload.');
 }
 
-async function finalize({ mode, gameDir, exePath, api, bitness, reshadeSetup, neuralProvider, payloadDir, manifest, installReShade=true, enableVR=true }, send = () => {}) {
+async function finalize({ mode, gameDir, exePath, api, bitness, reshadeSetup, neuralProvider, payloadDir, manifest, route, vrFoveation: foveation='off', installReShade=true, enableVR=true }, send = () => {}) {
   const direct64=Number(bitness || 64)===64 && ['dxgi','d3d10','d3d11','d3d12'].includes(apiArg(api));
   if(mode==='none'&&!direct64)return;
   const exeDir=path.dirname(exePath);
@@ -331,6 +331,7 @@ async function finalize({ mode, gameDir, exePath, api, bitness, reshadeSetup, ne
     send({ code:'vrUniversalReady', params:{ mode:'OpenXR', version:VERSION } });
   }
   if(direct64&&enableVR!==false)await require('./openxr-pose-install').install({payloadDir,gameDir,exePath,manifest},send);
+  if(route==='native'&&direct64&&enableVR!==false)await require('./native-foveation-install').install({payloadDir,gameDir,exePath,manifest,preset:foveation},send);
   if (mode==='openvr') {
     send({ code:'vrUniversalReady', params:{ mode:'OpenVR', version:VERSION } });
   }
@@ -358,6 +359,7 @@ function wrapBackendManager(backends) {
 
     const payloadDir=resolvePayloadDir(opts.source,opts.reshadeSetup);
     trace(opts.gameDir, `resolved payload=${payloadDir || '(none)'} reshadeSetup=${opts.reshadeSetup || '(none)'}`);
+    if(route==='native'&&direct64&&requestedMode!=='off')require('./native-foveation-install').verifyPayload(payloadDir);
     await preflight({mode,api:opts.api,bitness:opts.bitness,reshadeSetup:opts.reshadeSetup,neuralProvider,payloadDir},send);
     if(mode!=='none')send({ code:'vrUniversalDetected', params:{ mode:mode==='openxr'?'OpenXR':'OpenVR', version:VERSION } });
 
@@ -378,7 +380,7 @@ function wrapBackendManager(backends) {
     }
     trace(opts.gameDir, `calling original backend install installReShade=${installOptions.installReShade} topology=${mode==='openxr'?'v19-shared-local-openxr':'local-openvr'} foveation=${foveation}`);
     const manifest=await original(installOptions,send);
-    await finalize({mode,gameDir:opts.gameDir,exePath:opts.exePath,api:opts.api,bitness:opts.bitness,reshadeSetup:opts.reshadeSetup,neuralProvider,payloadDir,manifest,installReShade:opts.installReShade,enableVR:requestedMode!=='off'},send);
+    await finalize({mode,route,vrFoveation:foveation,gameDir:opts.gameDir,exePath:opts.exePath,api:opts.api,bitness:opts.bitness,reshadeSetup:opts.reshadeSetup,neuralProvider,payloadDir,manifest,installReShade:opts.installReShade,enableVR:requestedMode!=='off'},send);
     trace(opts.gameDir, `finalize complete mode=${mode}`);
     return manifest;
   };

@@ -1,6 +1,6 @@
 {
   "name": "dlss5-swapper",
-  "version": "2.2.3-vr.1",
+  "version": "2.2.3-vr.2",
   "description": "DLSS 5 Swapper VR compatibility fork with stereo foveation and temporal install checks",
   "main": "main.js",
   "scripts": {
@@ -15,7 +15,7 @@
     "build:linux": "electron-builder --linux AppImage deb",
     "icon": "electron scripts/make-icon.js",
     "build:portable": "electron-builder --win portable",
-    "test:vr": "node tests/install-stability.cjs && node tests/vr-foveation-cache.cjs && node tests/vr-packaged-install.cjs && node tests/openxr-pose-install.cjs && node tests/vr-openxr-install.cjs"
+    "test:vr": "node tests/install-stability.cjs && node tests/vr-foveation-cache.cjs && node tests/vr-packaged-install.cjs && node tests/openxr-pose-install.cjs && node tests/vr-openxr-install.cjs && node tests/native-foveation-install.cjs"
   },
   "author": "Rakan Alkhaldi",
   "license": "MIT",

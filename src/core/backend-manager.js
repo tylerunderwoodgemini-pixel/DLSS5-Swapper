@@ -109,7 +109,7 @@ function configPaths(gameDir, exePath, route, neuralProvider = 'renodx', bitness
 
   const reshade = path.join(dir, 'ReShade.ini');
   const preset = ini.presetPath(dir, ini.readText(reshade));
-  const files = [reshade, path.join(dir, 'dlss5-feed.cfg'), path.join(dir, 'host64', 'ReShade.ini')];
+  const files = [reshade, path.join(dir, 'dlss5-native-foveation.ini'), path.join(dir, 'dlss5-feed.cfg'), path.join(dir, 'host64', 'ReShade.ini')];
 
   if ((route === 'feeder' || route === 'native') && neuralProvider === 'deep-fried-chicken') {
     files.push(path.join(bitness === 32 ? path.join(dir, 'host64') : dir, 'deep-fried-chicken.cfg'));

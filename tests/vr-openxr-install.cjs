@@ -27,6 +27,7 @@ const context={module:{exports:{}},Buffer,console,process:{...process,env:{...pr
     };
     if(name==='./apply')return {trackBeforeWrite:async(m,g,f)=>events.push('track '+path.basename(f)),saveActiveManifest:async()=>events.push('save')};
     if(name==='./vr-foveation')return {normalizePreset:v=>v||'off',VERSION:26,ensureBuilt:()=>({addon64:'fixed-26.28',bridge:'pose',depthBridge:'depth',feedShader:'shader',shaderRoot:'shaders',version:'26.28'})};
+    if(name==='./native-foveation-install')return {verifyPayload:()=>events.push('native payload verified'),install:async opts=>{events.push('native foveation installed');assert.equal(opts.preset,'balanced');}};
     if(name==='./openxr-pose-install')return {verifyPayload:()=>{},install:async()=>events.push('pose installed')};
     return nativeRequire(name);
   }
@@ -59,8 +60,9 @@ fs.writeFileSync(path.join(dir,'dxgi.dll'),"crosire's ReShade stock");return {mo
   const wrapped=fixture('wrapper');let selectedSetup;
   const backend={install:async opts=>{selectedSetup=opts.reshadeSetup;return wrapped.manifest;}};
   api.wrapBackendManager(backend);
-  await backend.install({...wrapped,route:'native',vrFoveation:'off',reshadeSetup:'ordinary.exe'});
+  await backend.install({...wrapped,route:'native',vrFoveation:'balanced',reshadeSetup:'ordinary.exe'});
   assert.equal(selectedSetup,path.join(xr,setupName));
+  assert(events.includes('native payload verified')&&events.includes('native foveation installed'),'native route gets its own runtime and preflight');
   for(const mode of ['none','openvr','openxr']) {
     vm.runInNewContext('detect=()=> '+JSON.stringify(mode),context);
     const current=fixture('matrix-'+mode);let chosen;
@@ -70,7 +72,7 @@ fs.writeFileSync(path.join(dir,'dxgi.dll'),"crosire's ReShade stock");return {mo
     assert.equal(chosen.reshadeSetup,path.join(xr,setupName),mode+' uses modified ReShade');
   }
   const noVR=fixture('explicit-off');events.length=0;
-  await api.finalize({...noVR,mode:'none',enableVR:false});assert(!events.includes('setup'));assert(!events.includes('pose installed'));
+  await api.finalize({...noVR,route:'native',vrFoveation:'balanced',mode:'none',enableVR:false});assert(!events.includes('setup'));assert(!events.includes('pose installed'));assert(!events.includes('native foveation installed'));
   const noReShade=fixture('no-reshade');events.length=0;
   await api.finalize({...noReShade,installReShade:false});assert(!events.includes('setup'),'honors opt-out');assert(events.includes('pose installed'));
   console.log('PASS: modified installer selection, dual API arguments, local module reuse, tracking, exact hash and manifest checks, failure handling, unrelated proxy preservation, flat/OpenXR/OpenVR install routes and opt-outs');

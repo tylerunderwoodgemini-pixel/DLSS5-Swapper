@@ -26,7 +26,7 @@ function walk(dir) {
 }
 walk(payload);
 const audit = {
-  auditDate: '2026-10-08',
+  auditDate: '2026-10-10',
   scope: 'Runtime code snapshot and complete active payload; later documentation edits are outside this snapshot.',
   runtimeCodeCommit: git(['rev-parse', codeRef]),
   base: { tag: 'v2.2.0', commit: git(['rev-parse', 'v2.2.0^{commit}']) },

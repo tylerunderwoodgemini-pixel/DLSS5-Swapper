@@ -655,7 +655,7 @@ function selectedVrMode(d, dir) {
 }
 
 function selectedVrFoveation(d, pick, dir, route) {
-  if (route !== 'feeder' || Number(pick?.bitness || d.bitness) !== 64) return 'off';
+  if (!['feeder','native'].includes(route) || Number(pick?.bitness || d.bitness) !== 64 || selectedVrMode(d,dir) === 'off' || (route === 'native' && !['dxgi','d3d12'].includes(selectedApi(pick,dir).api))) return 'off';
   const wanted=vrFoveationChoice.get(dir);
   if (['off','small','balanced','wide','large'].includes(wanted)) return wanted;
   return d.vrDetected && d.vrDetected !== 'none' ? 'balanced' : 'off';
@@ -704,7 +704,7 @@ function installOptions(d, pick, dir) {
         <option value="openxr"${vrMode === 'openxr' ? ' selected' : ''}>Force OpenXR</option>
         <option value="openvr"${vrMode === 'openvr' ? ' selected' : ''}>Force OpenVR</option>
       </select></label>` : ''}
-      ${!opti && route === 'feeder' && Number(pick.bitness) === 64 ? `<label><span>VR foveation</span><select id="vrFoveationChoice">
+      ${!opti && ['feeder','native'].includes(route) && Number(pick.bitness) === 64 && vrMode !== 'off' && (route === 'feeder' || ['dxgi','d3d12'].includes(api.api)) ? `<label><span>VR foveation</span><select id="vrFoveationChoice">
         <option value="off"${vrFoveation === 'off' ? ' selected' : ''}>Off (full frame)</option>
         <option value="small"${vrFoveation === 'small' ? ' selected' : ''}>Small 50x45 (22.5%)</option>
         <option value="balanced"${vrFoveation === 'balanced' ? ' selected' : ''}>Balanced 60x50 (30%)</option>
@@ -714,7 +714,7 @@ function installOptions(d, pick, dir) {
     </div>
     <div class="emu-note backend-note" id="backendHint"><span>${t(opti ? 'optiHint' : 'backendHint')}</span>
       ${optiReason ? `<span>${t(optiReason)}</span>` : ''}
-      ${route === 'native' ? `<span>${t('nativeEffectsHint')}</span>` : ''}
+      ${route === 'native' ? `<span>${t('nativeEffectsHint')}</span><span>Native VR foveation crops the D3D12 neural stage while preserving the game's DLSS upscale. Check Add-ons > Native DLSS VR foveation for active status and stereo layout.</span>` : ''}
       ${neuralProvider === 'upstream3' ? `<span><b>TRUE pre-upscale:</b> three NR network evaluations run on the DLSS render-resolution input before the original DLSS SR evaluate. Feeder mode forces work_upscale=2.</span>` : ''}
       ${route === 'feeder' && neuralProvider === 'deep-fried-chicken' ? `<span>Deep Fried Chicken replaces RenoDX as the Feeder neural provider. They are mutually exclusive; switching removes the currently managed provider first.</span>` : ''}
       ${opti && (api.api === 'vulkan' || api.label === 'DirectX 11') ? `<span>${t('optiBridgeHint')}</span>` : ''}

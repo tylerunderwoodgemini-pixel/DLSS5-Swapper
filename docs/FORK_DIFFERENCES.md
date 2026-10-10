@@ -1,6 +1,6 @@
 # CreatorBase fork: additions, alterations and upstream comparison
 
-Audit date: **October 8, 2026**. Runtime/application audited from fork commit **030d43e**, portable **2.2.3-vr.1**. Original base: upstream **v2.2.0**. Current upstream comparison: **v2.2.9**, commit **9fb0b7c**. This documents the shipped fork, not every superseded experiment as an active feature.
+Audit date: **October 8, 2026**. Runtime/application audited from fork commit **030d43e**, portable **2.2.3-vr.2**. Original base: upstream **v2.2.0**. Current upstream comparison: **v2.2.9**, commit **9fb0b7c**. This documents the shipped fork, not every superseded experiment as an active feature.
 
 [Usage guide](USER_GUIDE.md) · [Machine-readable file audit](FORK_AUDIT.json) · [Original project](https://github.com/rakanki911/DLSS5-Swapper) · [Upstream comparison snapshot](https://github.com/rakanki911/DLSS5-Swapper/tree/9fb0b7c)
 
@@ -84,6 +84,16 @@ The modified ReShade binary source is unavailable here. Upstream ReShade SDK hea
 - Implements supported packed side-by-side headset-center packing/compositing in **D3D11 and D3D12**. Neural work covers the center; outside pixels remain the current native image, with feathered transitions.
 - Uses bounded layout validation and headset/no-window runtime gating; changing a crop can rebuild/invalidate affected work. This is fixed center foveation, not eye-tracked foveation or a guaranteed FPS gain.
 
+#### Native DLSS foveation bridge (2.2.3-vr.2)
+
+- Adds `native-vr-foveation-nvngx.dll.addon64` and a separate tracked `dlss5-native-foveation.ini`, installed on native Direct3D routes when VR support is enabled. The UI offers native presets for DXGI/D3D12 selection. Live controls appear in **Add-ons → Native DLSS VR foveation**.
+- Intercepts D3D12 evaluations in the NR DLL, leaving the game's native SR DLL/evaluations untouched. Creates smaller Feature 18 jobs through the existing DFC companion or initialized NGX core; never directly reinitializes the snippet or adds a second CreateFeature detour.
+- Applies matching valid subrectangles to color, output, depth, motion vectors and optional NR guides, including engine viewport offsets and differently sized guide allocations. Preserves the provider's parameter object and motion scales.
+- Copies current color into the full output, evaluates only the center and feathers its border. Maintains separate histories by original feature, resource pair, crop size/layout and packed eye; resets crop/full-frame history when switching paths.
+- Supports separate-eye/mono native features and explicitly selected packed side-by-side buffers. Unsupported arrays, aliasing, formats, layouts or resource states keep the full-frame native route with status/counters. Native D3D11/Vulkan and ambiguous alternating-eye identity are not established.
+- Adds native-addon/config preflight, copy verification, manifest tracking, provider-profile settings retention and build-time payload verification. Builds from supplied NGX SDK headers, included ReShade/ImGui headers and Detours.
+- Validation: inherited tests, VR installation/cache tests, native install test and WARP GPU test with a fake NR backend. Actual NVIDIA-model evaluation and headset visual validation are pending; this is an experimental native path.
+
 ### 8. Pose, stereo depth and projection guides
 
 - **Pose bridge:** OpenVR and OpenXR rotation, translation and per-eye projection data; OpenXR frame/session/reference-space tracking and pose freshness validation.
@@ -122,7 +132,7 @@ These address the reported lighting shake, smearing/trailing and texture-motion 
 
 Checked against upstream source and its [v2.2.9 release](https://github.com/rakanki911/DLSS5-Swapper/releases/tag/v2.2.9). Our fork is not v2.2.9 plus these modifications; it is the older v2.2.0 foundation with CreatorBase additions.
 
-| Area | Upstream v2.2.9 | CreatorBase 2.2.3-vr.1 |
+| Area | Upstream v2.2.9 | CreatorBase 2.2.3-vr.2 |
 | --- | --- | --- |
 | Provider choice | RenoDX/Feeder and newer separate multipass/OptiScaler routes | Explicit RenoDX / DFC / TRUE Upstream choice for native and Feeder |
 | DFC | No dedicated DFC integration module/provider selector in the compared source | DFC installation, configs, lifecycle helper and NMS variant |

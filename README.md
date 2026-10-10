@@ -16,7 +16,8 @@ Download the portable ZIP from this fork's Releases, extract it completely, and 
 - **Installer/UI changes:** stricter API evidence, conservative Unity detection, actual-executable launch, payload diagnostics and provider/VR/foveation controls.
 - Modified ReShade 6.8.0.2 V19 OpenXR integration and a per-game runtime router.
 - OpenXR/OpenVR pose, current-input, stereo depth and projection helpers.
-- D3D11/12 side-by-side fixed foveation with native-frame periphery.
+- D3D11/12 Feeder side-by-side fixed foveation with native-frame periphery.
+- Experimental native D3D12 NR foveation, separate live controls, current-image periphery and caller-preserving crop creation.
 - D3D11 depth detection for layered, aligned, offset and gapped eye layouts.
 - Submitted-image pose synchronization, current-frame compositing and temporal history/fallback/recovery protection.
 - UEVR desktop UI, D3D12 queue/device compatibility and missing matching Agility runtime support.
@@ -53,7 +54,7 @@ Native WARP tests require Visual Studio C++ tools: `cmd /c tests\run-vr-depth-te
 
 To package, extract this fork's portable release and copy its `resources/payload` into the checkout's `payload` directory. `npm run build` verifies the fork payload before packaging. Do not run upstream's payload collector over this customized payload; it can replace patched files with stock builds.
 
-The feeder source transformation needs a separately supplied NVIDIA archive and pinned upstream feeder source. Current-input compilation also requires NGX SDK headers. ReShade V19 was supplied as a **binary patch**: its modified source and a source-reproducible ReShade build are not available here. Complete transformed source/build provenance for the customized Neural Upstream and DFC lifecycle binaries is also incomplete in this checkout. Other original binaries retain their third-party licensing.
+The feeder source transformation needs a separately supplied NVIDIA archive and pinned upstream feeder source. Current-input and native-foveation compilation also require NGX SDK headers. Set `NGX_SDK_INCLUDE` to the official SDK include directory, then run `payload\vr-foveated\native\Build-NativeFoveation.cmd`; `cmd /c tests\run-native-foveation-test.cmd` runs its fake-NR WARP GPU contract test. ReShade V19 was supplied as a **binary patch**: its modified source and a source-reproducible ReShade build are not available here. Complete transformed source/build provenance for the customized Neural Upstream and DFC lifecycle binaries is also incomplete in this checkout. Other original binaries retain their third-party licensing.
 
 ## Credits
 

@@ -1,4 +1,10 @@
-# CreatorBase 2.2.3-vr.1 prerelease
+# CreatorBase 2.2.3-vr.2 prerelease
+
+## Native foveation added in this prerelease
+
+Native DLSS installs now receive a dedicated D3D12 NR crop bridge and live **Native DLSS VR foveation** panel, without Feeder. Native SR remains full frame. The bridge preserves aligned guides/current periphery, feathers the border, separates crop histories and retains the full native path on unsupported buffers or NGX failures. Crop creation preserves the existing NGX initialization route. Existing native installs require repair/reinstallation; start with Balanced and check the active status/cropped-call counter and stereo-layout selection.
+
+All 84 inherited tests, six VR/install suites and the native WARP fake-NR GPU contract test passed. The new native path still requires NVIDIA-model/headset testing; it is not universal game certification. Native D3D11/Vulkan, array/aliased textures and unqualified states retain full rendering.
 
 **[Usage guide](https://github.com/tylerunderwoodgemini-pixel/DLSS5-Swapper/blob/vr-stability-v2.2.3/docs/USER_GUIDE.md)** — also included as `USER_GUIDE.md` in the portable ZIP and as a separate download. Covers game selection, install options, flat/native VR/UEVR, ReShade controls, foveation, appearance and troubleshooting.
 

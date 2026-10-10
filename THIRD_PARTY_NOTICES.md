@@ -87,3 +87,7 @@ NVIDIA material in the portable application remains under the NVIDIA RTX SDK lic
 # CreatorBase provider integration credits
 
 Deep Fried Chicken and its neural controls are credited to Alexander and remain subject to the supplied component licence. Neural Upstream is credited to the [matiasLombo/neural-upstream project](https://github.com/matiasLombo/neural-upstream). CreatorBase integrates these providers and includes customized pre-SR/chained and compatibility binaries; complete transformed source provenance is not included for every binary. See `docs/FORK_DIFFERENCES.md` and the component notices. These credits do not change redistribution terms or make third-party binaries MIT-licensed.
+
+## Native foveation ImGui headers
+
+The native foveation source includes Dear ImGui 1.92.5 headers by Omar Cornut and contributors under the MIT licence. See `payload/vr-foveated/native/imgui/LICENSE.txt`. NVIDIA NGX SDK headers are separately supplied by the builder and are not relicensed here.
