@@ -20,7 +20,7 @@ static void LogOwner(HMODULE owner, bool reused, int32_t result)
     if (wcscat_s(logfile, L"dlss5-openxr-router.log") != 0) return;
     char module[32768] = {}, message[33000] = {};
     if (owner) GetModuleFileNameA(owner, module, sizeof(module));
-    const int length = snprintf(message, sizeof(message), "OpenXR router v2: owner=%s source=%s negotiation=%d\r\n",
+    const int length = snprintf(message, sizeof(message), "OpenXR router v3: owner=%s source=%s negotiation=%d\r\n",
         owner ? module : "unavailable", reused ? "existing-process-module" : "shared-fallback", result);
     HANDLE file = CreateFileW(logfile, FILE_APPEND_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE,
         nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
@@ -73,9 +73,30 @@ static HMODULE EarlyLocalReShade()
     return nullptr;
 }
 
+// Vulkan/OpenXR must share the registered Vulkan layer DLL. Loading the
+// generic XR fallback first gives it no Vulkan device dispatch records.
+static HMODULE ConfiguredVulkanReShade()
+{
+    wchar_t config[32768]={}, library[32768]={};
+    if(!GetModuleFileNameW(nullptr,config,32768))return nullptr;
+    wchar_t *slash=wcsrchr(config,L'\\');if(!slash)return nullptr;slash[1]=0;
+    if(wcscat_s(config,L"dlss5-openxr-vulkan.ini"))return nullptr;
+    if(!GetPrivateProfileStringW(L"Routing",L"VulkanOwner",L"",library,32768,config))return nullptr;
+    // Use only the explicit installer-selected module, never search for an
+    // unrelated injector by basename. Its lifetime owns both dispatch tables.
+    HMODULE module=LoadLibraryW(library);
+    if(module && GetProcAddress(module,"ReShadeVersion") &&
+       GetProcAddress(module,"ReShadeRegisterAddon") &&
+       GetProcAddress(module,"vkGetInstanceProcAddr") &&
+       GetProcAddress(module,"xrNegotiateLoaderApiLayerInterface"))return module;
+    if(module)FreeLibrary(module);
+    return nullptr;
+}
+
 extern "C" __declspec(dllexport) int32_t __cdecl xrNegotiateLoaderApiLayerInterface(const void *loader, const char *name, void *request)
 {
     HMODULE owner = ExistingReShade();
+    if(!owner)owner=ConfiguredVulkanReShade();
     if(!owner)owner=EarlyLocalReShade();
     const bool reused = owner != nullptr;
     if (owner) {

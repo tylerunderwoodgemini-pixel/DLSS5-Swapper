@@ -1,0 +1,29 @@
+Vulkan Feeder neural crop bridge v12 (2026-10-11)
+
+NMS headset routing succeeded after the router repair. Feeder bound
+headset runtimes and built a 6160x3272 packed-eye image, but the Vulkan
+transport does not enter the D3D11/D3D12 feeder crop implementation.
+The enabled Feeder foveation controls therefore did not reduce its NR job.
+Timing logs show large frame intervals outside the CPU NGX call; these
+cannot establish GPU costs or promise a specific FPS gain.
+
+Vulkan + DFC VR installs now deploy the native neural crop bridge with an
+explicit FeederVulkan=1 permission. Other Feeder transports are excluded
+to avoid cropping twice. NMS is configured as packed SBS even when hybrid
+runtime detection selects OpenXR. OpenVR Vulkan games also use packed;
+other Vulkan/OpenXR games retain separate-eye configuration.
+
+The bridge preserves current-frame periphery and crops each eye into a
+separate NR feature/history. Full-size transport, DLAA and DFC codec costs
+remain. This has a copy boundary rather than Feeder's feathered compositor.
+Vulkan crop size/enable controls are in Native DLSS VR foveation; they are
+initialized from the Swapper preset. The older DLSS 5 Feed controls alone
+do not change this bridge's runtime settings.
+
+Actual NVIDIA model test at 6160x3272: first and eight consecutive frames
+cropped to 1848x1632 per eye (29.9% NR area) with balanced preset; custom
+25x25 uses 6.2% area, disabled fallback succeeds, GPU completion/no D3D12
+errors. WARP tests verify regular Feeder is excluded and explicit Vulkan
+permission enables cropping. NMS finalize/install/restore regression and
+native-route installation checks pass. Installed NMS files untouched.
+In-game foveation and performance confirmation remain pending.

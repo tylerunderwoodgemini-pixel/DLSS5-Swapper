@@ -1,0 +1,31 @@
+Native foveation v15: preserve NR provider descriptor translation
+
+Starfield.exe.45740.dmp (Oct 11, 09:26) still fails in NR CreateFeature's
+SetDescriptorHeaps call on the v14 initialization list. Isolating the list
+alone did not fix the device/list proxy mismatch.
+
+The crop hook previously unwrapped the incoming provider command list and
+passed that raw list into NVIDIA NR. NR had been initialized using ReShade's
+proxy device, which returns wrapped descriptor heaps and virtual CPU handles.
+The raw D3D12 runtime cannot interpret these proxy objects/handles. V14 also
+created its isolated list from an unwrapped device, repeating the mismatch.
+
+V15 retains the original provider command-list interface for all NR calls,
+including fallback. Cropped feature initialization uses that provider's device
+and preserves its matching recording proxy. Raw command lists are still used
+for state proof and our plain resource copies; NR handles stay on the provider
+side that translates its descriptor objects and handles.
+
+Reproduction and validation now load a copy of the actual modified Starfield
+ReShade DLL in a test workspace and create a real ReShade proxy device. Before
+this change, creation failed with an invalid virtual CPU descriptor handle
+(0x40000020) in ClearUnorderedAccessViewUint. After preserving the matching
+proxies, original/cropped creation, eight consecutive cropped frames, 15% and
+25% crops, cached-table GPU sentinel readback and off fallback all pass with
+zero D3D12 validation errors. Packed stereo on the real proxy also passes.
+The test runs with unrelated test addons parked outside the loader search.
+WARP and raw NVIDIA device tests continue to pass.
+
+The hardware integration tests substantially improve coverage but do not
+replace a full Starfield VR run. Both swapper payloads contain v15. Installed
+game files were not changed. Close Starfield and reinstall the native route.

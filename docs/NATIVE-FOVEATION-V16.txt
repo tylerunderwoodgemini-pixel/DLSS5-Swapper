@@ -1,0 +1,40 @@
+Native foveation v16: normal-run overhead and crop/fallback evidence
+
+The available DFC log from the Oct 11 10:31 run reports one neural pass, no
+private extra passes, 3826x3904 display and a full-image 3635x3709 FP16 HDR
+codec (95% working resolution). The ReShade log was overwritten by another
+launch, so crop/fallback counts from that run cannot be recovered.
+
+Cropping NR does not crop native DLSS or DFC's full-image HDR codec. The
+peripheral NR output is a direct copy of the codec input, which already went
+through DFC's reduced-resolution encoding. The subsequent full-image decode
+can change the outer view even without a second full-frame NR pass. The crop
+area percentage is not a total-frame GPU-cost percentage.
+
+V16 makes forced DRED diagnostics opt-in (NativeFoveation/GpuDiagnostics=1).
+V13-v15 forced breadcrumb/page-fault instrumentation on game devices whenever
+loading order permitted. That debugging overhead should not remain enabled
+in ordinary use. Lightweight device-removal reporting remains available.
+
+State history now excludes buffers, multisampled textures, mip chains and
+texture arrays, since this crop path only accepts single-mip/slice textures.
+This reduces unrelated barrier-history allocation and locking work. Tests
+verify unrelated buffers do not enter the history and existing crop state
+qualification remains intact.
+
+Every 600 evaluations the ReShade log now reports per-feature cropped/full
+counts and the last full-frame reason. This makes repeated fallback visible
+without generating a log line for every frame.
+
+A GPU readback test now initializes a known FP16 NR input and verifies that
+an outer output pixel matches it bit for bit before DFC's final decoding.
+Both real NVIDIA and actual modified-ReShade proxy cases are checked, along
+with packed stereo, cached descriptor tables, small crops and disabled
+fallback. This does not verify final DFC-decoded outer pixels or attribute
+Starfield's full frame time to one component.
+
+Both swapper payloads contain v16. Installed game files were not changed.
+After reinstalling the native route, test once and close the game without
+launching it again, so ReShade.log and DFC.log remain from the same run.
+The full-image DFC codec is still present; this release does not claim that
+native foveation now has the Feeder's complete performance behavior.

@@ -169,3 +169,7 @@ Checked against upstream source and its [v2.2.9 release](https://github.com/raka
 Application source changes from the v2.2.0 base are in `main.js`, `preload.js`, `src/core/agility-runtime.js`, `apply.js`, `backend-manager.js`, `deep-fried-chicken.js`, `feeder-config.js`, `feeder-release.js`, `install-stability.js`, `native-foveation-install.js`, `openxr-pose-install.js`, `runtime-components.js`, `scan.js`, `vr-auto.js`, `vr-foveation.js`, and `src/renderer/renderer.js`. Remaining changes are packaging/docs, tests, native helper/build source, binaries and third-party dependencies/notices. A large line diff in `main.js`/`apply.js` also includes reformatting and is not counted as thousands of separate features.
 
 This audit records implemented/shipped differences and observed metadata. It does not replace game testing, resolve every older UI description, or establish universal API/GPU/game compatibility.
+
+## vr.3 additions since vr.2
+
+Full stationary OpenXR ReShade menu/controller input blocking, working native D3D12 crop/reduced-resolution/feather pipeline with GPU-fenced history retirement and compute binding restoration, DFC queue identity pause/loading recovery, NMS Vulkan/Streamline/device identity repairs, Starfield folder-scan fixes, runtime guide validation and bounded recovery, live per-feature diagnostics/report export, tracked capability reports and an evidence-based compatibility matrix. Exact binary repair scripts and new regression harnesses are included. Native Vulkan/D3D11 crop and universal game certification remain unavailable.

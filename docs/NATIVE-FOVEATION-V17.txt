@@ -1,0 +1,33 @@
+Native foveation v17: crop resizing and GPU lifetime
+
+The Oct 11 Starfield log records successful 15% and larger crops, followed
+by "restart to rebuild crop cache" at 10:50:30. Each feature permanently
+cached eight width/height combinations, including intermediate slider
+positions. New sizes then reverted to full-frame NR. Returning to 15%
+reused an existing crop. Multi-pass DFC also multiplied retained images.
+
+V17 keeps one active size per NR feature and retires obsolete handles and
+images. Recorded command lists retain each crop until Reset discards those
+recordings, and each Execute submission adds a completion fence after its
+commands. Cleanup requires both conditions: no reusable recorded list and
+all associated GPU submissions completed. Re-executing a list adds another
+completion point. Failed queue signals retain objects conservatively.
+ReleaseFeature follows the same delayed cleanup for cropped features.
+
+The lifetime-long normal crop image pool and eight-size cache limit have
+been removed. Only uncertain initialization failures retain images for the
+process lifetime. A bound on outstanding retired crops remains to protect
+against unsubmitted lists, stalled devices and unbounded recordings.
+Provider proxy preservation, isolated creation and binding restoration
+remain as in v15-v16.
+
+Validation: WARP GPU copies, reset/discard and feature-release lifetime;
+real NVIDIA NR on native D3D12, modified ReShade proxy and packed stereo.
+The real runtime test cycles 22 sizes on three independent NR features,
+asserts every evaluation remains cropped, and verifies obsolete features
+are reclaimed after submission completion/reset, with no D3D12 errors or
+device removal. Cached caller bindings and outer FP16 pixels remain checked.
+
+Both swapper payloads contain v17. Installed game files are unchanged.
+Reinstall after closing the game, then resize repeatedly through several
+values. These automated checks do not replace a Starfield headset test.

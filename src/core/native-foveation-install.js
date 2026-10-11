@@ -9,13 +9,18 @@ function verifyPayload(payloadDir){
     throw Error('Native DLSS foveation payload is missing or invalid: '+file);
   return file;
 }
-async function install({payloadDir,gameDir,exePath,manifest,preset='off'},send=()=>{}){
+async function install({payloadDir,gameDir,exePath,manifest,preset='off',feederVulkan=false,stereoLayout},send=()=>{}){
   const source=verifyPayload(payloadDir),dir=path.dirname(exePath),core=require('./apply'),ini=require('./feeder-config');
   const dest=path.join(dir,ADDON),config=path.join(dir,CONFIG);
+  if(feederVulkan && !fs.readFileSync(source).includes(Buffer.from('Vulkan Feeder transport')))throw Error('Vulkan Feeder foveation requires the updated neural crop bridge.');
   const selected=vr.configFor(preset);
   let text=fs.existsSync(config)?fs.readFileSync(config,'utf8'):'';
   text=ini.setIni(text,'NativeFoveation','Preset',String(selected.enabled?selected.preset:0));
   if(!ini.getIni(text,'NativeFoveation','StereoLayout'))text=ini.setIni(text,'NativeFoveation','StereoLayout','0');
+  text=ini.setIni(text,'NativeFoveation','FeederVulkan',feederVulkan?'1':'0');
+  if(!ini.getIni(text,'NativeFoveation','NeuralScalePercent'))text=ini.setIni(text,'NativeFoveation','NeuralScalePercent','85');
+  if(!ini.getIni(text,'NativeFoveation','FeatherPercent'))text=ini.setIni(text,'NativeFoveation','FeatherPercent','10');
+  if(stereoLayout!==undefined)text=ini.setIni(text,'NativeFoveation','StereoLayout',String(stereoLayout?1:0));
   if(manifest){await core.copyTracked(manifest,gameDir,source,dest,{kind:'native-vr-foveation'});await core.writeTracked(manifest,gameDir,config,text,{kind:'config'});}
   else {fs.copyFileSync(source,dest);fs.writeFileSync(config,text);}
   const hash=file=>crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');

@@ -1,0 +1,18 @@
+NMS Vulkan/OpenXR owner routing (2026-10-10)
+
+Latest NMS logs show DFC neural evaluations succeeding on a GLFW30 desktop
+runtime, and ReShade skipping the OpenXR session because no Vulkan device
+is known. The XR router selected its shared fallback DLL while the Vulkan
+implicit layer registration refers to a different DLL path.
+
+Router v3 accepts an installer-generated dlss5-openxr-vulkan.ini file with
+[Routing] VulkanOwner set to the registered layer DLL. It loads that owner
+before the generic fallback, so Vulkan and XR dispatch share one module.
+Existing process owners still take precedence. The installer tracks the
+per-game configuration for restoration and updates the shared router.
+No installed game files or global registrations changed during development.
+
+Controlled tests: configured Vulkan owner, existing owner, shared fallback,
+missing owner, adapter forwarding and lifetime; all 88 app tests passed.
+Real NMS headset rendering and Vulkan feeder foveation remain unverified.
+This change addresses ownership; it does not add a Vulkan foveation engine.

@@ -1,0 +1,32 @@
+Native foveation v14: Starfield creation crash and descriptor-heap restoration
+
+The Oct 11 07:50 Starfield.exe.38364.dmp records an access violation in
+D3D12Core!CGraphicsCommandList::SetDescriptorHeapsInternal during NVIDIA NR
+CreateFeature, called by the crop bridge from DFC's active producer list.
+The invalid heap pointer was 0x60000020A0000001. This is a CPU crash during
+creation, unlike the older device-removal cleanup dump.
+
+Crop features now initialize on a fresh command list with its own queue,
+allocator and fence. Initialization completes before the producer evaluates
+that feature. No first-frame full-NR warmup is introduced. The extra queue
+and CPU wait occur when building a new crop variant, not on every frame.
+Multi-node devices retain the original route rather than guessing node masks.
+
+A stronger hardware regression also reproduced a separate binding defect:
+NVIDIA NR evaluation leaves its private descriptor heap bound. The prior
+sentinel test used a root UAV and therefore missed it. A cached descriptor
+TABLE produces a D3D12 heap-mismatch validation error without restoration.
+The bridge now observes native SetDescriptorHeaps and restores the caller's
+known heaps after cropped evaluation. Reset/destroy clears heap observations;
+NR's own heap changes do not overwrite the saved caller bindings.
+
+Verification: WARP crop/periphery/state/fallback tests; actual NVIDIA NR using
+Starfield's 3635x3709 FP16 images, 2220x2264 R32_TYPELESS depth and R16G16_SNORM
+motion images, actual motion scales, 15% and 25% crops; GPU sentinel readback
+through a cached descriptor table after first crop creation/evaluation; packed
+stereo tests. All complete with no D3D12 error messages. Installer and payload
+verification also pass. Full Starfield integration still requires an in-game
+run; the tests do not establish that every possible crash is resolved.
+
+Both swapper payloads contain v14. Installed game files were not changed.
+Close Starfield and reinstall the native route using this swapper.

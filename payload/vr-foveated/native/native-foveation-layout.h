@@ -11,8 +11,8 @@ inline bool valid(Rect r, unsigned w, unsigned h) {
 inline Rect crop(Rect eye, unsigned width, unsigned height) {
   // Align crop dimensions to eight pixels. Never expand
   // beyond the original eye viewport, including odd-sized engine buffers.
-  unsigned w = (eye.w * std::clamp(width, 35u, 90u) / 100u) & ~7u;
-  unsigned h = (eye.h * std::clamp(height, 35u, 90u) / 100u) & ~7u;
+  unsigned w = (eye.w * std::clamp(width, 15u, 90u) / 100u) & ~7u;
+  unsigned h = (eye.h * std::clamp(height, 15u, 90u) / 100u) & ~7u;
   if (w < 64 || h < 64)
     return {};
   return {eye.x + (eye.w - w) / 2, eye.y + (eye.h - h) / 2, w, h};

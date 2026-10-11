@@ -733,21 +733,41 @@ function jobLog(line) {
   if ($('copyJob')) $('copyJob').disabled = jobLines.length === 0;
 }
 
+let sheetRequest = 0;
+
+function boundedRequest(promise, ms, message) {
+  let timer;
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => { timer = setTimeout(() => reject(new Error(message)), ms); })
+  ]).finally(() => clearTimeout(timer));
+}
+
 async function openSheet(dir, keepLog = false) {
   if (jobRunning) return;
   const g = state.games.find((x) => x.dir === dir);
   if (!g) return;
+  const request = ++sheetRequest;
   sheetGame = g;
+  sheetDetails = null;
   if (!keepLog) jobLines = [];
 
   $('overlay').classList.remove('hidden');
   $('sheet').innerHTML = '<div class="pad" style="color:var(--dim)">Reading the folder…</div>';
 
-  const [d, art] = await Promise.all([
-    window.lab.details(dir),
-    window.lab.artFetch(dir, g.name, g.appid)
-  ]);
-  if (sheetGame !== g) return;
+  let d;
+  try {
+    d = await boundedRequest(window.lab.details(dir), 30000, 'Folder reading timed out. Please try again.');
+  } catch (error) {
+    if (request !== sheetRequest || sheetGame !== g) return;
+    $('sheet').innerHTML = `<div class="pad"><button class="close" id="sheetClose">×</button><p>${esc(error.message || 'Unable to read this folder.')}</p></div>`;
+    $('sheetClose').onclick = closeSheet;
+    throw error;
+  }
+  if (request !== sheetRequest || sheetGame !== g) return;
+  // Artwork is optional: never make a local folder read wait for Steam.
+  const art = await boundedRequest(window.lab.artFetch(dir, g.name, g.appid, true), 250, 'Artwork unavailable').catch(() => null);
+  if (request !== sheetRequest || sheetGame !== g) return;
   sheetDetails = d;
   if (!exeChoice.has(dir) && d.installedExe) {
     const installed = d.exes.find((item) => item.rel.toLowerCase() === String(d.installedExe).toLowerCase());
@@ -949,6 +969,7 @@ async function runJob(kind, dir) {
 
 function closeSheet() {
   if (jobRunning) return;
+  ++sheetRequest;
   sheetGame = null;
   sheetDetails = null;
   $('overlay').classList.add('hidden');
@@ -1088,7 +1109,7 @@ async function performGameAction(action, dir) {
   if (!game) return;
   if (!['open', 'copy'].includes(action) && (jobRunning || cardActionsBusy.size)) return;
   if (action === 'copy') return copyText(dir);
-  const locksCard = action !== 'open';
+  const locksCard = !['open', 'details'].includes(action);
   if (locksCard) cardActionsBusy.add(dir);
   try {
     if (action === 'details') {

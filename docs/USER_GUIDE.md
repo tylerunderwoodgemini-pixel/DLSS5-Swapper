@@ -88,11 +88,11 @@ On the **native DLSS route**, “No effects found” is not itself a failure: na
 
 For a 64-bit **DirectX 12** game with native DLSS, keep the **Native DLSS** installation route, select your neural provider and **VR foveation → Balanced**, then install. Enable DLSS/DLAA in the game. Reinstall an existing native installation to receive the new bridge. Native SR remains full frame; only the neural-rendering center is cropped. DFC runs this after SR; TRUE Upstream runs it before SR.
 
-Open **ReShade → Add-ons → Native DLSS VR foveation**. Its preset selector changes Off/Small/Balanced/Wide/Large live. **Native NR stereo layout** defaults to **Separate eye / mono features**. Choose **Packed side-by-side** if the native NR color buffer contains both eyes in one texture. Each original feature/resource pair and each packed eye receives its own crop history. The outer image is the current input and the border is feathered.
+Open **ReShade → Add-ons → Native DLSS VR foveation**. Its preset selector changes Off/Small/Balanced/Wide/Large live. **Native NR stereo layout** defaults to **Separate eye / mono features**. Choose **Packed side-by-side** if the native NR color buffer contains both eyes in one texture. Each original feature/resource pair and each packed eye receives its own crop history. The outer image is the current input and the border is feathered. Width and height sliders apply when released. **Neural center resolution (%)** defaults to **85%**: it reduces model resolution inside the selected region, then bilinearly restores its visible size. Use **100%** for full crop detail, or **75%** for a cheaper, softer neural center. **Edge fade (%)** defaults to **10%** and blends inward to the original image; **0%** restores a hard boundary. Both controls save to `dlss5-native-foveation.ini` and preserve your choices on reinstall. These settings reduce the NR cost; native DLSS and DFC's full-image conversion still run.
 
 Confirm **Native foveation active** and an increasing **Cropped NR calls** counter. Full-frame fallback states explain an unsupported resource format, missing guide, unobserved state, cache limit or rejected cropped feature. A selected preset alone does not prove it is active. The bridge does not reinitialize NGX or replace the game's native DLSS call; crop creation uses DFC's existing companion or an initialized NGX core. Providers without either path retain full-frame rendering.
 
-This new native bridge is experimental. Installer/regression tests and a WARP GPU test using a fake NR backend passed; proprietary NVIDIA-model execution and headset image quality still need game testing. Array textures, in-place color/output, mismatched color/output viewports and unsupported/unknown resource states retain the normal native path. Native D3D11/Vulkan foveation is not implemented by this bridge. Sharing the same original handle and same buffers between alternating separate eyes cannot establish eye identity; use a supported per-eye or packed path.
+The native bridge is experimental. Installer/regression tests, WARP pixel readbacks with GPU validation, and real NVIDIA-runtime tests on native and modified-ReShade proxy devices passed. Headset image quality and total-game FPS still need game testing. Array textures, in-place color/output, mismatched color/output viewports and unsupported/unknown resource states retain the normal native path. Native D3D11/Vulkan foveation is not implemented by this bridge. Sharing the same original handle and same buffers between alternating separate eyes cannot establish eye identity; use a supported per-eye or packed path.
 
 ## Adjusting Feeder VR foveation live
 
@@ -154,3 +154,34 @@ Test in actual gameplay, not only a static menu. Watch nearby objects, distant e
 For a report, include the game name, actual executable, API, GPU/driver, native VR or UEVR build/runtime/stereo method, selections in the Swapper, and whether the problem occurs in the headset or desktop. Collect **Copy log** plus the newest `ReShade.log`, `dlss5-feed.log`, `deep-fried-chicken.log` and `dlss5-vr-compat.log` beside the real game executable, where present. For UEVR also include its game-profile `log.txt`. Review logs for personal paths before posting them publicly.
 
 The guide's Swapper screens were checked in the running app; in-game control names were checked against the packaged source/config and component docs. Every described in-game combination has not been visually validated. See the fork README for supported paths and remaining limitations.
+
+
+### OpenXR headset menu (DX11 / DX12)
+
+Press **F8** to open the full ReShade menu inside the headset. It appears in front
+of you at your opening position and stays stationary as you turn or lean. Close
+and reopen it with F8 to place it in front of you again. Point your right controller
+at the visible mouse cursor and use the trigger to click or drag controls. Drag
+scrollbars to reach longer settings pages, or use the **right thumbstick** to
+scroll up/down and left/right (Vive controllers use the right trackpad). The game receives no OpenXR action-set,
+keyboard, mouse or XInput controls while the panel is open; closing it restores
+those controls. Home continues to open the desktop menu.
+
+All ReShade and registered add-on tabs appear in the panel. Shader parameter,
+technique and preset changes are forwarded to the headset effect runtimes. The
+menu itself does not run neural rendering or other effects on its texture.
+
+For the Feeder route, use **Add-ons > DLSS 5 Feed > Enable VR foveation / VR
+foveation size** and keep the selected neural consumer enabled. For native DLSS,
+use **Native DLSS VR foveation**. A Feeder running status alone does not establish
+that its neural result reached the headset. Unsupported crop layouts keep the
+full-frame Feeder path; they must not disable feeding entirely.
+
+The F8 panel currently supports OpenXR with DX11/DX12. Vulkan/OpenGL headset
+menus are not implemented.
+
+## Compatibility reports and recovery (vr.3)
+
+Each managed install creates `dlss5-compatibility.json` beside the executable. It records supported foveation paths and limitations; restore removes or restores it through the installation journal. For native cropping, the F8 full ReShade menu contains **Native DLSS VR foveation**: check recent features, cropping status, eye count and dimensions. **Save compatibility report** writes `dlss5-native-foveation-status.json` beside the executable. Older counters alone do not prove an active effect.
+
+Pause/loading and late VR startup reset stale histories automatically. A cropped evaluation failure receives at most two retries after a five-second delay and completed GPU retirement. Unknown states and unsupported layouts retain the ordinary rendering path. Native Vulkan/D3D11 cropping is not available; use the documented Feeder path where supported. See [compatibility coverage](COMPATIBILITY_MATRIX.md) before treating an untested game as supported.

@@ -14,6 +14,11 @@ const RELEASE = {
   }
 };
 
+// Exact-build DLAA alignment and native/proxy queue identity repairs.
+const DLAA_PADDING_SHA256 = '7076f85df1c883800d714ed66c36461170a13dabadf7b3d77824587b941cd972';
+
+const NATIVE_CALLER_BRIDGE_SHA256 = 'cc4bfcc10921e3c3157711328e7754d36c9ada6a39587c62cfb99d700cece395';
+
 function digest(file) {
   return crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 }
@@ -24,7 +29,10 @@ function validateRoot(root) {
   for (const [name, expected] of Object.entries(RELEASE.files)) {
     const file = path.join(root, name);
     if (!fs.existsSync(file)) continue;
-    if (digest(file) !== expected) throw new Error(`Deep Fried Chicken ${name} failed SHA-256 verification`);
+    const actual = digest(file);
+    const paddingRepair = name === 'deep-fried-chicken.addon64' && [DLAA_PADDING_SHA256, '1c88c0ffddb46ceb6b97ddff60e96ed3dd7bbe478546b38a8d67ce9b0d31047a'].includes(actual);
+    const nativeBridge = name === 'deep-fried-chicken-nvngx.dll' && actual === NATIVE_CALLER_BRIDGE_SHA256;
+    if (actual !== expected && !paddingRepair && !nativeBridge) throw new Error(`Deep Fried Chicken ${name} failed SHA-256 verification`);
   }
   return {
     root,

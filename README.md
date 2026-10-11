@@ -21,7 +21,7 @@ Download the portable ZIP from this fork's Releases, extract it completely, and 
 - D3D11 depth detection for layered, aligned, offset and gapped eye layouts.
 - Submitted-image pose synchronization, current-frame compositing and temporal history/fallback/recovery protection.
 - UEVR desktop UI, D3D12 queue/device compatibility and missing matching Agility runtime support.
-- Verified offline feeder v26.28 and cache integrity checks.
+- Verified offline feeder v26.29 and cache integrity checks.
 - Install-time temporal history and synthetic guide repair, with tracked backups and verification records; conservative packaged DFC appearance settings.
 - Native test fixtures, portable build support, component notices, usage instructions and release checksums.
 
@@ -61,3 +61,5 @@ The feeder source transformation needs a separately supplied NVIDIA archive and 
 Original application: **Rakan Alkhaldi**, MIT licence. Fork integration: **Tyler Underwood**. See `LICENSE`, `THIRD_PARTY_NOTICES.md`, and component notices. NVIDIA runtime DLLs and other third-party software are not relicensed under the application's MIT licence; no NVIDIA endorsement is claimed.
 
 [Original v2.2.0 README](docs/UPSTREAM-README-v2.2.0.md).
+
+See [vr.3 compatibility coverage](docs/COMPATIBILITY_MATRIX.md) and the [new release notes](docs/RELEASE_NOTES_VR_3.md) for working paths, recovery changes, diagnostic reports and remaining limits.

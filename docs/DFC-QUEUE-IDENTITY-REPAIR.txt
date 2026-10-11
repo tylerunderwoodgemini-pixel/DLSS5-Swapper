@@ -1,0 +1,43 @@
+Native pause/loading recovery: DFC queue identity repair (2026-10-11)
+
+Observed Starfield log: native DLSS release requested deferred feature-18
+retirement; queue tracking then became unreliable and rebuild stayed blocked.
+Manual master toggles resumed surviving graphs, but repeated recreation reached
+the four-pair lifetime budget because retirement was blocked.
+
+DFC's hook installer at RVA FB50 accepts one ExecuteCommandLists entry point.
+Its ReShade event path can supply a proxy queue whose Execute entry differs
+from the underlying native queue already hooked. The mismatch marks the hook
+invalid and propagates into the permanent teardown failure state.
+
+The exact-build patch resolves the modified ReShade IID_UnwrappedObject queue
+before invoking the original installer. It retains the acquired reference until
+the installer returns, then releases it. Native queues fall through unchanged.
+Real hook failures still fail closed. Fence checks, retirement logic, native
+feature release and pair allocation limits are unchanged.
+
+Both generic and NMS DFC payloads include this repair. Companion runtime and
+native foveation v20 are unchanged, including crop size, quality and feathering.
+Application checksum validation and both bundled payload copies are updated.
+Installed game files were not replaced; reinstall through the swapper after
+closing the game. Restart the swapper to reload its application modules.
+
+Validation:
+- Unicorn executes the original identity mismatch and reproduces hook poisoning.
+- Patched machine code accepts 100 native and 100 wrapped queue registrations;
+  failed unwrap still preserves the original failure path, references balance.
+- Native CPU test executes the wrapper with the actual modified ReShade queue
+  and its native queue: all 200 calls resolve to the same underlying identity.
+- Original executable code outside the seven-byte installer entry is unchanged.
+- DLAA padding executable tests and NMS Vulkan wrapper checks still pass.
+- Native and NMS installer checks and payload verification pass.
+
+The remaining integration check is returning from pause/loading in Starfield
+without toggling F8; this was not exercised by the standalone harness.
+
+Reproduce generic build: stock fixture -> patch-dfc-dlaa-padding.py ->
+patch-dfc-queue-identity.py. For NMS, apply its Streamline and device identity
+repairs before the queue identity repair.
+
+Generic SHA256: 7076f85df1c883800d714ed66c36461170a13dabadf7b3d77824587b941cd972
+NMS SHA256: 7a50dc8ddd6c1a7e389106c7fe8b1ed49abd5f045cc133de477675f25a5d882d

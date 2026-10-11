@@ -312,8 +312,27 @@ async function preflight({ mode, api, bitness, reshadeSetup, neuralProvider, pay
 
 async function finalize({ mode, gameDir, exePath, api, bitness, reshadeSetup, neuralProvider, payloadDir, manifest, route, vrFoveation: foveation='off', installReShade=true, enableVR=true }, send = () => {}) {
   const direct64=Number(bitness || 64)===64 && ['dxgi','d3d10','d3d11','d3d12'].includes(apiArg(api));
+  await require('./vr-compatibility-plan').install({mode,gameDir,exePath,api,bitness,manifest,route,neuralProvider,vrFoveation:foveation,vrMode:enableVR?'auto':'off'});
   if(mode==='none'&&!direct64)return;
   const exeDir=path.dirname(exePath);
+  if(apiArg(api)==='vulkan' && Number(bitness||64)===64 && enableVR!==false && manifest && manifest.vulkanLayer) {
+    const vkManifest=manifest.vulkanLayer.manifest;
+    const layer=JSON.parse(await fs.promises.readFile(vkManifest,'utf8'));
+    const library=path.resolve(path.dirname(vkManifest),layer.layer.library_path);
+    if(!fs.existsSync(library))throw new Error('Registered Vulkan ReShade module is missing: '+library);
+    const routerSource=path.join(payloadDir,'openxr','DLSS5OpenXRRouter.dll');
+    const shared=path.join(process.env.LOCALAPPDATA || os.tmpdir(),'DLSS5-Swapper','openxr-router-v2');
+    fs.mkdirSync(shared,{recursive:true});
+    const router=path.join(shared,'DLSS5OpenXRRouter.dll');
+    if(!fs.existsSync(router)||fileHash(routerSource)!==fileHash(router))fs.copyFileSync(routerSource,router);
+    const config=path.join(exeDir,'dlss5-openxr-vulkan.ini');
+    const core=require('./apply');
+    await core.trackBeforeWrite(manifest,gameDir,config,{kind:'config'});
+    await core.saveActiveManifest(gameDir,manifest);
+    await fs.promises.writeFile(config,'[Routing]\r\nVulkanOwner='+library+'\r\n','utf8');
+    await core.saveActiveManifest(gameDir,manifest);
+    trace(exeDir,'Vulkan/OpenXR shared owner='+library);
+  }
   if (neuralProvider==='deep-fried-chicken')await installLifecycleHelper(payloadDir,exeDir,send,{manifest,gameDir});
   if (direct64 && installReShade!==false && enableVR!==false) {
     const core=require('./apply');
@@ -332,6 +351,8 @@ async function finalize({ mode, gameDir, exePath, api, bitness, reshadeSetup, ne
   }
   if(direct64&&enableVR!==false)await require('./openxr-pose-install').install({payloadDir,gameDir,exePath,manifest},send);
   if(route==='native'&&direct64&&enableVR!==false)await require('./native-foveation-install').install({payloadDir,gameDir,exePath,manifest,preset:foveation},send);
+  if(route==='feeder' && apiArg(api)==='vulkan' && Number(bitness||64)===64 && enableVR!==false && mode!=='none' && neuralProvider==='deep-fried-chicken')
+    await require('./native-foveation-install').install({payloadDir,gameDir,exePath,manifest,preset:foveation,feederVulkan:true,stereoLayout:(mode==='openvr'||/^nms\.exe$/i.test(path.basename(exePath)))?1:0},send);
   if (mode==='openvr') {
     send({ code:'vrUniversalReady', params:{ mode:'OpenVR', version:VERSION } });
   }
@@ -355,7 +376,10 @@ function wrapBackendManager(backends) {
     const foveation=vrFoveation.normalizePreset(opts.vrFoveation);
     trace(opts.gameDir, `backend install entered route=${route} provider=${neuralProvider} requestedVR=${requestedMode} detected=${detected} resolved=${mode} foveation=${foveation}`);
     const direct64=vrEligible && Number(opts.bitness)===64 && ['dxgi','d3d10','d3d11','d3d12'].includes(apiArg(opts.api));
-    if(mode==='none'&&!direct64)return original({...opts,vrFoveation:'off'},send);
+    if(mode==='none'&&!direct64){
+      const manifest=await original({...opts,vrFoveation:'off'},send);
+      await require('./vr-compatibility-plan').install({...opts,mode,manifest});return manifest;
+    }
 
     const payloadDir=resolvePayloadDir(opts.source,opts.reshadeSetup);
     trace(opts.gameDir, `resolved payload=${payloadDir || '(none)'} reshadeSetup=${opts.reshadeSetup || '(none)'}`);

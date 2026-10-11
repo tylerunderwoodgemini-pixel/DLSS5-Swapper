@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <cstring>
 extern "C" {
+__declspec(dllexport) void *vkGetInstanceProcAddr(void *,const char *) {return nullptr;}
 __declspec(dllexport) const char *ReShadeVersion = "router test";
 __declspec(dllexport) bool ReShadeRegisterAddon(void *, uint32_t) { return true; }
 __declspec(dllexport) int32_t xrNegotiateLoaderApiLayerInterface(const void *loader, const char *name, void *request) {

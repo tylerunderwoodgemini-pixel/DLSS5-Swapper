@@ -1,0 +1,18 @@
+Native foveation v10 (2026-10-10)
+
+Starfield had a running one-pass neural pipeline but repeatedly reported
+color known=1 state=0x40; output known=0, retaining the full frame.
+v10 installs creation/barrier/reset/submission observation at device
+initialization or the first runtime event, before the NR provider loads,
+instead of waiting until its first evaluation. Successful transactions
+now set hook flags, preserving trampolines across repeated observations.
+
+Validated: WARP crop/guide/state and cross-queue regressions, repeated
+attachment and detach; actual NVIDIA first evaluation cropped without a
+full-frame warmup or added output transitions, eight successive frames,
+custom 25x25, disabled fallback, GPU completion and no D3D12 errors.
+Payload and native installation regression checks passed.
+
+Both portable/source payloads contain the rebuilt addon. Installed
+Starfield files are untouched. In-game validation remains pending.
+Native DLSS SR stays full frame; neural-rendering passes are cropped.

@@ -1,4 +1,4 @@
-﻿VR Universal Current-Frame Foveation v26
-marker=vr-universal-foveated26.28
+VR Universal Current-Frame Foveation v26
+marker=vr-universal-foveated26.29
 default=balanced-60x50
 buffers=packed-sbs-headless-768..16384x384..16384

@@ -1,0 +1,56 @@
+Native foveation v19: reduced-resolution neural center and feathering
+
+Reference inspected: ClarkCheekyKent/CheekyFoveatedDLSS commit
+ e016dc756383f1959fe0ce9257a73785cc18605f
+https://github.com/ClarkCheekyKent/CheekyFoveatedDLSS/blob/e016dc756383f1959fe0ce9257a73785cc18605f/src/dlss_nr.cpp
+https://github.com/ClarkCheekyKent/CheekyFoveatedDLSS/blob/e016dc756383f1959fe0ce9257a73785cc18605f/src/nr_codec_shader.hpp
+Its implementation separates visible region dimensions from neural working
+resolution and blends the decoded result. It also offers pre-upscale NR
+and foveated SR; those broader pipeline changes are not implemented here.
+The two new headers are original implementations, not copied Cheeky code.
+
+V19 adds Neural center resolution (%) (50-100, default 85) and Edge fade
+(%) (0-35, default 10). The crop is bilinearly reduced for NR, then bilinearly
+restored to its visible size. Smoothstep weights in both axes blend inward
+from the boundary to the original NR color. The full-strength center remains
+inside the fade band. A 100% working scale preserves native crop resolution;
+a 0% fade restores a hard boundary. Lower neural resolution trades detail
+for processing cost. Controls commit on release and persist on reinstall.
+Original depth/MV guide regions and motion normalization remain unchanged.
+
+Backbuffer guides that exactly alias the color resource and rectangle reuse
+the prepared color crop. This removes a duplicate allocation and copy.
+The processing shaders dispatch only the crop, never the full outer image.
+Source/destination descriptor resources, heaps and programs are retained
+with their crop variant until v17's recording/fence retirement completes.
+
+Native compute binding observation preserves root signature, PSO, descriptor
+heaps/tables, partially written constants, root CBV/SRV/UAV addresses. Own
+NR/shader operations do not overwrite the caller observation. ClearState,
+Reset and bundle execution invalidate unknown state; destruction clears
+recording identity. Unobserved caller state keeps the qualified copy path
+until it can be safely observed, rather than clobbering compute bindings.
+
+Checks passed: WARP with GPU-based validation; original, intermediate fade
+and full-strength pixels; matching fade pixels for both packed eyes; untouched
+outer pixels; aliased-guide reuse; lifetime and repeated resizing; real NVIDIA
+NR on native D3D12 and modified ReShade, plus packed stereo. A GPU sentinel
+checks descriptor tables, constants (including partial writes), root UAV,
+root SRV and root CBV after processing. No debug errors or device removal.
+
+GPU timestamp microbenchmark: 35% width/height, three independent NR passes,
+3635x3709 native images, modified ReShade. Six measured samples per case after
+two warmup frames; median times include crop preparation, periphery copies,
+model evaluation and blending, but exclude native SR and DFC full-frame HDR
+conversion. Legacy-style 100% hard-copy path: 7.7484 ms; 100% feather: 7.7651 ms;
+85% feather: 7.2190 ms (6.8% cheaper); 75% feather: 7.0380 ms (9.2% cheaper).
+Packed 6160x3272 test: legacy 14.1622 ms, 100% feather 14.1943 ms, 85% feather
+13.9566 ms, 75% feather 13.1978 ms. These are synthetic GPU-path timings, not
+Starfield FPS improvements or a native-versus-Feeder controlled comparison.
+
+Both swapper payloads and source copies contain v19. Installer defaults are
+explicit and existing settings are preserved. Installed game files were not
+changed. Close the game and reinstall through the swapper. Test the default
+85%/10% settings first, then 75% if more savings are needed. Total-game FPS,
+head-motion stability and final DFC-decoded fade need headset confirmation.
+Native SR and DFC's full-frame HDR conversion remain costs outside this crop.

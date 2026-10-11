@@ -83,12 +83,23 @@ async function install({payloadDir,gameDir,exePath,manifest},send=()=>{}) {
   // runtime globally just because a VR mod might be injected later.
   const exeDir=path.dirname(exePath), ini=require('./feeder-config');
   const base=fs.existsSync(path.join(exeDir,'ReShade.ini'))?fs.readFileSync(path.join(exeDir,'ReShade.ini'),'utf8'):'';
-  for(const name of ['ReShadeVR.ini','ReShadeDesktopUI.ini']) {
+  for(const name of ['ReShade.ini','ReShadeVR.ini','ReShadeDesktopUI.ini']) {
     const dest=path.join(exeDir,name);
     let text=fs.existsSync(dest)?fs.readFileSync(dest,'utf8'):base;
     text=text.replace(/^Disable=1[ \t]*\r?$/mg,'');
     text=text.replace(/^DisabledAddons=(.*)$/mi,(_line,value)=>'DisabledAddons='+value.split(',').filter(x=>!/(?:vr-pose-bridge|vr-depth-bridge|vr-projection-bridge|vr-current-input|dlss5-vr-compat)/i.test(x)).join(','));
     if(name==='ReShadeDesktopUI.ini')text=ini.setIni(text,'INPUT','KeyOverlay','0,0,0,0');
+    // Bake legacy font magnification into the font atlas for crisp text.
+    const legacyScale=text.match(/^FontScale=([0-9.]+)[ \t]*\r?$/mi);
+    if(!legacyScale || Number(legacyScale[1])===2){
+      const font=text.match(/^FontSize=([0-9.]+)[ \t]*\r?$/mi);
+      if(!font || Number(font[1])===13){
+        text=ini.setIni(text,'STYLE','FontSize','26');
+        text=ini.setIni(text,'STYLE','FontScale','1');
+        text=ini.setIni(text,'OVERLAY','Docking','');
+        text=ini.setIni(text,'OVERLAY','Window','');
+      }
+    }
     if(manifest)await core.writeTracked(manifest,gameDir,dest,text,{kind:'config'});
     else fs.writeFileSync(dest,text);
   }

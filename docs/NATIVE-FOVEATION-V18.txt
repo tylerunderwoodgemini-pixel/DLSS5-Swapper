@@ -1,0 +1,26 @@
+Native foveation v18: release-to-apply sliders
+
+The latest Starfield run (Oct 11 12:54) still loaded v16, confirmed by the
+installed SHA256 F1251FEF... and the log version. Its lifetime-retained
+allocation pool filled at 12:56:02 and caused full-frame fallback. V17's
+retirement fix was present in the swapper payload, but not the installed game.
+
+V18 retains v17's fenced crop cleanup and delays size changes until the
+width or height slider is released. Mouse/controller drag values preview in
+the UI without rebuilding neural histories at each intermediate percentage.
+Keyboard edits also finish through ImGui item activation. Discrete changes
+commit immediately. Switching presets cancels any pending slider edit.
+
+A larger selected area still increases legitimate NR compute and memory
+cost, multiplied by DFC neural pass count. This does not impose a fixed
+performance budget or change selected pass count. The UI states that sizes
+apply on release and larger areas require more neural processing.
+
+Validation covers draft preservation during dragging, a single commit on
+release and discrete edits, WARP GPU lifetime/copies, and repeated real NR
+resizing through the modified ReShade proxy. Swapper payload and install
+verification pass. No installed game files were replaced.
+
+Close Starfield and reinstall the native route through the swapper. The
+next ReShade.log must show v18. Test a drag followed by a pause at a moderate
+size, and return to 15% to compare settled performance.

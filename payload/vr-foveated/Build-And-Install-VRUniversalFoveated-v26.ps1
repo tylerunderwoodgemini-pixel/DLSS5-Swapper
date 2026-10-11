@@ -172,7 +172,7 @@ static bool VrGuideProbeDue(ULONGLONG now)
     $src = Replace-LiteralOnce $src '    if ((g_guide_probe_frames % kGuideProbeEvery) != 0) return;' $probeCapture 'VR probe owner'
 
     # Mark the binary clearly.
-    $src = Replace-LiteralOnce $src '#define FEED_VERSION "1.16.0-beta.4"' '#define FEED_VERSION "1.16.0-beta.4-vr-universal-foveated26.28"' 'version marker'
+    $src = Replace-LiteralOnce $src '#define FEED_VERSION "1.16.0-beta.4"' '#define FEED_VERSION "1.16.0-beta.4-vr-universal-foveated26.29"' 'version marker'
 
     # Insert the helpers immediately before the real function. This is deliberately
     # independent of comments/newline style around the function.
@@ -1787,19 +1787,11 @@ if (vr_foveated)
 {
     if (!g_cfg.enabled) return;
 
-    {
-        // Only the no-window headset effect runtime is eligible. This keeps desktop
-        // mirrors out without assuming one headset's resolution.
-        if (rt->get_hwnd() != 0) return;
-        reshade::api::device *vr_dev = rt->get_device();
-        const reshade::api::resource vr_res =
-            vr_dev != nullptr ? vr_dev->get_resource_from_view(rtv) : reshade::api::resource{};
-        if (vr_dev == nullptr || vr_res.handle == 0) return;
-        const reshade::api::resource_desc vr_desc = vr_dev->get_resource_desc(vr_res);
-        const UINT vr_w = vr_desc.texture.width;
-        const UINT vr_h = vr_desc.texture.height;
-        if (!VrPackedSbsCandidate(vr_w, vr_h)) return;
-    }
+    // Cropping eligibility must not decide whether the feeder runs at all.
+    // Reject desktop mirrors only while an actual headset owns the feed.
+    // Other layouts and flat games retain the full-frame path.
+    if (rt->get_hwnd() != 0 && (g_vr_runtime_owner != nullptr ||
+        (g_vr_runtime_hold_until && GetTickCount64() < g_vr_runtime_hold_until))) return;
 '@
     $rbody = Replace-LiteralOnce $rbody $renderOpen $renderOpenV5 'full-SBS VR target gate'
     $src = $rbefore + $rbody + $rafter
@@ -2101,7 +2093,7 @@ exit /b %errorlevel%
     Copy-Item -LiteralPath $currentInput -Destination (Join-Path $Out 'vr-current-input.addon64') -Force
     @(
       'VR Universal Current-Frame Foveation v26',
-      'marker=vr-universal-foveated26.28',
+      'marker=vr-universal-foveated26.29',
       'default=balanced-60x50',
       'buffers=packed-sbs-headless-768..16384x384..16384'
     ) | Set-Content -LiteralPath (Join-Path $Out 'VR_FOVEATED_V26.txt') -Encoding UTF8

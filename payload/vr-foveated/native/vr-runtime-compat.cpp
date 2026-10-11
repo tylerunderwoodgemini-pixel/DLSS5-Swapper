@@ -1,6 +1,7 @@
 #define WIN32_LEAN_AND_MEAN
 #define XR_NO_PROTOTYPES
 #define XR_USE_GRAPHICS_API_D3D12
+#define XR_USE_GRAPHICS_API_D3D11
 #include <windows.h>
 #include <d3d12.h>
 #include <d3d11.h>
@@ -9,12 +10,14 @@
 #include <cstring>
 #include <cstdio>
 #include <mutex>
+#include <atomic>
 #include <map>
 #include <intrin.h>
 #include <detours.h>
 #include "pose-data.h"
 #include "openxr/openxr_loader_negotiation.h"
 #include <openxr/openxr_platform.h>
+#include "imgui/imgui.h"
 #include <reshade.hpp>
 #include "reshade-internals/source/com_ptr.hpp"
 #include "reshade-internals/source/d3d12/d3d12_impl_command_queue.hpp"
@@ -32,6 +35,7 @@ static HMODULE reshade_owner;
 static PFN_xrGetInstanceProcAddr owner_gipa;
 static PFN_xrEndFrame owner_end_frame;
 static unsigned submitted_pose_frames;
+static std::atomic<ULONGLONG> last_xr_submission{0};
 static XrResult XRAPI_CALL SubmittedEndFrame(XrSession h,const XrFrameEndInfo *info);
 using ResourceDevice=HRESULT (STDMETHODCALLTYPE *)(ID3D12Resource *,REFIID,void **);
 static ResourceDevice resource_device;
@@ -58,19 +62,22 @@ static void Log(const char *s) {
     HANDLE f=CreateFileW(path,FILE_APPEND_DATA,FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_ALWAYS,0,nullptr);
     if(f!=INVALID_HANDLE_VALUE){DWORD n;WriteFile(f,s,(DWORD)strlen(s),&n,nullptr);WriteFile(f,"\r\n",2,&n,nullptr);CloseHandle(f);}
 }
+#include "openxr-dashboard.h"
 static bool NeedsDesktopMirrorUI() {
 #ifdef PALIA_QUEUE_TEST
     extern bool test_mirror_active;
     return test_mirror_active;
 #else
-    return GetModuleHandleW(L"UEVRBackend.dll") != nullptr;
+    const auto tick=last_xr_submission.load(std::memory_order_relaxed);
+    return GetModuleHandleW(L"UEVRBackend.dll") != nullptr || (tick && GetTickCount64()-tick<2000);
 #endif
 }
 static HRESULT STDMETHODCALLTYPE FinalPresent(IDXGISwapChain *chain,UINT interval,UINT flags) {
     if(NeedsDesktopMirrorUI()&&chain==ui_chain&&ui_runtime&&!drawing_ui&&!(flags&DXGI_PRESENT_TEST)){
         drawing_ui=true;
         HWND foreground=GetForegroundWindow();DWORD pid=0;GetWindowThreadProcessId(foreground,&pid);
-        const bool key=pid==GetCurrentProcessId()&&(GetAsyncKeyState(VK_HOME)&0x8000)!=0;
+        if(vr_dashboard_block::active.load()){ui_open=false;ui_runtime->open_overlay(false,reshade::api::input_source::keyboard);}
+        const bool key=!vr_dashboard_block::active.load()&&pid==GetCurrentProcessId()&&(GetAsyncKeyState(VK_HOME)&0x8000)!=0;
         if(key&&!ui_key_down){ui_open=!ui_open;ui_runtime->open_overlay(ui_open,reshade::api::input_source::keyboard);Log(ui_open?"Independent desktop UI opened":"Independent desktop UI closed");}
         ui_key_down=key;
         reshade::update_and_present_effect_runtime(ui_runtime);
@@ -136,9 +143,10 @@ static bool ArmDesktop(reshade::api::effect_runtime *desktop) {
     Log("UEVR desktop Present bridge armed on existing ReShade swapchain");return true;
 }
 static reshade::api::effect_runtime *desktop_runtime;
-static void InitRuntime(reshade::api::effect_runtime *rt){if(rt->get_hwnd())desktop_runtime=rt;}
-static void DestroyRuntime(reshade::api::effect_runtime *rt){if(desktop_runtime==rt){desktop_runtime=nullptr;desktop_native=nullptr;desktop_proxy=nullptr;}}
+static void InitRuntime(reshade::api::effect_runtime *rt){vr_menu::Track(rt);if(!vr_menu::building&&rt->get_hwnd())desktop_runtime=rt;}
+static void DestroyRuntime(reshade::api::effect_runtime *rt){vr_menu::Forget(rt);if(desktop_runtime==rt){desktop_runtime=nullptr;desktop_native=nullptr;desktop_proxy=nullptr;}}
 static void Present(reshade::api::command_queue *queue,reshade::api::swapchain *chain,const reshade::api::rect *,const reshade::api::rect *,uint32_t,const reshade::api::rect *){
+    if(vr_menu::building)return;
     if(!ui_runtime)CreateDesktopUI(queue,chain->get_native());
     if(desktop_runtime && chain->get_native()==desktop_runtime->get_native()){
         in_reshade_desktop=true;
@@ -175,7 +183,15 @@ static bool ArmDeviceIdentity(ID3D12Resource *resource,HMODULE consumer) {
     Log("DFC-only D3D12 resource device identity adapter armed");return true;
 }
 static void Begin(reshade::api::effect_runtime *rt,reshade::api::command_list *,reshade::api::resource_view,reshade::api::resource_view) {
-    // Desktop UI is rendered on the final DXGI call, after UEVR's mirror draw.
+    // Desktop UI is rendered after the OpenXR mod mirror draw.
+    if(rt->get_hwnd()!=0 && rt!=ui_runtime && rt!=vr_menu::menu_runtime && NeedsDesktopMirrorUI())rt->open_overlay(false,reshade::api::input_source::keyboard);
+    if(!rt->get_hwnd()&&GetModuleHandleW(L"dlss5-feed.addon64")){
+        auto technique=rt->find_technique("DLSS5_Feed.fx","DLSS5_Feed");
+        int state=(rt->get_effects_state()?1:0)|(technique.handle?2:0)|(technique.handle&&rt->get_technique_state(technique)?4:0);
+        static int previous=-1;static unsigned diagnostics=0;
+        if(state!=previous&&diagnostics++<16){previous=state;auto desc=rt->get_device()->get_resource_desc(rt->get_current_back_buffer());char message[256];
+            sprintf_s(message,"Headset Feeder delivery: effects=%d technique-found=%d technique-enabled=%d target=%ux%u format=%u",state&1?1:0,state&2?1:0,state&4?1:0,desc.texture.width,desc.texture.height,(unsigned)desc.texture.format);Log(message);}
+    }
     if(resource_device||rt->get_hwnd()!=0||rt->get_device()->get_api()!=reshade::api::device_api::d3d12)return;
     ArmDeviceIdentity((ID3D12Resource *)rt->get_back_buffer(0).handle,GetModuleHandleW(L"deep-fried-chicken.addon64"));
 }
@@ -198,15 +214,25 @@ static XrResult XRAPI_CALL CreateSession(XrInstance instance,const XrSessionCrea
     if(XR_FAILED(r)||!next)return XR_ERROR_FUNCTION_UNSUPPORTED;
     // Only replace a head binding. Unknown structure chains pass unchanged.
     auto head=info ? (const XrBaseInStructure *)info->next : nullptr;
+    if(head && head->type==XR_TYPE_GRAPHICS_BINDING_D3D11_KHR){
+        auto result=next(instance,info,out);
+        if(XR_SUCCEEDED(result)&&out&&*out)vr_dashboard::Attach11(instance,*out,*(const XrGraphicsBindingD3D11KHR *)head,owner_gipa,info->systemId);
+        return result;
+    }
     if(!head||head->type!=XR_TYPE_GRAPHICS_BINDING_D3D12_KHR)return next(instance,info,out);
     auto binding=*(const XrGraphicsBindingD3D12KHR *)head;
+    auto finish=[&](const XrSessionCreateInfo *ci) {
+        auto result=next(instance,ci,out);
+        if(XR_SUCCEEDED(result)&&out&&*out)vr_dashboard::Attach(instance,*out,*(const XrGraphicsBindingD3D12KHR *)ci->next,owner_gipa,ci->systemId);
+        return result;
+    };
     ID3D12CommandQueue *proxy=nullptr;
     {std::lock_guard<std::mutex> l(guard);auto it=queues.find(binding.queue);if(it!=queues.end()){proxy=it->second;proxy->AddRef();}}
     void *already=nullptr;
     HRESULT original_qi=binding.queue->QueryInterface(queue_iid,&already);
     if(already)((IUnknown *)already)->Release();
     char message[160];sprintf_s(message,"OpenXR original queue proxy QI=0x%08lx; mapped=%d",(unsigned long)original_qi,proxy!=nullptr);Log(message);
-    if(!proxy||SUCCEEDED(original_qi)){if(proxy)proxy->Release();return next(instance,info,out);}
+    if(!proxy||SUCCEEDED(original_qi)){if(proxy)proxy->Release();return finish(info);}
     ID3D12Device *device=nullptr;
     HRESULT device_result=proxy->GetDevice(__uuidof(ID3D12Device),(void **)&device);
     IUnknown *a=nullptr,*b=nullptr;
@@ -218,10 +244,15 @@ static XrResult XRAPI_CALL CreateSession(XrInstance instance,const XrSessionCrea
     }
     bool same=a&&a==b;
     if(a)a->Release();if(b)b->Release();if(device)device->Release();
-    if(!same){Log("Device identity mismatch; preserving original binding");proxy->Release();return next(instance,info,out);}
+    if(!same){Log("Device identity mismatch; preserving original binding");proxy->Release();return finish(info);}
     binding.queue=proxy;auto copy=*info;copy.next=&binding;
-    r=next(instance,&copy,out);proxy->Release();
+    r=finish(&copy);proxy->Release();
     sprintf_s(message,"OpenXR session with validated ReShade queue proxy: %d",r);Log(message);return r;
+}
+static PFN_xrDestroySession original_destroy_session;
+static XrResult XRAPI_CALL DashboardDestroySession(XrSession session){
+    vr_dashboard::Destroy(session);
+    return original_destroy_session?original_destroy_session(session):XR_ERROR_FUNCTION_UNSUPPORTED;
 }
 static XrResult XRAPI_CALL Gipa(XrInstance instance,const char *name,PFN_xrVoidFunction *fn) {
     auto r=owner_gipa(instance,name,fn);
@@ -229,9 +260,14 @@ static XrResult XRAPI_CALL Gipa(XrInstance instance,const char *name,PFN_xrVoidF
     if(XR_SUCCEEDED(r)&&fn&&*fn&&!strcmp(name,"xrEndFrame")&&*fn!=(PFN_xrVoidFunction)SubmittedEndFrame){
         owner_end_frame=(PFN_xrEndFrame)*fn;*fn=(PFN_xrVoidFunction)SubmittedEndFrame;
     }
+    if(XR_SUCCEEDED(r))vr_dashboard_input::Hook(name,fn);
+    if(XR_SUCCEEDED(r)&&fn&&*fn&&!strcmp(name,"xrDestroySession")&&*fn!=(PFN_xrVoidFunction)DashboardDestroySession){
+        original_destroy_session=(PFN_xrDestroySession)*fn;*fn=(PFN_xrVoidFunction)DashboardDestroySession;
+    }
     return r;
 }
 static XrResult XRAPI_CALL SubmittedEndFrame(XrSession h,const XrFrameEndInfo *info){
+    if(info && info->layerCount)last_xr_submission.store(GetTickCount64(),std::memory_order_relaxed);
     auto module=GetModuleHandleW(L"DLSS5OpenXRPose.dll");
     using Capture=bool (__cdecl *)(XrSession,const XrFrameEndInfo *);
     auto capture=module?(Capture)GetProcAddress(module,"DLSS5CaptureOpenXRSubmittedFrame"):nullptr;
@@ -248,6 +284,13 @@ static XrResult XRAPI_CALL SubmittedEndFrame(XrSession h,const XrFrameEndInfo *i
         }
     }
     if(capture&&capture(h,info)&&++submitted_pose_frames<=3)Log("Submitted image eye poses published before ReShade OpenXR effects");
+    XrCompositionLayerQuad dashboard{XR_TYPE_COMPOSITION_LAYER_QUAD};
+    if(owner_end_frame && info && info->layerCount && info->layers && info->layerCount<256 && vr_dashboard::Layer(h,info->displayTime,info->layerCount,dashboard)){
+        std::vector<const XrCompositionLayerBaseHeader *> layers(info->layers,info->layers+info->layerCount);
+        layers.push_back((const XrCompositionLayerBaseHeader *)&dashboard);
+        auto copy=*info;copy.layerCount=(uint32_t)layers.size();copy.layers=layers.data();
+        return owner_end_frame(h,&copy);
+    }
     return owner_end_frame?owner_end_frame(h,info):XR_ERROR_FUNCTION_UNSUPPORTED;
 }
 extern "C" __declspec(dllexport) XrResult XRAPI_CALL xrNegotiateLoaderApiLayerInterface(const XrNegotiateLoaderInfo *info,const char *name,XrNegotiateApiLayerRequest *request) {
@@ -268,7 +311,13 @@ extern "C" __declspec(dllexport) const char *NAME="DLSS5 VR runtime compatibilit
 extern "C" __declspec(dllexport) const char *DESCRIPTION="Reconnects a validated ReShade queue proxy to UEVR OpenXR sessions.";
 extern "C" __declspec(dllexport) BOOL AddonInit(HMODULE module,HMODULE owner) {
     if(!reshade::register_addon(module,owner))return FALSE;
+    reshade::register_event<reshade::addon_event::reshade_set_uniform_value>(vr_menu::Uniform);
+    reshade::register_event<reshade::addon_event::reshade_set_technique_state>(vr_menu::Technique);
+    reshade::register_event<reshade::addon_event::reshade_set_current_preset_path>(vr_menu::Preset);
+    reshade::register_event<reshade::addon_event::reshade_set_effects_state>(vr_menu::Effects);
     reshade_owner=owner;
+    reshade::register_event<reshade::addon_event::reshade_overlay>(vr_menu::Overlay);
+    vr_dashboard_block::Init(module);
     reshade::register_event<reshade::addon_event::init_command_queue>(InitQueue);
     reshade::register_event<reshade::addon_event::destroy_command_queue>(DestroyQueue);
     reshade::register_event<reshade::addon_event::reshade_begin_effects>(Begin);
@@ -279,6 +328,14 @@ extern "C" __declspec(dllexport) BOOL AddonInit(HMODULE module,HMODULE owner) {
     reshade::register_event<reshade::addon_event::destroy_swapchain>(DestroySwapchain);return TRUE;
 }
 extern "C" __declspec(dllexport) void AddonUninit(HMODULE module,HMODULE) {
+    vr_dashboard::Clear();
+    vr_dashboard_block::Clear();
+    vr_menu::Clear();
+    reshade::unregister_event<reshade::addon_event::reshade_set_effects_state>(vr_menu::Effects);
+    reshade::unregister_event<reshade::addon_event::reshade_set_current_preset_path>(vr_menu::Preset);
+    reshade::unregister_event<reshade::addon_event::reshade_set_technique_state>(vr_menu::Technique);
+    reshade::unregister_event<reshade::addon_event::reshade_set_uniform_value>(vr_menu::Uniform);
+    reshade::unregister_event<reshade::addon_event::reshade_overlay>(vr_menu::Overlay);
     reshade::unregister_event<reshade::addon_event::init_command_queue>(InitQueue);
     reshade::unregister_event<reshade::addon_event::destroy_command_queue>(DestroyQueue);
     reshade::unregister_event<reshade::addon_event::reshade_begin_effects>(Begin);

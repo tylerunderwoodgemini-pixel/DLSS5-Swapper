@@ -16,6 +16,10 @@ const SKIP_DIRS = new Set([
   // or executable we need. Skipping them lets packaged Unreal games be scanned
   // deeper without making every library refresh slower.
   'paks', 'movies', 'screenshots', 'saved', 'logs',
+  // Loose Bethesda assets and generated geometry contain no game runtime.
+  // Keep Data itself searchable: SFSE and other runtime plugins live there.
+  'meshes', 'textures', 'geometries', 'temp-mesh', 'materials',
+  'stereo_dumps', 'landscapebrushes',
   'mods', 'downloads', 'overwrite', 'profiles',
   '_redist', 'prerequisites', 'directx', 'redist', 'redistributable',
   'redistributables', '_commonredist', 'dotnet',
@@ -28,7 +32,7 @@ const SKIP_DIRS = new Set([
 const MAX_SCAN_DEPTH = 12;
 
 // Installers, launchers and anti-cheat helpers are never the game itself.
-const NOT_A_GAME = /^(unins|setup|install|vcredist|vc_redist|dxsetup|dxwebsetup|oalinst|uninstall|crashreport|crashhandler|easyanticheat|eac|battleye|be_service|launcher|activation|patch|update|dotnetfx|touchup|rapidcrc|autorun|autoplay|quicksfv|readme|config|benchmark|report|helper|service|cleanup|modorganizer|redlauncher|skse\d*_loader|hlds\b|srcds\b|steamerrorreporter|dgvoodoocpl|reshade_setup)/i;
+const NOT_A_GAME = /^(unins|setup|install|vcredist|vc_redist|dxsetup|dxwebsetup|oalinst|uninstall|crashreport|crashhandler|easyanticheat|eac|battleye|be_service|launcher|activation|patch|update|dotnetfx|touchup|rapidcrc|autorun|autoplay|quicksfv|readme|config|benchmark|report|helper|service|cleanup|modorganizer|creationkit|language selector|sfse_loader|redlauncher|skse\d*_loader|hlds\b|srcds\b|steamerrorreporter|dgvoodoocpl|reshade_setup)/i;
 
 const DLSS_FILE = /^(nvngx_dlss[a-z_]*\.dll|nvngx\.dll|_nvngx\.dll)$/i;
 const STREAMLINE_FILE = /^sl\.[a-z_]+\.dll$/i;
@@ -36,8 +40,8 @@ const RESHADE_HOOKS = ['dxgi.dll', 'd3d12.dll', 'd3d11.dll', 'd3d9.dll', 'opengl
 
 async function walk(root, onFile, maxDepth = 8, options = {}) {
   const queue = [{ dir: root, depth: 0 }];
-  while (queue.length) {
-    const { dir, depth } = queue.shift();
+  for (let cursor = 0; cursor < queue.length; cursor++) {
+    const { dir, depth } = queue[cursor];
     let entries;
     try {
       entries = await fs.promises.readdir(dir, { withFileTypes: true });
@@ -587,8 +591,8 @@ function scanSource(sourceDir) {
     catch { return null; }
   };
   deepFriedChicken.ok = fs.existsSync(deepFriedChicken.config) &&
-    digest(deepFriedChicken.addon64) === deepFriedChicken.expected.addon64 &&
-    digest(deepFriedChicken.nvngx) === deepFriedChicken.expected.nvngx;
+    [deepFriedChicken.expected.addon64, '1c88c0ffddb46ceb6b97ddff60e96ed3dd7bbe478546b38a8d67ce9b0d31047a', '7076f85df1c883800d714ed66c36461170a13dabadf7b3d77824587b941cd972'].includes(digest(deepFriedChicken.addon64)) &&
+    [deepFriedChicken.expected.nvngx, 'cc4bfcc10921e3c3157711328e7754d36c9ada6a39587c62cfb99d700cece395'].includes(digest(deepFriedChicken.nvngx));
 
   const upstream3Dir = path.join(sourceDir, 'upstream3');
   const upstream3 = {

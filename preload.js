@@ -25,7 +25,7 @@ contextBridge.exposeInMainWorld('lab', {
   open: (dir) => ipcRenderer.invoke('open', dir),
   launchGame: (dir, exePath) => ipcRenderer.invoke('launch-game', dir, exePath),
   artStatus: () => ipcRenderer.invoke('art-status'),
-  artFetch: (dir, name, appid) => ipcRenderer.invoke('art-fetch', dir, name, appid),
+  artFetch: (dir, name, appid, cacheOnly = false) => ipcRenderer.invoke('art-fetch', dir, name, appid, cacheOnly),
   touch: (dir) => ipcRenderer.invoke('touch', dir),
   recents: () => ipcRenderer.invoke('recents'),
   details: (dir) => ipcRenderer.invoke('details', dir),

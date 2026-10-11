@@ -14,6 +14,8 @@ vm.runInNewContext(fs.readFileSync(file,'utf8'),context,{filename:file});
 (async()=>{try{
  const api=context.module.exports,manifest={added:[]},opts={payloadDir:payload,gameDir:game,exePath:path.join(game,'game.exe'),manifest};
  const first=await api.install(opts);assert(first.ok);assert.equal(copies,5);assert(manifest.added.includes('dlss5-vr-compat.addon64'));assert(manifest.added.includes('ReShadeDesktopUI.ini'));assert(manifest.added.includes('ReShadeVR.ini'));assert(manifest.added.includes('vr-pose-bridge-v1.addon64'));assert.equal(manifest.openxrPose.version,2);
+ for(const name of ['ReShade.ini','ReShadeVR.ini','ReShadeDesktopUI.ini']){const text=fs.readFileSync(path.join(game,name),'utf8');assert(/^FontSize=26$/m.test(text));assert(/^FontScale=1$/m.test(text));assert(manifest.added.includes(name));}
+ fs.writeFileSync(path.join(game,'ReShadeVR.ini'),'[STYLE]\nFontSize=19\nFontScale=1.25\n[OVERLAY]\nWindow=custom\n');await api.install(opts);assert(fs.readFileSync(path.join(game,'ReShadeVR.ini'),'utf8').includes('FontSize=19'),'custom font preserved');
  const parsed=JSON.parse(fs.readFileSync(first.manifest));assert.equal(parsed.api_layer.name,'XR_APILAYER_DLSS5_pose');assert.equal(parsed.api_layer.disable_environment,'DISABLE_DLSS5_OPENXR_POSE');
  const stat=fs.statSync(first.dll).mtimeMs;await api.install(opts);assert.equal(fs.statSync(first.dll).mtimeMs,stat,'identical shared DLL not overwritten');
  fs.writeFileSync(path.join(payload,'vr-foveated/vr-depth-bridge.addon64'),'stereo-depth');

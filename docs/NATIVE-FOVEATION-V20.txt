@@ -1,0 +1,43 @@
+Native foveation v20: command-list rotation must not rebuild crop histories
+
+The Oct 11 13:56 Starfield log confirms v19 alternates between 2360x2032
+plain NR crops and 2000x1720 blended crops while Width=65 and Height=55
+remain fixed. Feature creation contract lines repeat for the same feature,
+color and output as producer list identities rotate. The selected crop size
+is not the cause of those repeated feature rebuilds.
+
+V19 observed detailed compute bindings only after a list first reached NR.
+A new list had already recorded its caller root arguments by then, so its
+first evaluation selected a plain crop. Another observed list selected the
+reduced/blended path. Because processing readiness is part of the variant
+key and only one variant is active, alternating readiness repeatedly evicted
+and recreated neural features. The prior reuse-one-list test missed this.
+
+V20 records lightweight root/PSO identity early and learns root signatures
+from qualified NR callers. New lists binding a learned root signature start
+full argument capture before their root tables/constants/addresses are
+recorded. Captured state is qualified explicitly; merely knowing a root/PSO
+without its arguments is insufficient. Retained root references prevent
+object-address reuse from identifying an unrelated root as a known caller.
+Detailed argument capture remains restricted to qualified caller lists.
+
+If a recording is temporarily incomplete, an existing blended crop history
+is retained for recovery instead of evicted for a plain replacement. That
+recording uses the normal provider path, resets stale histories and reports
+a specific recovery reason. This does not bypass compute-state validation.
+Feathering, release-to-apply settings, reduced center resolution, proxy-safe
+NR calls, binding restoration and fence-based crop lifetime remain enabled.
+
+New real NVIDIA tests rotate 24 freshly created producer lists and assert
+the identical blended NGX handle survives every evaluation. They explicitly
+invalidate one recording and assert safe fallback/recovery preserves the
+prepared handle. Tests run on native and actual modified-ReShade devices,
+with descriptor-table/constants/root CBV/SRV/UAV sentinel validation. Existing
+WARP GPU-based pixel/lifetime checks and repeated crop-resize checks pass.
+
+Both swapper payloads contain v20. Installed Starfield files are unchanged.
+Close the game and reinstall through the swapper. Keep size/quality/fade
+settings fixed for the first run; the log should no longer repeat cropped
+feature creation continuously for the same dimensions/resources. Real-game
+performance still requires confirmation; synthetic timing alone did not
+catch this rotating-list integration regression.

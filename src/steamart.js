@@ -67,7 +67,7 @@ function pick(rows, query) {
 
 async function getJson(url) {
   await throttle();
-  const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+  const res = await fetch(url, { headers: { 'Accept-Language': 'en' }, signal: AbortSignal.timeout(8000) });
   if (!res.ok) throw new Error(`Steam replied ${res.status}`);
   return res.json();
 }
@@ -132,7 +132,7 @@ async function look(name, appid) {
 }
 
 async function download(url, dest) {
-  const res = await fetch(url);
+  const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
   if (!res.ok) throw new Error(`download failed (${res.status})`);
   const buf = Buffer.from(await res.arrayBuffer());
   // A missing asset can come back as a tiny placeholder rather than a 404.

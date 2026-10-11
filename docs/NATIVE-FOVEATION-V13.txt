@@ -1,0 +1,26 @@
+Native foveation v13: Starfield GPU-removal investigation
+
+The Oct 11 Starfield run successfully cropped the first neural pass, then
+ReShade reported DEVICE_REMOVED with removal reason DXGI_ERROR_INVALID_CALL.
+The crash dump records Virtual Desktop terminating during device-lost cleanup;
+it does not identify the GPU command that originally failed.
+
+This build rejects color/output format mismatches and depth/stencil copies
+before issuing crop commands. Previous builds did not check this contract.
+This is a verified defensive fix, not a confirmed explanation of this crash.
+
+The new build logs each input image descriptor, viewport, observed state,
+scaling ratio and motion-vector scales when creating a crop variant. It also
+requests DRED before device creation where addon-loading order permits, and
+monitors device removal to log available GPU breadcrumbs/page-fault data.
+DRED may be unavailable if the graphics device existed before addon loading.
+
+Real NVIDIA NR tests cover 3635x3709 -> 544x552 (15%), R11G11B10_FLOAT,
+low-resolution depth/motion inputs, wrapped command lists and cached caller
+compute bindings verified by GPU readback. WARP verifies format mismatch
+fallback before crop creation. These tests do not reproduce the complete
+Starfield/VR/DFC integration; an in-game run is still required.
+
+Both swapper payload copies contain v13. No installed game files were changed.
+Close Starfield, reinstall the native route using this swapper, and test once.
+If it fails, retain ReShade.log and deep-fried-chicken.log from the same run.

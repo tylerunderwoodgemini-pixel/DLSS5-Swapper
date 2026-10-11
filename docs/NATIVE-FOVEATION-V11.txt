@@ -1,0 +1,20 @@
+Native foveation v11 (2026-10-11)
+
+Starfield v10 logs still showed first-pass state fallback: color unknown,
+and output initially UAV then unknown. v11 normalizes command-list/queue
+identities through the modified ReShade and Streamline unwrap GUIDs.
+The early observer samples unwrapped objects; each intercepted NR
+Evaluate uses the same underlying command list for state lookup, copies
+and evaluation. Interface types and bounded wrapper depth are checked.
+An unexpected different barrier/reset implementation fails open instead
+of treating an unrelated hook as successful state observation.
+
+Meaningful regression: two nested test wrappers expose both unwrap GUIDs
+but cannot record commands. First NVIDIA NR evaluation through those
+wrappers crops without full-frame warmup, preserves reference balance,
+and finishes on GPU. Eight subsequent frames, custom 25x25 and disabled
+fallback pass; D3D12 debug errors absent. WARP copy/state and installation
+regressions also pass.
+
+Canonical and source prebuilt payloads were updated. No installed
+Starfield files changed. Actual Starfield/headset confirmation pending.

@@ -2094,7 +2094,8 @@ ipcMain.handle(
     _event,
     dir,
     name,
-    appid
+    appid,
+    cacheOnly = false
   ) => {
     const state =
       loadState();
@@ -2113,6 +2114,8 @@ ipcMain.handle(
     ) {
       return cached;
     }
+
+    if (cacheOnly) return { none: true };
 
     try {
       const hit =

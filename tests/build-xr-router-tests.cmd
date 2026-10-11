@@ -1,4 +1,9 @@
 @echo off
+if not exist tests\xr-router-work\adapter mkdir tests\xr-router-work\adapter
+if not exist tests\xr-router-work\missing mkdir tests\xr-router-work\missing
+copy /y payload\openxr\DLSS5OpenXRRouter.dll tests\xr-router-work\DLSS5OpenXRRouter.dll >nul
+copy /y payload\openxr\DLSS5OpenXRRouter.dll tests\xr-router-work\adapter\DLSS5OpenXRRouter.dll >nul
+copy /y payload\openxr\DLSS5OpenXRRouter.dll tests\xr-router-work\missing\DLSS5OpenXRRouter.dll >nul
 call payload\vr-foveated\native\vcvars.bat x64
 if errorlevel 1 exit /b 1
 cl /nologo /LD /MT /DTEST_RESULT=111 /Fe:tests\xr-router-work\ExistingReShade.dll /Fo:tests\xr-router-work\existing.obj tests\xr-router-stub.cpp
@@ -16,4 +21,8 @@ tests\xr-router-test.exe missing tests\xr-router-work\missing
 if errorlevel 1 exit /b 1
 cl /nologo /LD /MT /DTEST_RESULT=333 /Fe:tests\xr-router-work\adapter\dlss5-vr-compat.addon64 /Fo:tests\xr-router-work\adapter.obj tests\xr-router-stub.cpp
 if errorlevel 1 exit /b 1
+copy /y tests\xr-router-work\ExistingReShade.dll tests\xr-router-work\adapter\ExistingReShade.dll >nul
 tests\xr-router-test.exe adapter tests\xr-router-work\adapter
+
+if errorlevel 1 exit /b 1
+tests\xr-router-test.exe vulkan tests\xr-router-work

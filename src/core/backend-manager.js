@@ -13,7 +13,7 @@ const compatibility = require('./compatibility');
 // No Man's Sky needs provider-specific payload variants for both DFC and
 // TRUE Upstream. Keep the selection in backend-manager so the final install
 // path cannot silently fall back to the stock provider DLL.
-const NMS_DFC_SHA256 = '19c3f85b3d7a05648d4f2d1af600aa9f323176e2c2aa717c030faae7a724d5a9';
+const NMS_DFC_SHA256 = '7a50dc8ddd6c1a7e389106c7fe8b1ed49abd5f045cc133de477675f25a5d882d';
 
 function sha256File(file) {
   try {

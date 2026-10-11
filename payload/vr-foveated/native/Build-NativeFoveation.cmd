@@ -14,4 +14,6 @@ if not defined DETOURS_ROOT (
   )
 )
 cl /nologo /LD /O2 /MT /EHsc /std:c++20 /I"%NGX_SDK_INCLUDE%" /I"%DETOURS_ROOT%\include" /I"%~dp0reshade" /Fe:"%~dp0..\native-vr-foveation-nvngx.dll.addon64" /Fo:"%~dp0native-vr-foveation.obj" "%~dp0native-vr-foveation.cpp" "%DETOURS_ROOT%\lib.X64\detours.lib" d3d12.lib d3dcompiler.lib user32.lib
+if errorlevel 1 exit /b 1
+cl /nologo /LD /O2 /MT /EHsc /Fe:"%~dp0..\..\deep-fried-chicken\deep-fried-chicken-nvngx.dll" /Fo:"%~dp0dfc-ngx-companion.obj" "%~dp0dfc-ngx-companion.cpp"
 exit /b %errorlevel%

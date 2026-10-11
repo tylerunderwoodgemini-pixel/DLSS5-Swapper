@@ -7,7 +7,7 @@ const { spawnSync } = require('child_process');
 const { createHash } = require('crypto');
 
 const VERSION = 26;
-const BUILD_MARKER = '1.16.0-beta.4-vr-universal-foveated26.28';
+const BUILD_MARKER = '1.16.0-beta.4-vr-universal-foveated26.29';
 const PRESETS = {
   off:      { enabled:0, preset:2, width:60, height:50 },
   small:    { enabled:1, preset:1, width:50, height:45 },

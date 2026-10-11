@@ -1,0 +1,35 @@
+NMS Vulkan Streamline crash repair (2026-10-10)
+
+Crash dump: NMS_crash_1791692901_180836_deep-fried-chicken@0x2D98D68_GX58090432126952211.dmp
+DFC RVA 0x25f6d calls COM unwrap with Streamline tag fifth argument.
+That argument is a Vulkan command buffer in NMS. The shared API selector
+is D3D12 (0xc000), consistent with the feeder hidden D3D12 renderer.
+QueryInterface dispatch consequently jumps to an invalid function pointer.
+
+The NMS-only payload forwards legacy and frame tag calls unchanged,
+bypassing their D3D12 unwrap paths at RVAs 0x25d40 and 0x25f56.
+Native NGX hooks and the general D3D12 payload are unchanged.
+Reproduction: scripts/patch-dfc-nms-streamline-routing.py takes the exact
+19c3f85... original NMS binary and writes the repaired payload.
+Installer and backend-manager hash pins accept the repaired variant.
+
+Validated: exact instruction edits/branch targets, payload preflight,
+native foveation installation regression. In-game validation pending.
+Installed NMS files were not changed.
+
+Subsequent device-identity repair: the same run logs FP16 codec acquisition
+failure: game-output device identity failed (0x80070057). This patch
+addresses the dump crash, not that neural-output failure.
+
+The device identity helper at RVA 0x2d520 now optionally queries the
+modified ReShade raw-device GUID, then compares canonical IUnknowns.
+Both devices are normalized; all acquired COM references are released.
+A different underlying device is still rejected with E_INVALIDARG;
+GetDevice/QueryInterface failures preserve their HRESULT. New x64
+functions include Windows unwind records. No device guard is bypassed.
+
+Validated via Unicorn: identical raw/wrapped/canonical identities,
+different devices, failed GetDevice/QueryInterface, reference balance,
+nonvolatile registers and stack. Executed against a real hardware D3D12
+resource and raw/wrapped devices, plus rejection of a separate WARP
+device. In-game NMS neural effect still requires user validation.

@@ -1,5 +1,6 @@
 #pragma once
 #include <map>
+#include <cstdint>
 #include <nvsdk_ngx_params.h>
 #include <string>
 #include <variant>
@@ -17,6 +18,22 @@ class NativeParameters final : public NVSDK_NGX_Parameter {
     if (auto v = std::get_if<T>(&it->second)) {
       *out = *v;
       return NVSDK_NGX_Result_Success;
+    }
+    // NGX consumers can retrieve the same resource through the generic void*
+    // overload or the D3D11/D3D12 overload. Preserve its pointer representation,
+    // as the SDK parameter object does; exact variant types are not its ABI.
+    if constexpr (std::is_pointer_v<T>) {
+      bool ok=false;
+      std::visit([&](auto v){if constexpr(std::is_pointer_v<decltype(v)>){*out=reinterpret_cast<T>(v);ok=true;}else if constexpr(std::is_same_v<decltype(v),unsigned long long>){*out=reinterpret_cast<T>(static_cast<uintptr_t>(v));ok=true;}},it->second);
+      if(ok)return NVSDK_NGX_Result_Success;
+    }
+    // DLSSNR 310.8.0 retrieves Color/Output/Backbuffer through vtable slot
+    // 8 (Get unsigned long long), not the typed resource getter. Resources
+    // must round-trip through that opaque 64-bit representation unchanged.
+    if constexpr (std::is_same_v<T,unsigned long long>) {
+      bool ok=false;
+      std::visit([&](auto v){if constexpr(std::is_pointer_v<decltype(v)>){*out=static_cast<unsigned long long>(reinterpret_cast<uintptr_t>(v));ok=true;}},it->second);
+      if(ok)return NVSDK_NGX_Result_Success;
     }
     if constexpr (std::is_arithmetic_v<T>) {
       bool ok = false;
