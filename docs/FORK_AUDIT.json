@@ -1,7 +1,7 @@
 {
   "auditDate": "2026-10-11",
   "scope": "Runtime code snapshot and complete active payload; later documentation edits are outside this snapshot.",
-  "runtimeCodeCommit": "8492e6c0e2936478d586bea5b332d3ee4bf55f7a",
+  "runtimeCodeCommit": "f33ba34e40a692095f7605d0c6e82e31f6e6c1a0",
   "base": {
     "tag": "v2.2.0",
     "commit": "cc1633f6ceff6166b970d63f7fbf3c8eb80b5d1c"
@@ -546,6 +546,10 @@
     },
     {
       "status": "A",
+      "path": "scripts/package-creatorbase.py"
+    },
+    {
+      "status": "A",
       "path": "scripts/patch-dfc-dlaa-padding.py"
     },
     {
@@ -735,6 +739,10 @@
     {
       "status": "A",
       "path": "tests/nms-streamline-routing.py"
+    },
+    {
+      "status": "A",
+      "path": "tests/nms-vulkan-foveation-install.cjs"
     },
     {
       "status": "A",
@@ -1648,6 +1656,10 @@
     },
     {
       "status": "A",
+      "path": "scripts/package-creatorbase.py"
+    },
+    {
+      "status": "A",
       "path": "scripts/patch-dfc-dlaa-padding.py"
     },
     {
@@ -2232,6 +2244,10 @@
     },
     {
       "status": "A",
+      "path": "tests/nms-vulkan-foveation-install.cjs"
+    },
+    {
+      "status": "A",
       "path": "tests/openxr-dashboard.cpp"
     },
     {
@@ -2443,16 +2459,6 @@
       "path": "deep-fried-chicken/deep-fried-chicken-nvngx.dll",
       "bytes": 103424,
       "sha256": "cc4bfcc10921e3c3157711328e7754d36c9ada6a39587c62cfb99d700cece395"
-    },
-    {
-      "path": "deep-fried-chicken/deep-fried-chicken-nvngx.exp",
-      "bytes": 1897,
-      "sha256": "6650eab818f7718284e4ccb621d4ad9b8fd01a873c20d14d38e665f60dd7833b"
-    },
-    {
-      "path": "deep-fried-chicken/deep-fried-chicken-nvngx.lib",
-      "bytes": 3850,
-      "sha256": "7ce88f465bb1db1228af1f0bdaa81730c86b35b9d4c0bc66bbbb589f9f655c63"
     },
     {
       "path": "deep-fried-chicken/deep-fried-chicken.addon64",
@@ -2760,24 +2766,9 @@
       "sha256": "c7bdf278ac6ae63a8afebf0683fb9147d54392d1e70bde2bf7d4128443efa9d8"
     },
     {
-      "path": "openxr/dlss5-openxr-router.obj",
-      "bytes": 46736,
-      "sha256": "b0cd5cf3e4acaee90f107df391588cea71360de61a56b6b08e4593f3cc4156c5"
-    },
-    {
       "path": "openxr/DLSS5OpenXRRouter.dll",
       "bytes": 151552,
       "sha256": "f49d49acf56277ae851cfb61b1c1f5e93c4d4c49b78a8951d419b96f8ac45a1a"
-    },
-    {
-      "path": "openxr/DLSS5OpenXRRouter.exp",
-      "bytes": 813,
-      "sha256": "6df90cd932024028cad46a09f783011ceb92094fafa3e05251de68e71e9248da"
-    },
-    {
-      "path": "openxr/DLSS5OpenXRRouter.lib",
-      "bytes": 2034,
-      "sha256": "e6b2216f835efd3859658c14244dd654f6cc50a502d2a1daeabd99100036eb1b"
     },
     {
       "path": "openxr/ReShade_Setup_6.8.0_OpenXR_EarlyLoad_V19_Addon.exe",
@@ -2945,16 +2936,6 @@
       "sha256": "9b9eb9182ff1d027412e9df0f7dc2a4b545afafee870199579f040c1db0e0901"
     },
     {
-      "path": "vr-foveated/dlss5-vr-compat.exp",
-      "bytes": 1225,
-      "sha256": "57e17638aebc123d87bf2fa6dd4305180b16682383a478dbac9cf5153dae8f66"
-    },
-    {
-      "path": "vr-foveated/dlss5-vr-compat.lib",
-      "bytes": 2712,
-      "sha256": "9d7294b65524f92fa0d82e454e90873d93174f025c0954f82f388f253277a4ba"
-    },
-    {
       "path": "vr-foveated/DLSS5OpenXRPose.dll",
       "bytes": 126976,
       "sha256": "9a5a7d50d00b3d83733f76338329d95c620873d2060b2220b8842a3167d81a8a"
@@ -2968,11 +2949,6 @@
       "path": "vr-foveated/native/dfc-ngx-companion.cpp",
       "bytes": 1709,
       "sha256": "2606dfe339b01ad636d4e322fb24bfeb5461752a1ccf5a20d72a6bf27b5d6a58"
-    },
-    {
-      "path": "vr-foveated/native/dfc-ngx-companion.obj",
-      "bytes": 5124,
-      "sha256": "6efc775e6490820ffd8f5bd4ef3f9b1660f376d14143cc9089368fc984a84bfe"
     },
     {
       "path": "vr-foveated/native/imgui/imconfig.h",
@@ -3018,11 +2994,6 @@
       "path": "vr-foveated/native/native-vr-foveation.cpp",
       "bytes": 79841,
       "sha256": "8a32ae76613cc1f67e2a3e542380bb9b009d16665147cf768eee0db6f618430a"
-    },
-    {
-      "path": "vr-foveated/native/native-vr-foveation.obj",
-      "bytes": 3585586,
-      "sha256": "c5c936c1910a29c6ac4432578ca5bb37c8829d304644ca713c056f27580dc1ce"
     },
     {
       "path": "vr-foveated/native/openxr/LICENSE",
@@ -3230,11 +3201,6 @@
       "sha256": "c6b81579a82ab3bab22a67493fdc1ee89ad8280ff29d9e36558a1bc544f39eec"
     },
     {
-      "path": "vr-foveated/native/vr-runtime-compat.obj",
-      "bytes": 1811532,
-      "sha256": "cafbe2692e86294f0fb0428ff4266638a07fa9ea6626ff082254d90084d575ad"
-    },
-    {
       "path": "vr-foveated/NATIVE-FOVEATION-V4.txt",
       "bytes": 1194,
       "sha256": "1b201de3341e6b449cccccb553b2b2dd6949c9d44158dc89713dee399e04c4e2"
@@ -3263,16 +3229,6 @@
       "path": "vr-foveated/native-vr-foveation-nvngx.dll.addon64",
       "bytes": 441856,
       "sha256": "468c2a6aa228866a4c630e34b4a30758b22e1660ffb87ad1fee3389c1aff77c0"
-    },
-    {
-      "path": "vr-foveated/native-vr-foveation-nvngx.dll.exp",
-      "bytes": 1369,
-      "sha256": "23e1245aff5b826861470a6eba0d857061b05f038ede9874768fa35a7f55ab4a"
-    },
-    {
-      "path": "vr-foveated/native-vr-foveation-nvngx.dll.lib",
-      "bytes": 3166,
-      "sha256": "0e213fd866defe9244caaa5c8c345d459bb599793a821b7ee2c2bfbfc3e7c988"
     },
     {
       "path": "vr-foveated/prebuilt/build-manifest.json",
