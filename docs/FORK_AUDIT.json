@@ -1,7 +1,7 @@
 {
-  "auditDate": "2026-10-10",
+  "auditDate": "2026-10-11",
   "scope": "Runtime code snapshot and complete active payload; later documentation edits are outside this snapshot.",
-  "runtimeCodeCommit": "cb4a1e7ee7135967c997863ab9b29c62cdd7e812",
+  "runtimeCodeCommit": "8492e6c0e2936478d586bea5b332d3ee4bf55f7a",
   "base": {
     "tag": "v2.2.0",
     "commit": "cc1633f6ceff6166b970d63f7fbf3c8eb80b5d1c"
@@ -34,6 +34,14 @@
     },
     {
       "status": "A",
+      "path": "docs/COMPATIBILITY_MATRIX.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/DFC-QUEUE-IDENTITY-REPAIR.txt"
+    },
+    {
+      "status": "A",
       "path": "docs/FORK_AUDIT.json"
     },
     {
@@ -42,11 +50,67 @@
     },
     {
       "status": "A",
+      "path": "docs/NATIVE-FOVEATION-V10.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/NATIVE-FOVEATION-V11.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/NATIVE-FOVEATION-V13.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/NATIVE-FOVEATION-V14.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/NATIVE-FOVEATION-V15.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/NATIVE-FOVEATION-V16.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/NATIVE-FOVEATION-V17.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/NATIVE-FOVEATION-V18.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/NATIVE-FOVEATION-V19.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/NATIVE-FOVEATION-V20.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/NMS-STREAMLINE-CRASH-FIX.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/NMS-VULKAN-OPENXR-ROUTING.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/RELEASE_NOTES_VR_3.md"
+    },
+    {
+      "status": "A",
       "path": "docs/UPSTREAM-README-v2.2.0.md"
     },
     {
       "status": "A",
       "path": "docs/USER_GUIDE.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/VULKAN-FEEDER-FOVEATION-V12.txt"
     },
     {
       "status": "M",
@@ -63,6 +127,10 @@
     {
       "status": "A",
       "path": "payload/deep-fried-chicken/COMPATIBILITY-TEST.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/DLAA-ALIGNMENT-REPAIR.md"
     },
     {
       "status": "A",
@@ -127,6 +195,18 @@
     {
       "status": "A",
       "path": "payload/deep-fried-chicken/SHA256SUMS.txt"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/deep-fried-chicken-nms.addon64"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/deep-fried-chicken-nvngx.dll"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/deep-fried-chicken.addon64"
     },
     {
       "status": "A",
@@ -210,6 +290,10 @@
     },
     {
       "status": "A",
+      "path": "payload/vr-foveated/native/dfc-ngx-companion.cpp"
+    },
+    {
+      "status": "A",
       "path": "payload/vr-foveated/native/imgui/LICENSE.txt"
     },
     {
@@ -222,6 +306,14 @@
     },
     {
       "status": "A",
+      "path": "payload/vr-foveated/native/native-compute-state.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/native-crop-processing.h"
+    },
+    {
+      "status": "A",
       "path": "payload/vr-foveated/native/native-foveation-layout.h"
     },
     {
@@ -230,11 +322,31 @@
     },
     {
       "status": "A",
+      "path": "payload/vr-foveated/native/native-runtime-health.h"
+    },
+    {
+      "status": "A",
       "path": "payload/vr-foveated/native/native-vr-foveation.cpp"
     },
     {
       "status": "A",
+      "path": "payload/vr-foveated/native/openxr-dashboard-block.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/openxr-dashboard-input.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/openxr-dashboard.h"
+    },
+    {
+      "status": "A",
       "path": "payload/vr-foveated/native/openxr-pose-layer.cpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/openxr-reshade-menu.h"
     },
     {
       "status": "A",
@@ -434,6 +546,22 @@
     },
     {
       "status": "A",
+      "path": "scripts/patch-dfc-dlaa-padding.py"
+    },
+    {
+      "status": "A",
+      "path": "scripts/patch-dfc-nms-device-identity.py"
+    },
+    {
+      "status": "A",
+      "path": "scripts/patch-dfc-nms-streamline-routing.py"
+    },
+    {
+      "status": "A",
+      "path": "scripts/patch-dfc-queue-identity.py"
+    },
+    {
+      "status": "A",
       "path": "scripts/refresh-vr-manifest.cjs"
     },
     {
@@ -490,11 +618,27 @@
     },
     {
       "status": "A",
+      "path": "src/core/vr-compatibility-plan.js"
+    },
+    {
+      "status": "A",
       "path": "src/core/vr-foveation.js"
     },
     {
       "status": "M",
       "path": "src/renderer/renderer.js"
+    },
+    {
+      "status": "M",
+      "path": "src/steamart.js"
+    },
+    {
+      "status": "A",
+      "path": "test/fixtures/dfc-1.4.8-stock.addon64"
+    },
+    {
+      "status": "A",
+      "path": "test/folder-reading.test.js"
     },
     {
       "status": "M",
@@ -506,7 +650,23 @@
     },
     {
       "status": "A",
+      "path": "test/scan-bethesda-assets.test.js"
+    },
+    {
+      "status": "A",
+      "path": "test/vr-compatibility-plan.test.js"
+    },
+    {
+      "status": "A",
       "path": "tests/agility-runtime.cjs"
+    },
+    {
+      "status": "A",
+      "path": "tests/build-openxr-dashboard.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/build-openxr-full-menu.cmd"
     },
     {
       "status": "A",
@@ -530,6 +690,18 @@
     },
     {
       "status": "A",
+      "path": "tests/dfc-dlaa-padding.py"
+    },
+    {
+      "status": "A",
+      "path": "tests/dfc-queue-identity.py"
+    },
+    {
+      "status": "A",
+      "path": "tests/dfc-queue-proxy.cpp"
+    },
+    {
+      "status": "A",
       "path": "tests/fake-reshade/reshade.hpp"
     },
     {
@@ -542,7 +714,35 @@
     },
     {
       "status": "A",
+      "path": "tests/native-foveation-real-nr.cpp"
+    },
+    {
+      "status": "A",
       "path": "tests/native-foveation-test.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/native-list-wrapper.h"
+    },
+    {
+      "status": "A",
+      "path": "tests/nms-device-identity-real.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/nms-device-identity.py"
+    },
+    {
+      "status": "A",
+      "path": "tests/nms-streamline-routing.py"
+    },
+    {
+      "status": "A",
+      "path": "tests/openxr-dashboard.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/openxr-full-menu.cpp"
     },
     {
       "status": "A",
@@ -760,6 +960,14 @@
     },
     {
       "status": "A",
+      "path": "docs/COMPATIBILITY_MATRIX.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/DFC-QUEUE-IDENTITY-REPAIR.txt"
+    },
+    {
+      "status": "A",
       "path": "docs/FORK_AUDIT.json"
     },
     {
@@ -768,11 +976,67 @@
     },
     {
       "status": "A",
+      "path": "docs/NATIVE-FOVEATION-V10.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/NATIVE-FOVEATION-V11.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/NATIVE-FOVEATION-V13.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/NATIVE-FOVEATION-V14.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/NATIVE-FOVEATION-V15.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/NATIVE-FOVEATION-V16.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/NATIVE-FOVEATION-V17.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/NATIVE-FOVEATION-V18.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/NATIVE-FOVEATION-V19.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/NATIVE-FOVEATION-V20.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/NMS-STREAMLINE-CRASH-FIX.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/NMS-VULKAN-OPENXR-ROUTING.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/RELEASE_NOTES_VR_3.md"
+    },
+    {
+      "status": "A",
       "path": "docs/UPSTREAM-README-v2.2.0.md"
     },
     {
       "status": "A",
       "path": "docs/USER_GUIDE.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/VULKAN-FEEDER-FOVEATION-V12.txt"
     },
     {
       "status": "D",
@@ -956,6 +1220,10 @@
     },
     {
       "status": "A",
+      "path": "payload/deep-fried-chicken/DLAA-ALIGNMENT-REPAIR.md"
+    },
+    {
+      "status": "A",
       "path": "payload/deep-fried-chicken/FEEDER-COMPATIBILITY.md"
     },
     {
@@ -1017,6 +1285,18 @@
     {
       "status": "A",
       "path": "payload/deep-fried-chicken/SHA256SUMS.txt"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/deep-fried-chicken-nms.addon64"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/deep-fried-chicken-nvngx.dll"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/deep-fried-chicken.addon64"
     },
     {
       "status": "A",
@@ -1100,6 +1380,10 @@
     },
     {
       "status": "A",
+      "path": "payload/vr-foveated/native/dfc-ngx-companion.cpp"
+    },
+    {
+      "status": "A",
       "path": "payload/vr-foveated/native/imgui/LICENSE.txt"
     },
     {
@@ -1112,6 +1396,14 @@
     },
     {
       "status": "A",
+      "path": "payload/vr-foveated/native/native-compute-state.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/native-crop-processing.h"
+    },
+    {
+      "status": "A",
       "path": "payload/vr-foveated/native/native-foveation-layout.h"
     },
     {
@@ -1120,11 +1412,31 @@
     },
     {
       "status": "A",
+      "path": "payload/vr-foveated/native/native-runtime-health.h"
+    },
+    {
+      "status": "A",
       "path": "payload/vr-foveated/native/native-vr-foveation.cpp"
     },
     {
       "status": "A",
+      "path": "payload/vr-foveated/native/openxr-dashboard-block.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/openxr-dashboard-input.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/openxr-dashboard.h"
+    },
+    {
+      "status": "A",
       "path": "payload/vr-foveated/native/openxr-pose-layer.cpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/openxr-reshade-menu.h"
     },
     {
       "status": "A",
@@ -1335,6 +1647,22 @@
       "path": "scripts/collect-payload.js"
     },
     {
+      "status": "A",
+      "path": "scripts/patch-dfc-dlaa-padding.py"
+    },
+    {
+      "status": "A",
+      "path": "scripts/patch-dfc-nms-device-identity.py"
+    },
+    {
+      "status": "A",
+      "path": "scripts/patch-dfc-nms-streamline-routing.py"
+    },
+    {
+      "status": "A",
+      "path": "scripts/patch-dfc-queue-identity.py"
+    },
+    {
       "status": "D",
       "path": "scripts/prepare-overlay.ps1"
     },
@@ -1457,6 +1785,10 @@
     {
       "status": "A",
       "path": "src/core/vr-auto.js"
+    },
+    {
+      "status": "A",
+      "path": "src/core/vr-compatibility-plan.js"
     },
     {
       "status": "A",
@@ -1607,6 +1939,10 @@
       "path": "src/shared/rendering-api.js"
     },
     {
+      "status": "M",
+      "path": "src/steamart.js"
+    },
+    {
       "status": "D",
       "path": "test/admin-vault.test.js"
     },
@@ -1671,12 +2007,20 @@
       "path": "test/feeder-config.test.js"
     },
     {
+      "status": "A",
+      "path": "test/fixtures/dfc-1.4.8-stock.addon64"
+    },
+    {
       "status": "M",
       "path": "test/fixtures/game-filters-preload.js"
     },
     {
       "status": "D",
       "path": "test/folder-add.test.js"
+    },
+    {
+      "status": "A",
+      "path": "test/folder-reading.test.js"
     },
     {
       "status": "M",
@@ -1779,6 +2123,10 @@
       "path": "test/restore-recovery.test.js"
     },
     {
+      "status": "A",
+      "path": "test/scan-bethesda-assets.test.js"
+    },
+    {
       "status": "D",
       "path": "test/scan-undetected-api.test.js"
     },
@@ -1800,7 +2148,19 @@
     },
     {
       "status": "A",
+      "path": "test/vr-compatibility-plan.test.js"
+    },
+    {
+      "status": "A",
       "path": "tests/agility-runtime.cjs"
+    },
+    {
+      "status": "A",
+      "path": "tests/build-openxr-dashboard.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/build-openxr-full-menu.cmd"
     },
     {
       "status": "A",
@@ -1824,6 +2184,18 @@
     },
     {
       "status": "A",
+      "path": "tests/dfc-dlaa-padding.py"
+    },
+    {
+      "status": "A",
+      "path": "tests/dfc-queue-identity.py"
+    },
+    {
+      "status": "A",
+      "path": "tests/dfc-queue-proxy.cpp"
+    },
+    {
+      "status": "A",
       "path": "tests/fake-reshade/reshade.hpp"
     },
     {
@@ -1836,7 +2208,35 @@
     },
     {
       "status": "A",
+      "path": "tests/native-foveation-real-nr.cpp"
+    },
+    {
+      "status": "A",
       "path": "tests/native-foveation-test.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/native-list-wrapper.h"
+    },
+    {
+      "status": "A",
+      "path": "tests/nms-device-identity-real.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/nms-device-identity.py"
+    },
+    {
+      "status": "A",
+      "path": "tests/nms-streamline-routing.py"
+    },
+    {
+      "status": "A",
+      "path": "tests/openxr-dashboard.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/openxr-full-menu.cpp"
     },
     {
       "status": "A",
@@ -2036,18 +2436,28 @@
     },
     {
       "path": "deep-fried-chicken/deep-fried-chicken-nms.addon64",
-      "bytes": 641024,
-      "sha256": "19c3f85b3d7a05648d4f2d1af600aa9f323176e2c2aa717c030faae7a724d5a9"
+      "bytes": 676864,
+      "sha256": "7a50dc8ddd6c1a7e389106c7fe8b1ed49abd5f045cc133de477675f25a5d882d"
     },
     {
       "path": "deep-fried-chicken/deep-fried-chicken-nvngx.dll",
-      "bytes": 3072,
-      "sha256": "e218ce8c20858d58e53a85b2afc2c1e6f55768a96659e819ff40d71e872393a3"
+      "bytes": 103424,
+      "sha256": "cc4bfcc10921e3c3157711328e7754d36c9ada6a39587c62cfb99d700cece395"
+    },
+    {
+      "path": "deep-fried-chicken/deep-fried-chicken-nvngx.exp",
+      "bytes": 1897,
+      "sha256": "6650eab818f7718284e4ccb621d4ad9b8fd01a873c20d14d38e665f60dd7833b"
+    },
+    {
+      "path": "deep-fried-chicken/deep-fried-chicken-nvngx.lib",
+      "bytes": 3850,
+      "sha256": "7ce88f465bb1db1228af1f0bdaa81730c86b35b9d4c0bc66bbbb589f9f655c63"
     },
     {
       "path": "deep-fried-chicken/deep-fried-chicken.addon64",
-      "bytes": 641024,
-      "sha256": "106143de0d74853b966a7141c19c2bb0fb46e7ce32c7f67d830d2dc5cddf80ec"
+      "bytes": 658432,
+      "sha256": "7076f85df1c883800d714ed66c36461170a13dabadf7b3d77824587b941cd972"
     },
     {
       "path": "deep-fried-chicken/deep-fried-chicken.cfg",
@@ -2068,6 +2478,11 @@
       "path": "deep-fried-chicken/dfc-universal-lifecycle.addon64",
       "bytes": 641024,
       "sha256": "e7c7ad6664805ea7decb5164d3bc80a847a0ce89654671383fa2229a6d513418"
+    },
+    {
+      "path": "deep-fried-chicken/DLAA-ALIGNMENT-REPAIR.md",
+      "bytes": 1698,
+      "sha256": "c16e530b6c3ec56e1dffab055d727bee4b2fa27efe3175b9aafb5382ba35cb10"
     },
     {
       "path": "deep-fried-chicken/dlss5-dx11-bridge.addon64",
@@ -2151,8 +2566,8 @@
     },
     {
       "path": "deep-fried-chicken/SHA256SUMS.txt",
-      "bytes": 538,
-      "sha256": "2ed756bbc31d8c1900ab9ba795644cc9ac1c5a849b12577d64657e2efc6710c3"
+      "bytes": 872,
+      "sha256": "5751242a328c531075eca7e39375e8bdc652fa53a1179ba81c54de2940f3206d"
     },
     {
       "path": "feeder/dlss5-feed-host64.exe",
@@ -2341,13 +2756,28 @@
     },
     {
       "path": "openxr/dlss5-openxr-router.cpp",
-      "bytes": 6262,
-      "sha256": "c1a8b9c3554c2e19498bd99842113fc141d7b925c823b3822301c4ba97a837e9"
+      "bytes": 7389,
+      "sha256": "c7bdf278ac6ae63a8afebf0683fb9147d54392d1e70bde2bf7d4128443efa9d8"
+    },
+    {
+      "path": "openxr/dlss5-openxr-router.obj",
+      "bytes": 46736,
+      "sha256": "b0cd5cf3e4acaee90f107df391588cea71360de61a56b6b08e4593f3cc4156c5"
     },
     {
       "path": "openxr/DLSS5OpenXRRouter.dll",
-      "bytes": 150528,
-      "sha256": "260f72be8ace3cf4acdab9356461c2cefe18b4a4640fe8688433bcb9cdf3b314"
+      "bytes": 151552,
+      "sha256": "f49d49acf56277ae851cfb61b1c1f5e93c4d4c49b78a8951d419b96f8ac45a1a"
+    },
+    {
+      "path": "openxr/DLSS5OpenXRRouter.exp",
+      "bytes": 813,
+      "sha256": "6df90cd932024028cad46a09f783011ceb92094fafa3e05251de68e71e9248da"
+    },
+    {
+      "path": "openxr/DLSS5OpenXRRouter.lib",
+      "bytes": 2034,
+      "sha256": "e6b2216f835efd3859658c14244dd654f6cc50a502d2a1daeabd99100036eb1b"
     },
     {
       "path": "openxr/ReShade_Setup_6.8.0_OpenXR_EarlyLoad_V19_Addon.exe",
@@ -2491,8 +2921,8 @@
     },
     {
       "path": "vr-foveated/Build-And-Install-VRUniversalFoveated-v26.ps1",
-      "bytes": 98812,
-      "sha256": "6381d03cf1ca5952e5f2bb36b316b3d57579cd60e80da611ff43ff1c7cde286e"
+      "bytes": 98468,
+      "sha256": "d9e80d91a73f8f614feb64ef06457bc40c4a7b7b71aa3e752d72b96cc9cc02e1"
     },
     {
       "path": "vr-foveated/Build-VRPoseBridge-v2.cmd",
@@ -2501,8 +2931,8 @@
     },
     {
       "path": "vr-foveated/Build-VRRuntimeCompat.cmd",
-      "bytes": 572,
-      "sha256": "676a1e44585d9636185024e640113c0f0a33dfa19ea504031a42ae6af7085c1a"
+      "bytes": 582,
+      "sha256": "77f1a93ea13edc433d69efc0bae8986452c038c7982b0c25a24764f78962be84"
     },
     {
       "path": "vr-foveated/DLSS5_Feed.fx",
@@ -2511,8 +2941,18 @@
     },
     {
       "path": "vr-foveated/dlss5-vr-compat.addon64",
-      "bytes": 201728,
-      "sha256": "55cf3aeeb663437750f34983891b60397f4ae67281aeefe979ae4eb2e0ea5243"
+      "bytes": 368640,
+      "sha256": "9b9eb9182ff1d027412e9df0f7dc2a4b545afafee870199579f040c1db0e0901"
+    },
+    {
+      "path": "vr-foveated/dlss5-vr-compat.exp",
+      "bytes": 1225,
+      "sha256": "57e17638aebc123d87bf2fa6dd4305180b16682383a478dbac9cf5153dae8f66"
+    },
+    {
+      "path": "vr-foveated/dlss5-vr-compat.lib",
+      "bytes": 2712,
+      "sha256": "9d7294b65524f92fa0d82e454e90873d93174f025c0954f82f388f253277a4ba"
     },
     {
       "path": "vr-foveated/DLSS5OpenXRPose.dll",
@@ -2521,8 +2961,18 @@
     },
     {
       "path": "vr-foveated/native/Build-NativeFoveation.cmd",
-      "bytes": 795,
-      "sha256": "4908f7cb6e5ed49c0b8238c5df9aaeb65ca62f6f97da044e44ef10799c735c82"
+      "bytes": 977,
+      "sha256": "47fd896e646aafe266526359d0ba2b42a8c2ea469882eff4098c16fe8587bf6b"
+    },
+    {
+      "path": "vr-foveated/native/dfc-ngx-companion.cpp",
+      "bytes": 1709,
+      "sha256": "2606dfe339b01ad636d4e322fb24bfeb5461752a1ccf5a20d72a6bf27b5d6a58"
+    },
+    {
+      "path": "vr-foveated/native/dfc-ngx-companion.obj",
+      "bytes": 5124,
+      "sha256": "6efc775e6490820ffd8f5bd4ef3f9b1660f376d14143cc9089368fc984a84bfe"
     },
     {
       "path": "vr-foveated/native/imgui/imconfig.h",
@@ -2540,19 +2990,39 @@
       "sha256": "55e058cc5899e6077a819ad1005d6d1f4528f65ae100795c9692f9fa6525a8ce"
     },
     {
+      "path": "vr-foveated/native/native-compute-state.h",
+      "bytes": 8172,
+      "sha256": "b70b37ab78b3aa15cae74b10dc30d5a9dd0a666e1d3d0ebd7242a61b66e9e49d"
+    },
+    {
+      "path": "vr-foveated/native/native-crop-processing.h",
+      "bytes": 5704,
+      "sha256": "53144acbf5c2198979733df51cfa717071ca91eecf6f4d32672f9a73cb3884c9"
+    },
+    {
       "path": "vr-foveated/native/native-foveation-layout.h",
       "bytes": 1511,
-      "sha256": "27da4b99cd6420d59b3709efb123a08f4f615e0f00d80adbaae94af9e25c23d5"
+      "sha256": "01a0a0faae9ef9c577d0c6510cc51ba77681d7025a4573486cb77fba1a58e186"
     },
     {
       "path": "vr-foveated/native/native-ngx-parameters.h",
-      "bytes": 2292,
-      "sha256": "6271e5969b68759db6664806ec910c7f44975c376af520e686753616ab58287c"
+      "bytes": 3441,
+      "sha256": "fbfdd115c531855cf1ca1b80c5f99415a61680d629beb1f9a1afe6946f8203ee"
+    },
+    {
+      "path": "vr-foveated/native/native-runtime-health.h",
+      "bytes": 828,
+      "sha256": "5c03af86cb6b255cbd553d83460a752a471e26cc8b90031f1c6d1e43099b623b"
     },
     {
       "path": "vr-foveated/native/native-vr-foveation.cpp",
-      "bytes": 28841,
-      "sha256": "c897c35a9461923598c4d18e87a5467c7f1ac0eb1e2a24bb410d9c84e5b829e8"
+      "bytes": 79841,
+      "sha256": "8a32ae76613cc1f67e2a3e542380bb9b009d16665147cf768eee0db6f618430a"
+    },
+    {
+      "path": "vr-foveated/native/native-vr-foveation.obj",
+      "bytes": 3585586,
+      "sha256": "c5c936c1910a29c6ac4432578ca5bb37c8829d304644ca713c056f27580dc1ce"
     },
     {
       "path": "vr-foveated/native/openxr/LICENSE",
@@ -2580,9 +3050,29 @@
       "sha256": "2277c9426c1874e44b0fa0629381356204cf24b28707d1d023301f7d05955b8d"
     },
     {
+      "path": "vr-foveated/native/openxr-dashboard-block.h",
+      "bytes": 4526,
+      "sha256": "0273dd2cc75250ad066a7e574c509f5a2c14bdffee165ba4ae6f0c78c6e65114"
+    },
+    {
+      "path": "vr-foveated/native/openxr-dashboard-input.h",
+      "bytes": 11692,
+      "sha256": "f64349f2fe09eb478ab3f91af2de9188a17b37f1711a299e58aa70f1050f0a0c"
+    },
+    {
+      "path": "vr-foveated/native/openxr-dashboard.h",
+      "bytes": 23887,
+      "sha256": "b3fcfd75fc060491fdea49da7a7a1e5caeb7729cb7aef5c24088e7df8478592f"
+    },
+    {
       "path": "vr-foveated/native/openxr-pose-layer.cpp",
       "bytes": 11310,
       "sha256": "7bbf35a52c408b999664a92540974f0e6cd23ccb3cddfc4f5ed5c5d5a649b3ee"
+    },
+    {
+      "path": "vr-foveated/native/openxr-reshade-menu.h",
+      "bytes": 10744,
+      "sha256": "9ac4ae87b0c25f02221e78b5c9f021fde8e342f435ae91c9bca82d448b844cdf"
     },
     {
       "path": "vr-foveated/native/Patch-D3D12-VRFoveation.ps1",
@@ -2736,18 +3226,58 @@
     },
     {
       "path": "vr-foveated/native/vr-runtime-compat.cpp",
-      "bytes": 20033,
-      "sha256": "7e39d654723db37f67a57886dc25c96fb9ec0182484bcc72ff0eee20a092204b"
+      "bytes": 23990,
+      "sha256": "c6b81579a82ab3bab22a67493fdc1ee89ad8280ff29d9e36558a1bc544f39eec"
+    },
+    {
+      "path": "vr-foveated/native/vr-runtime-compat.obj",
+      "bytes": 1811532,
+      "sha256": "cafbe2692e86294f0fb0428ff4266638a07fa9ea6626ff082254d90084d575ad"
+    },
+    {
+      "path": "vr-foveated/NATIVE-FOVEATION-V4.txt",
+      "bytes": 1194,
+      "sha256": "1b201de3341e6b449cccccb553b2b2dd6949c9d44158dc89713dee399e04c4e2"
+    },
+    {
+      "path": "vr-foveated/NATIVE-FOVEATION-V5.txt",
+      "bytes": 1045,
+      "sha256": "6c00eefc589624bf679f5113a083484a531e653b708ddcf9d3af49752bde27f6"
+    },
+    {
+      "path": "vr-foveated/NATIVE-FOVEATION-V7.txt",
+      "bytes": 1311,
+      "sha256": "c804ee0685b73d4d888164dbebeabecc9b6220663557d9c483951782c8370c6e"
+    },
+    {
+      "path": "vr-foveated/NATIVE-FOVEATION-V8.txt",
+      "bytes": 1325,
+      "sha256": "5d5d72faf44620f9dbb7590c77ce477b2cc0b5360ba7eac1e1b30e0a0dbda759"
+    },
+    {
+      "path": "vr-foveated/NATIVE-FOVEATION-V9.txt",
+      "bytes": 1382,
+      "sha256": "b4e2ecc86530a54404b07f9272de6cd65cadcbb97a7e2c2876e2badbc32abfda"
     },
     {
       "path": "vr-foveated/native-vr-foveation-nvngx.dll.addon64",
-      "bytes": 240128,
-      "sha256": "7ebbe1002e73d0dfe18789f86316f041efb917d9f8a0391685ebfd7829c37f42"
+      "bytes": 441856,
+      "sha256": "468c2a6aa228866a4c630e34b4a30758b22e1660ffb87ad1fee3389c1aff77c0"
+    },
+    {
+      "path": "vr-foveated/native-vr-foveation-nvngx.dll.exp",
+      "bytes": 1369,
+      "sha256": "23e1245aff5b826861470a6eba0d857061b05f038ede9874768fa35a7f55ab4a"
+    },
+    {
+      "path": "vr-foveated/native-vr-foveation-nvngx.dll.lib",
+      "bytes": 3166,
+      "sha256": "0e213fd866defe9244caaa5c8c345d459bb599793a821b7ee2c2bfbfc3e7c988"
     },
     {
       "path": "vr-foveated/prebuilt/build-manifest.json",
       "bytes": 842,
-      "sha256": "1b114669cbc4688e730cc0d325341dd4ed9d8f129bcd67183a02fc9cf50e6057"
+      "sha256": "2d6c64f419d60b4fce0170fe510c33dd6b507adf5ce6e214f06654b0ee7a9fe5"
     },
     {
       "path": "vr-foveated/prebuilt/DLSS5_Feed.fx",
@@ -2756,13 +3286,13 @@
     },
     {
       "path": "vr-foveated/prebuilt/dlss5-feed.addon64",
-      "bytes": 334336,
-      "sha256": "6b561ae84c85c04efd3d3a1e697740aecc1b18deac4d1aef51f99d00d6f00b73"
+      "bytes": 334848,
+      "sha256": "6daea77823d21dda560e6f713a81e7ae548c5885f2e19062f1b41897e8a4dc67"
     },
     {
       "path": "vr-foveated/prebuilt/VR_FOVEATED_V26.txt",
-      "bytes": 155,
-      "sha256": "bfef7eb5aed59f2a25cec2f0dc0b9ae987babc62bdb750f62a2b66b60f863f12"
+      "bytes": 152,
+      "sha256": "2405928a8249d719dce0d0632859e244f03e52a325fd3222e8ac814d391066d9"
     },
     {
       "path": "vr-foveated/prebuilt/vr-current-input.addon64",
@@ -2788,6 +3318,11 @@
       "path": "vr-foveated/README.txt",
       "bytes": 2874,
       "sha256": "80b2999ad068d60ebd44d3e2d4cd20c7cacff91767912cdb29cf4e3d066b811a"
+    },
+    {
+      "path": "vr-foveated/VR_FOVEATED_BUILD_LOG.txt",
+      "bytes": 786,
+      "sha256": "f39b307c9b1195c94ea87d4870cb3af0a7e57a1ce003ac047040aca7fa59a592"
     },
     {
       "path": "vr-foveated/vr-current-input.addon64",
