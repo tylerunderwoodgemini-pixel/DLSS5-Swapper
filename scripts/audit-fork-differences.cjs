@@ -17,7 +17,7 @@ function walk(dir) {
   for (const item of fs.readdirSync(dir, { withFileTypes: true }).sort((a,b) => a.name.localeCompare(b.name))) {
     const file = path.join(dir, item.name);
     if (item.isDirectory()) walk(file);
-    else if (item.isFile()) {
+    else if (item.isFile() && !/\.(obj|exp|lib|pdb|pyc|log)$/i.test(item.name)) {
       const bytes = fs.readFileSync(file);
       files.push({ path: path.relative(payload, file).split(path.sep).join('/'), bytes: bytes.length,
         sha256: crypto.createHash('sha256').update(bytes).digest('hex') });

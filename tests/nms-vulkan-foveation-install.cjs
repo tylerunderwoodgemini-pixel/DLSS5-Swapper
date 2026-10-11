@@ -1,0 +1,20 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path');
+const core=require('../src/core/apply'),auto=require('../src/core/vr-auto');
+const root=fs.mkdtempSync(path.join(os.tmpdir(),'dlss5-nms-vulkan-install-'));
+const previous=process.env.LOCALAPPDATA;process.env.LOCALAPPDATA=path.join(root,'local');
+(async()=>{try{
+ const game=path.join(root,'game');fs.mkdirSync(game);const exe=path.join(game,'NMS.exe');fs.writeFileSync(exe,'test');
+ const layer=path.join(root,'vulkan');fs.mkdirSync(layer);fs.writeFileSync(path.join(layer,'ReShade64.dll'),'test module');
+ const json=path.join(layer,'ReShade64.json');fs.writeFileSync(json,JSON.stringify({layer:{library_path:'.\\ReShade64.dll'}}));
+ const manifest=core.beginManifest(game,exe,'vulkan');manifest.vulkanLayer={manifest:json,owned:false};
+ await auto.finalize({mode:'openxr',route:'feeder',gameDir:game,exePath:exe,api:'vulkan',bitness:64,neuralProvider:'deep-fried-chicken',payloadDir:path.resolve('payload'),manifest,vrFoveation:'small'});
+ const config=fs.readFileSync(path.join(game,'dlss5-native-foveation.ini'),'utf8');
+ assert.match(config,/FeederVulkan=1/);assert.match(config,/StereoLayout=1/);assert.match(config,/Preset=1/);
+ assert(fs.existsSync(path.join(game,'native-vr-foveation-nvngx.dll.addon64')));
+ assert.match(fs.readFileSync(path.join(game,'dlss5-openxr-vulkan.ini'),'utf8'),/VulkanOwner=/);
+ await core.restore(game);
+ assert(!fs.existsSync(path.join(game,'native-vr-foveation-nvngx.dll.addon64')));
+ assert(!fs.existsSync(path.join(game,'dlss5-native-foveation.ini')));
+ assert(!fs.existsSync(path.join(game,'dlss5-openxr-vulkan.ini')));
+ console.log('PASS: NMS Vulkan/OpenXR Feeder finalization installs packed-eye crop bridge, routing config and restores added files');
+}finally{if(previous===undefined)delete process.env.LOCALAPPDATA;else process.env.LOCALAPPDATA=previous;fs.rmSync(root,{recursive:true,force:true});}})().catch(e=>{console.error(e);process.exitCode=1;});
