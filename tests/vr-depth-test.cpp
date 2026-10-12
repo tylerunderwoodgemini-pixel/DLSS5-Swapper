@@ -91,15 +91,19 @@ int main(){
       ComPtr<ID3D11Texture2D> eye[2];ComPtr<ID3D11DepthStencilView> dsv[2];
       D3D11_TEXTURE2D_DESC desc{};desc.Width=10;desc.Height=6;desc.ArraySize=1;desc.MipLevels=1;desc.Format=DXGI_FORMAT_D32_FLOAT;desc.SampleDesc.Count=1;desc.BindFlags=D3D11_BIND_DEPTH_STENCIL;
       SubmittedDepthImages frame{};frame.metadata.present_mask=3;
-      for(unsigned i=0;i<2;++i){Check(SUCCEEDED(dev->CreateTexture2D(&desc,nullptr,&eye[i])),"separate submitted eye");Check(SUCCEEDED(dev->CreateDepthStencilView(eye[i].Get(),nullptr,&dsv[i])),"submitted eye DSV");ctx->ClearDepthStencilView(dsv[i].Get(),D3D11_CLEAR_DEPTH,i?.75f:.25f,0);frame.texture[i]=eye[i].Get();auto &r=frame.metadata.eye[i];r.x=1;r.y=1;r.width=8;r.height=4;}
+      for(unsigned i=0;i<2;++i){Check(SUCCEEDED(dev->CreateTexture2D(&desc,nullptr,&eye[i])),"separate submitted eye");Check(SUCCEEDED(dev->CreateDepthStencilView(eye[i].Get(),nullptr,&dsv[i])),"submitted eye DSV");ctx->ClearDepthStencilView(dsv[i].Get(),D3D11_CLEAR_DEPTH,i?.75f:.25f,0);frame.texture[i]=eye[i].Get();auto &r=frame.metadata.eye[i];r.x=1;r.y=1;r.width=8;r.height=4;r.near_z=.01f;r.far_z=1500;r.min_depth=0;r.max_depth=1;}
       DepthState state;state.width=16;state.height=4;
-      Check(SubmittedSnapshot(state,ctx.Get(),frame),"explicit OpenXR separate-eye rectangles");
+      Check(SubmittedSnapshot(state,ctx.Get(),frame,false),"explicit OpenXR separate-eye rectangles");
       for(auto &v:dsv)ctx->ClearDepthStencilView(v.Get(),D3D11_CLEAR_DEPTH,0,0);
       Check(Pack(state,ctx.Get()),"pack actual submitted depth snapshots");
       D3D11_TEXTURE2D_DESC rd{};state.packed->GetDesc(&rd);rd.BindFlags=0;rd.Usage=D3D11_USAGE_STAGING;rd.CPUAccessFlags=D3D11_CPU_ACCESS_READ;
       ComPtr<ID3D11Texture2D> read;Check(SUCCEEDED(dev->CreateTexture2D(&rd,nullptr,&read)),"submitted readback");ctx->CopyResource(read.Get(),state.packed.Get());D3D11_MAPPED_SUBRESOURCE mapped{};Check(SUCCEEDED(ctx->Map(read.Get(),0,D3D11_MAP_READ,0,&mapped)),"map submitted depth");
       for(unsigned y=0;y<4;++y)for(unsigned x=0;x<16;++x)Check(std::abs(*(float *)((char *)mapped.pData+y*mapped.RowPitch+x*4)-(x<8?.25f:.75f))<.00001f,"separate submitted eyes remain independent after source clears");ctx->Unmap(read.Get(),0);
-      frame.metadata.eye[1].width=9;Check(!SubmittedSnapshot(state,ctx.Get(),frame),"mismatched submitted viewport rejected");frame.metadata.eye[1].width=8;frame.metadata.present_mask=1;Check(!SubmittedSnapshot(state,ctx.Get(),frame),"missing submitted eye rejected");
+      for(unsigned i=0;i<2;++i)ctx->ClearDepthStencilView(dsv[i].Get(),D3D11_CLEAR_DEPTH,i?.75f:.25f,0);
+      Check(SubmittedSnapshot(state,ctx.Get(),frame,true)&&Pack(state,ctx.Get()),"submitted forward depth normalized to declared reversed convention");
+      ctx->CopyResource(read.Get(),state.packed.Get());Check(SUCCEEDED(ctx->Map(read.Get(),0,D3D11_MAP_READ,0,&mapped)),"map reversed submitted guide");
+      for(unsigned y=0;y<4;++y)for(unsigned x=0;x<16;++x)Check(std::abs(*(float *)((char *)mapped.pData+y*mapped.RowPitch+x*4)-(x<8?.75f:.25f))<.00001f,"reversed submitted eye depth pixels");ctx->Unmap(read.Get(),0);
+      frame.metadata.eye[1].width=9;Check(!SubmittedSnapshot(state,ctx.Get(),frame,false),"mismatched submitted viewport rejected");frame.metadata.eye[1].width=8;frame.metadata.present_mask=1;Check(!SubmittedSnapshot(state,ctx.Get(),frame,false),"missing submitted eye rejected");
       puts("PASS: OpenXR separate-eye depth packing, offsets, exact pixels, source clear preservation and rejection gates");
     }
     puts("PASS: actual stereo depth snapshot/packing on WARP, D32/D24 and supported MSAA, source-clear preservation, freshness and stereo shape rejection");

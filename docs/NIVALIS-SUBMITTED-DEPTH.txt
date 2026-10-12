@@ -27,3 +27,14 @@ outstanding; automated tests are not proof of its runtime pixel delivery.
 Validation: actual capture code image-index/lifecycle test, OpenXR pose dispatch
 regression, WARP separate-eye pixel readback with offsets/source clears,
 D32/D24/MSAA capture/packing regressions, VR install/cache suites.
+
+Follow-up flickering run: depth is now valid, but samples approach one at
+distance (forward), while Feeder declares reversed depth. The projection
+bridge reported mask=0. Submitted guides are now remapped to the actual
+Feeder shader depth convention, and physical inverse-Z coefficients are
+computed from the submitted min/max and near/far values. The projection
+bridge reads them only from the depth bridge when that exact runtime has
+bound the submitted guide, avoiding overrides of unrelated fallback depth.
+WARP tests verify forward and reversed depth pixels, physical near/far
+endpoints, infinite far and invalid-range rejection. Headset confirmation
+of the flicker fix remains outstanding.

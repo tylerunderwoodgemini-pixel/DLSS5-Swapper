@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <cstdio>
 #include "projection-depth.h"
+#include "submitted-depth.h"
 #include "vr-depth-layout.h"
 using Microsoft::WRL::ComPtr;
 using namespace reshade::api;
@@ -55,8 +56,13 @@ static void Begin(effect_runtime *rt,command_list *cl,resource_view,resource_vie
  float fov[2][4]={{-1,1,-1,1},{-1,1,-1,1}},result[2][4]{};
  for(unsigned eye=0;eye<2;++eye){auto u=rt->find_uniform_variable("DLSS5_Feed.fx",eye?"VR_POSE_PROJ_R":"VR_POSE_PROJ_L");if(u.handle)rt->get_uniform_value_float(u,fov[eye],4);}
  unsigned mask=GetTickCount64()-s.checked<2000?Resolve(s.projections,fov,result):0;
+ // Use coefficients only for the exact guide bound by the depth bridge in
+ // this runtime/frame. Metadata alone must not override an unrelated guide.
+ auto layer=GetModuleHandleW(L"vr-depth-bridge.addon64");using ReadBound=bool(__cdecl *)(void *,float *);
+ auto read=layer?reinterpret_cast<ReadBound>(GetProcAddress(layer,"DLSS5ReadBoundDepthConversion")):nullptr;
+ if(read&&read(rt,&result[0][0]))mask=3;
  for(unsigned eye=0;eye<2;++eye){auto u=rt->find_uniform_variable("DLSS5_Feed.fx",eye?"VR_DEPTH_TO_INVZ_R":"VR_DEPTH_TO_INVZ_L");if(u.handle)rt->set_uniform_value_float(u,result[eye],4);}
- if(mask!=s.reported){s.reported=mask;char message[250];sprintf_s(message,"VR engine projection depth: mask=%u; inverseZ L=(%.8g*depth%+.8g) R=(%.8g*depth%+.8g); matching bound stereo camera constants, nonblocking readback",mask,result[0][0],result[0][1],result[1][0],result[1][1]);reshade::log::message(reshade::log::level::info,message);}
+ if(mask!=s.reported){s.reported=mask;char message[250];sprintf_s(message,"VR engine projection depth: mask=%u; inverseZ L=(%.8g*depth%+.8g) R=(%.8g*depth%+.8g); validated camera constants or submitted OpenXR near/far",mask,result[0][0],result[0][1],result[1][0],result[1][1]);reshade::log::message(reshade::log::level::info,message);}
 }
 static void Destroy(device *dev){std::lock_guard guard(mutex);states.erase(dev);}
 #ifndef VR_PROJECTION_TEST

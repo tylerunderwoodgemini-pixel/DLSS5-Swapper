@@ -18,6 +18,8 @@ using namespace reshade::api;
 static thread_local bool internal=false;
 struct Candidate {ComPtr<ID3D11Texture2D> texture;D3D11_TEXTURE2D_DESC desc={};uint64_t score=0;unsigned mask=0;DepthRect rects[2]={};unsigned rect_count=0;};
 struct DepthState {
+    effect_runtime *owner=nullptr;bool submitted=false;float inverse[2][4]{};
+    float depth_mul[2]={1,1},depth_add[2]={0,0};
     unsigned width=0,height=0,captured_mask=0;uint64_t best_score=0,selected=0;bool fresh=false,bound=false,reported=false;
     std::unordered_map<uint64_t,Candidate> candidates;
     std::unordered_set<uint64_t> announced;
@@ -78,9 +80,9 @@ static bool Pack(DepthState &s,ID3D11DeviceContext *ctx){
     if(!s.vs || !s.ps){
         const char *vertex="float4 main(uint id:SV_VertexID):SV_Position {float2 p=float2((id<<1)&2,id&2);return float4(p*float2(2,-2)+float2(-1,1),0,1);}";
         char pixel[1200];const auto &l=s.layout.eye[0],&r=s.layout.eye[1];
-        sprintf_s(pixel,"%s<float> depth:register(t0); float main(float4 p:SV_Position):SV_Target {uint x=(uint)p.x,y=(uint)p.y;bool right=x>=%u;uint sx=x%% %u+(right?%u:%u);uint sy=y+(right?%u:%u);uint layer=right?%u:%u;return depth.Load(%s);}",
+        sprintf_s(pixel,"%s<float> depth:register(t0); float main(float4 p:SV_Position):SV_Target {uint x=(uint)p.x,y=(uint)p.y;bool right=x>=%u;uint sx=x%% %u+(right?%u:%u);uint sy=y+(right?%u:%u);uint layer=right?%u:%u;return depth.Load(%s)*(right?%.9g:%.9g)+(right?%.9g:%.9g);}",
             source.SampleDesc.Count>1?"Texture2DMSArray":"Texture2DArray",s.width/2,s.width/2,r.x,l.x,r.y,l.y,r.layer,l.layer,
-            source.SampleDesc.Count>1?"int3(sx,sy,layer),0":"int4(sx,sy,layer,0)");
+            source.SampleDesc.Count>1?"int3(sx,sy,layer),0":"int4(sx,sy,layer,0)",s.depth_mul[1],s.depth_mul[0],s.depth_add[1],s.depth_add[0]);
         std::string code=pixel;
         ComPtr<ID3DBlob> vb,pb,errors;
         if(FAILED(D3DCompile(vertex,strlen(vertex),nullptr,nullptr,nullptr,"main","vs_5_0",0,0,&vb,&errors)) || FAILED(D3DCompile(code.data(),code.size(),nullptr,nullptr,nullptr,"main","ps_5_0",0,0,&pb,&errors)))return false;
@@ -190,9 +192,11 @@ static ComPtr<IUnknown> DepthDeviceIdentity(ID3D11Device *device){
  const GUID unwrap={0x7f2c9a11,0x3b4e,0x4d6a,{0x81,0x2f,0x5e,0x9c,0xd3,0x7a,0x1b,0x42}};
  ComPtr<IUnknown> raw,identity;if(SUCCEEDED(device->QueryInterface(unwrap,reinterpret_cast<void **>(raw.GetAddressOf())))&&raw)raw.As(&identity);else device->QueryInterface(IID_PPV_ARGS(&identity));return identity;
 }
-static bool SubmittedSnapshot(DepthState &s,ID3D11DeviceContext *ctx,const SubmittedDepthImages &frame){
+static bool SubmittedSnapshot(DepthState &s,ID3D11DeviceContext *ctx,const SubmittedDepthImages &frame,bool reversed=true){
  if(frame.metadata.present_mask!=3||!frame.texture[0]||!frame.texture[1]||ctx->GetType()!=D3D11_DEVICE_CONTEXT_IMMEDIATE)return false;
  ComPtr<ID3D11Device> device;ctx->GetDevice(&device);auto identity=DepthDeviceIdentity(device.Get());
+ SubmittedDepthConversion conversion[2];for(unsigned i=0;i<2;++i)if(!SubmittedConversion(frame.metadata.eye[i],reversed,conversion[i]))return false;
+ for(unsigned i=0;i<2;++i)if(s.depth_mul[i]!=conversion[i].multiply||s.depth_add[i]!=conversion[i].add){s.ps.Reset();s.depth_mul[i]=conversion[i].multiply;s.depth_add[i]=conversion[i].add;}
  D3D11_TEXTURE2D_DESC desc[2]{};
  for(unsigned eye=0;eye<2;++eye){auto texture=frame.texture[eye];texture->GetDesc(&desc[eye]);ComPtr<ID3D11Device> owner;texture->GetDevice(&owner);
   const auto &r=frame.metadata.eye[eye];
@@ -211,12 +215,13 @@ static bool SubmittedSnapshot(DepthState &s,ID3D11DeviceContext *ctx,const Submi
  }
  internal=true;
  for(unsigned eye=0;eye<2;++eye){const auto &r=frame.metadata.eye[eye];ctx->CopySubresourceRegion(s.snapshot.Get(),eye,0,0,0,frame.texture[eye],r.array_index,nullptr);}
- internal=false;s.layout.valid=true;s.layout.method="OpenXR-submitted-depth";s.layout.eye[0]={unsigned(frame.metadata.eye[0].x),unsigned(frame.metadata.eye[0].y),s.width/2,s.height,0};s.layout.eye[1]={unsigned(frame.metadata.eye[1].x),unsigned(frame.metadata.eye[1].y),s.width/2,s.height,1};s.fresh=true;s.captured_mask=3;return true;
+ internal=false;s.submitted=true;for(unsigned i=0;i<2;++i){s.inverse[i][0]=conversion[i].inverse_scale;s.inverse[i][1]=conversion[i].inverse_bias;s.inverse[i][3]=1;}s.layout.valid=true;s.layout.method="OpenXR-submitted-depth";s.layout.eye[0]={unsigned(frame.metadata.eye[0].x),unsigned(frame.metadata.eye[0].y),s.width/2,s.height,0};s.layout.eye[1]={unsigned(frame.metadata.eye[1].x),unsigned(frame.metadata.eye[1].y),s.width/2,s.height,1};s.fresh=true;s.captured_mask=3;return true;
 }
-static bool ReadSubmittedSnapshot(DepthState &s,ID3D11DeviceContext *ctx){
+static bool ReadSubmittedSnapshot(DepthState &s,ID3D11DeviceContext *ctx,effect_runtime *rt){
  auto module=GetModuleHandleW(L"DLSS5OpenXRPose.dll");auto read=module?reinterpret_cast<ReadSubmittedDepthImages>(GetProcAddress(module,"DLSS5ReadOpenXRDepthImages")):nullptr;
  SubmittedDepthImages frame{};if(!read||!read(&frame,sizeof(frame)))return false;
- const bool ready=SubmittedSnapshot(s,ctx,frame);for(auto texture:frame.texture)if(texture)texture->Release();return ready;
+ char value[32]{};bool reversed=true;if(rt->get_preprocessor_definition_for_effect("DLSS5_Feed.fx","RESHADE_DEPTH_INPUT_IS_REVERSED",value)||rt->get_preprocessor_definition("RESHADE_DEPTH_INPUT_IS_REVERSED",value))reversed=atoi(value)!=0;
+ const bool ready=SubmittedSnapshot(s,ctx,frame,reversed);for(auto texture:frame.texture)if(texture)texture->Release();return ready;
 }
 static void Begin(effect_runtime *rt,command_list *cl,resource_view,resource_view){
     if(internal || rt->get_hwnd()!=0)return;
@@ -224,8 +229,8 @@ static void Begin(effect_runtime *rt,command_list *cl,resource_view,resource_vie
     if(rt->get_device()->get_api()!=device_api::d3d11)return;
     std::lock_guard guard(mutex);auto &s=states[rt->get_device()];unsigned w,h;rt->get_screenshot_width_and_height(&w,&h);
     if(s.width!=w || s.height!=h){s.width=w;s.height=h;s.fresh=false;s.best_score=0;s.captured_mask=0;s.selected=0;}
-    auto ctx=reinterpret_cast<ID3D11DeviceContext *>(cl->get_native());
-    if(!ReadSubmittedSnapshot(s,ctx))for(auto &[key,c]:s.candidates)Snapshot(s,c,ctx);
+    s.owner=rt;s.submitted=false;auto ctx=reinterpret_cast<ID3D11DeviceContext *>(cl->get_native());
+    if(!ReadSubmittedSnapshot(s,ctx,rt)){if(s.depth_mul[0]!=1||s.depth_mul[1]!=1||s.depth_add[0]!=0||s.depth_add[1]!=0){s.ps.Reset();s.depth_mul[0]=s.depth_mul[1]=1;s.depth_add[0]=s.depth_add[1]=0;}for(auto &[key,c]:s.candidates)Snapshot(s,c,ctx);}
     const bool ready=Pack(s,ctx);
     const auto valid_uniform=rt->find_uniform_variable("DLSS5_Feed.fx","VR_STEREO_DEPTH_VALID");
     const float valid=ready?1.f:0.f;if(valid_uniform.handle)rt->set_uniform_value_float(valid_uniform,&valid,1);
@@ -240,6 +245,11 @@ static void Finish(effect_runtime *rt,command_list *,resource_view,resource_view
 static void DestroyList(command_list *cl){std::lock_guard guard(mutex);draws.erase(cl);}
 static void Destroy(device *dev){std::lock_guard guard(mutex);states.erase(dev);for(auto it=draws.begin();it!=draws.end();)if(it->second.owner==dev)it=draws.erase(it);else ++it;}
 #ifndef VR_DEPTH_TEST
+extern "C" __declspec(dllexport) bool __cdecl DLSS5ReadBoundDepthConversion(void *runtime,float *out){
+ if(!runtime||!out)return false;auto rt=static_cast<effect_runtime *>(runtime);std::lock_guard guard(mutex);auto found=states.find(rt->get_device());
+ if(found==states.end())return false;const auto &s=found->second;if(s.owner!=rt||!s.bound||!s.fresh||!s.submitted)return false;
+ memcpy(out,s.inverse,sizeof(s.inverse));return true;
+}
 extern "C" __declspec(dllexport) const char *NAME="VR stereo depth bridge";
 extern "C" __declspec(dllexport) const char *DESCRIPTION="Preserves matching D3D11 stereo depth and packs both eye layers for VR effects.";
 extern "C" __declspec(dllexport) BOOL AddonInit(HMODULE addon,HMODULE owner){

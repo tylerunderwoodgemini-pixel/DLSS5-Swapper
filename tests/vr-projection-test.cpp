@@ -3,6 +3,13 @@
 #include <cstdlib>
 void check(bool v,const char *s){if(!v){printf("FAIL: %s\n",s);exit(1);}}
 int main(){
+ DepthEyeInfo eye{};eye.near_z=.01f;eye.far_z=1500;eye.max_depth=1;SubmittedDepthConversion c;
+ check(SubmittedConversion(eye,true,c),"forward submitted depth converted to reversed");
+ check(std::abs(c.multiply+c.add)<1e-6f&&std::abs(c.add-1)<1e-6f,"near/far mapped to reversed endpoints");
+ check(std::abs(c.inverse_scale+c.inverse_bias-100)<.001f&&std::abs(c.inverse_bias-1.f/1500)<1e-7f,"physical inverse depth known without image fitting");
+ eye.far_z=INFINITY;check(SubmittedConversion(eye,true,c)&&c.inverse_bias==0,"infinite far supported");
+ eye.max_depth=0;check(!SubmittedConversion(eye,true,c),"invalid depth range rejected");
+
  float reversed[16]={1,0,.1f,0,0,1,0,0,0,0,0,.01f,0,0,-1,0};
  float forward[16]={1,0,.1f,0,0,1,0,0,0,0,-1.00010001f,-.100010001f,0,0,-1,0};
  float fov[2][4]={{-.9f,1.1f,-1,1},{-.9f,1.1f,-1,1}};

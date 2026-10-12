@@ -1,13 +1,13 @@
 {
   "marker": "1.16.0-beta.4-vr-universal-foveated26.29",
-  "fingerprint": "25e338b02b401b267863a81286c6d641808c10a057df8652eeccfe19bb014f69",
+  "fingerprint": "66516ee28485d71d2433505810c39c630a639094a9fcfb01a83e304db510364e",
   "files": {
     "dlss5-feed.addon64": "6daea77823d21dda560e6f713a81e7ae548c5885f2e19062f1b41897e8a4dc67",
     "DLSS5_Feed.fx": "83be76fc83a7f8f77d557651133695d45ec222e123136152ecc5f9dfe6b4ea23",
     "vr-current-input.addon64": "b63f208998a89e3c9697eb248e7262733a63021c33f798e4a9a37d5b3dcdf0df",
-    "vr-depth-bridge.addon64": "da8c559f1711104f56dc9808fae4893a852223796e1a456cfd8a65f1ffc347db",
+    "vr-depth-bridge.addon64": "2eb218cad17e201c0024d984ab00f9e31ec842858b37dec2e7bc27cdf3585e14",
     "vr-pose-bridge-v1.addon64": "a562afdd30474e3362cf585efc6409853d42649a2bc5fc374c84f2b3a47f48a6",
-    "vr-projection-bridge.addon64": "bbba0b23e0d9146de1967f2598be29ec736ebf9a176b536bf195314f9b14fac8",
+    "vr-projection-bridge.addon64": "47892155707b2338c6c4ba49469c45f95136ecfcb6d5834021e7008e84a18655",
     "VR_FOVEATED_V26.txt": "2405928a8249d719dce0d0632859e244f03e52a325fd3222e8ac814d391066d9"
   }
 }
