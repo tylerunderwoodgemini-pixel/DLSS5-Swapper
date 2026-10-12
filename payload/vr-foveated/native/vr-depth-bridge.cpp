@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <cmath>
 #include "vr-depth-layout.h"
+#include "submitted-depth.h"
 using Microsoft::WRL::ComPtr;
 using namespace reshade::api;
 static thread_local bool internal=false;
@@ -31,7 +32,7 @@ static std::unordered_map<command_list*,DepthDrawState> draws;
 static std::mutex mutex;
 static std::unordered_map<device*,DepthState> states;
 static DXGI_FORMAT Storage(DXGI_FORMAT f){
-    switch(f){case DXGI_FORMAT_D32_FLOAT:case DXGI_FORMAT_R32_TYPELESS:return DXGI_FORMAT_R32_TYPELESS;
+    switch(f){case DXGI_FORMAT_D32_FLOAT:case DXGI_FORMAT_R32_FLOAT:case DXGI_FORMAT_R32_TYPELESS:return DXGI_FORMAT_R32_TYPELESS;
     case DXGI_FORMAT_D24_UNORM_S8_UINT:case DXGI_FORMAT_R24G8_TYPELESS:return DXGI_FORMAT_R24G8_TYPELESS;
     case DXGI_FORMAT_D16_UNORM:case DXGI_FORMAT_R16_TYPELESS:return DXGI_FORMAT_R16_TYPELESS;
     case DXGI_FORMAT_D32_FLOAT_S8X24_UINT:case DXGI_FORMAT_R32G8X24_TYPELESS:return DXGI_FORMAT_R32G8X24_TYPELESS;
@@ -185,6 +186,38 @@ static void Begin12(effect_runtime *rt){
         reshade::log::message(reshade::log::level::info,message);
     }
 }
+static ComPtr<IUnknown> DepthDeviceIdentity(ID3D11Device *device){
+ const GUID unwrap={0x7f2c9a11,0x3b4e,0x4d6a,{0x81,0x2f,0x5e,0x9c,0xd3,0x7a,0x1b,0x42}};
+ ComPtr<IUnknown> raw,identity;if(SUCCEEDED(device->QueryInterface(unwrap,reinterpret_cast<void **>(raw.GetAddressOf())))&&raw)raw.As(&identity);else device->QueryInterface(IID_PPV_ARGS(&identity));return identity;
+}
+static bool SubmittedSnapshot(DepthState &s,ID3D11DeviceContext *ctx,const SubmittedDepthImages &frame){
+ if(frame.metadata.present_mask!=3||!frame.texture[0]||!frame.texture[1]||ctx->GetType()!=D3D11_DEVICE_CONTEXT_IMMEDIATE)return false;
+ ComPtr<ID3D11Device> device;ctx->GetDevice(&device);auto identity=DepthDeviceIdentity(device.Get());
+ D3D11_TEXTURE2D_DESC desc[2]{};
+ for(unsigned eye=0;eye<2;++eye){auto texture=frame.texture[eye];texture->GetDesc(&desc[eye]);ComPtr<ID3D11Device> owner;texture->GetDevice(&owner);
+  const auto &r=frame.metadata.eye[eye];
+  if(DepthDeviceIdentity(owner.Get()).Get()!=identity.Get()||!identity||desc[eye].MipLevels!=1||r.x<0||r.y<0||r.width!=int(s.width/2)||r.height!=int(s.height)||!RectInside({unsigned(r.x),unsigned(r.y),unsigned(r.width),unsigned(r.height),r.array_index},desc[eye]))return false;
+  if(desc[eye].SampleDesc.Count>1&&(r.x||r.y||r.width!=int(desc[eye].Width)||r.height!=int(desc[eye].Height)))return false;
+ }
+ if(Storage(desc[0].Format)==DXGI_FORMAT_UNKNOWN||Storage(desc[0].Format)!=Storage(desc[1].Format)||desc[0].Width!=desc[1].Width||desc[0].Height!=desc[1].Height||desc[0].SampleDesc.Count!=desc[1].SampleDesc.Count||desc[0].SampleDesc.Quality!=desc[1].SampleDesc.Quality)return false;
+ D3D11_TEXTURE2D_DESC wanted=desc[0];wanted.ArraySize=2;wanted.Format=Storage(wanted.Format);wanted.Usage=D3D11_USAGE_DEFAULT;wanted.BindFlags=D3D11_BIND_SHADER_RESOURCE;wanted.CPUAccessFlags=0;wanted.MiscFlags=0;
+ D3D11_TEXTURE2D_DESC old{};if(s.snapshot)s.snapshot->GetDesc(&old);
+ if(!s.snapshot||old.Width!=wanted.Width||old.Height!=wanted.Height||old.ArraySize!=2||old.Format!=wanted.Format||old.SampleDesc.Count!=wanted.SampleDesc.Count||old.SampleDesc.Quality!=wanted.SampleDesc.Quality){
+  s.snapshot.Reset();s.input.Reset();s.ps.Reset();if(FAILED(device->CreateTexture2D(&wanted,nullptr,&s.snapshot)))return false;
+  D3D11_SHADER_RESOURCE_VIEW_DESC view{};view.Format=View(wanted.Format);
+  if(wanted.SampleDesc.Count>1){view.ViewDimension=D3D11_SRV_DIMENSION_TEXTURE2DMSARRAY;view.Texture2DMSArray.ArraySize=2;}
+  else{view.ViewDimension=D3D11_SRV_DIMENSION_TEXTURE2DARRAY;view.Texture2DArray.ArraySize=2;view.Texture2DArray.MipLevels=1;}
+  if(FAILED(device->CreateShaderResourceView(s.snapshot.Get(),&view,&s.input))){s.snapshot.Reset();return false;}
+ }
+ internal=true;
+ for(unsigned eye=0;eye<2;++eye){const auto &r=frame.metadata.eye[eye];ctx->CopySubresourceRegion(s.snapshot.Get(),eye,0,0,0,frame.texture[eye],r.array_index,nullptr);}
+ internal=false;s.layout.valid=true;s.layout.method="OpenXR-submitted-depth";s.layout.eye[0]={unsigned(frame.metadata.eye[0].x),unsigned(frame.metadata.eye[0].y),s.width/2,s.height,0};s.layout.eye[1]={unsigned(frame.metadata.eye[1].x),unsigned(frame.metadata.eye[1].y),s.width/2,s.height,1};s.fresh=true;s.captured_mask=3;return true;
+}
+static bool ReadSubmittedSnapshot(DepthState &s,ID3D11DeviceContext *ctx){
+ auto module=GetModuleHandleW(L"DLSS5OpenXRPose.dll");auto read=module?reinterpret_cast<ReadSubmittedDepthImages>(GetProcAddress(module,"DLSS5ReadOpenXRDepthImages")):nullptr;
+ SubmittedDepthImages frame{};if(!read||!read(&frame,sizeof(frame)))return false;
+ const bool ready=SubmittedSnapshot(s,ctx,frame);for(auto texture:frame.texture)if(texture)texture->Release();return ready;
+}
 static void Begin(effect_runtime *rt,command_list *cl,resource_view,resource_view){
     if(internal || rt->get_hwnd()!=0)return;
     if(rt->get_device()->get_api()==device_api::d3d12){Begin12(rt);return;}
@@ -192,12 +225,12 @@ static void Begin(effect_runtime *rt,command_list *cl,resource_view,resource_vie
     std::lock_guard guard(mutex);auto &s=states[rt->get_device()];unsigned w,h;rt->get_screenshot_width_and_height(&w,&h);
     if(s.width!=w || s.height!=h){s.width=w;s.height=h;s.fresh=false;s.best_score=0;s.captured_mask=0;s.selected=0;}
     auto ctx=reinterpret_cast<ID3D11DeviceContext *>(cl->get_native());
-    for(auto &[key,c]:s.candidates)Snapshot(s,c,ctx);
+    if(!ReadSubmittedSnapshot(s,ctx))for(auto &[key,c]:s.candidates)Snapshot(s,c,ctx);
     const bool ready=Pack(s,ctx);
     const auto valid_uniform=rt->find_uniform_variable("DLSS5_Feed.fx","VR_STEREO_DEPTH_VALID");
     const float valid=ready?1.f:0.f;if(valid_uniform.handle)rt->set_uniform_value_float(valid_uniform,&valid,1);
     if(ready){rt->update_texture_bindings("DEPTH",{reinterpret_cast<uint64_t>(s.output.Get())},{reinterpret_cast<uint64_t>(s.output.Get())});}
-    if(!s.reported || ready!=s.bound){s.reported=true;s.bound=ready;char message[300];sprintf_s(message,"VR stereo depth v5: %s; layout=%s; output=%ux%u",ready?"packed both eyes into current-frame DEPTH guide":"no matching fresh stereo capture; Generic Depth remains responsible",ready?s.layout.method:"unresolved",w,h);reshade::log::message(reshade::log::level::info,message);}
+    if(!s.reported || ready!=s.bound){s.reported=true;s.bound=ready;char message[300];sprintf_s(message,"VR stereo depth v6: %s; layout=%s; output=%ux%u",ready?"packed both eyes into current-frame DEPTH guide":"no matching fresh stereo capture; Generic Depth remains responsible",ready?s.layout.method:"unresolved",w,h);reshade::log::message(reshade::log::level::info,message);}
 }
 static void Finish(effect_runtime *rt,command_list *,resource_view,resource_view){
     std::lock_guard guard(mutex);auto it=states.find(rt->get_device());if(it==states.end())return;

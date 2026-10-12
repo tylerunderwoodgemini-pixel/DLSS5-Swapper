@@ -2,6 +2,15 @@
 #define XR_NO_PROTOTYPES
 #include <windows.h>
 #include <cstring>
+#include <d3d11.h>
+#include <wrl/client.h>
+#include <vector>
+#include <map>
+#include <deque>
+#include <algorithm>
+#define XR_USE_GRAPHICS_API_D3D11
+#include "openxr/openxr_platform.h"
+#include "submitted-depth.h"
 #include "openxr/openxr_loader_negotiation.h"
 #include "pose-data.h"
 // Capture only; never load ReShade or create a second OpenXR instance/session.
@@ -11,9 +20,11 @@ struct Instance {
     PFN_xrDestroySession destroy_session={}; PFN_xrLocateViews locate={};
     PFN_xrEndFrame end_frame={}; PFN_xrPollEvent poll={};
 };
-struct Session {XrSession handle={};Instance dispatch={};PoseFrame frame={};DepthSubmissionInfo depth={};uint64_t epoch=1;};
+struct Session {XrSession handle={};Instance dispatch={};PoseFrame frame={};DepthSubmissionInfo depth={};uint64_t epoch=1;bool d3d11=false;};
 static SRWLOCK lock=SRWLOCK_INIT;
 static Instance instances[16];static Session sessions[32];
+struct DepthSwapchain {XrSession session{};Instance dispatch{};std::vector<Microsoft::WRL::ComPtr<ID3D11Texture2D>> images;std::deque<std::pair<unsigned,bool>> acquired;unsigned released=~0u;};
+static std::map<XrSwapchain,DepthSwapchain> depth_swapchains;
 static uint64_t epoch_counter=1;
 static PFN_xrGetInstanceProcAddr null_gipa=nullptr;
 static Instance Find(XrInstance h){Instance r={};AcquireSRWLockShared(&lock);for(auto &i:instances)if(i.handle==h){r=i;break;}ReleaseSRWLockShared(&lock);return r;}
@@ -60,17 +71,65 @@ static void PublishDepth(XrSession h,XrTime time,const XrCompositionLayerProject
 }
 static XrResult XRAPI_CALL DestroyInstance(XrInstance h){
     auto d=Find(h);if(!d.destroy)return XR_ERROR_HANDLE_INVALID;auto result=d.destroy(h);
-    if(XR_SUCCEEDED(result)){AcquireSRWLockExclusive(&lock);for(auto &s:sessions)if(s.dispatch.handle==h)s={};for(auto &i:instances)if(i.handle==h)i={};ReleaseSRWLockExclusive(&lock);}return result;
+    if(XR_SUCCEEDED(result)){AcquireSRWLockExclusive(&lock);for(auto i=depth_swapchains.begin();i!=depth_swapchains.end();)if(i->second.dispatch.handle==h)i=depth_swapchains.erase(i);else ++i;for(auto &s:sessions)if(s.dispatch.handle==h)s={};for(auto &i:instances)if(i.handle==h)i={};ReleaseSRWLockExclusive(&lock);}return result;
 }
 static XrResult XRAPI_CALL CreateSession(XrInstance h,const XrSessionCreateInfo *info,XrSession *out){
     auto d=Find(h);if(!d.create_session)return XR_ERROR_HANDLE_INVALID;auto r=d.create_session(h,info,out);
-    if(XR_SUCCEEDED(r)&&out){bool stored=false;AcquireSRWLockExclusive(&lock);for(auto &s:sessions)if(!s.handle){s.handle=*out;s.dispatch=d;s.epoch=++epoch_counter;stored=true;break;}ReleaseSRWLockExclusive(&lock);
+    if(XR_SUCCEEDED(r)&&out){bool stored=false;AcquireSRWLockExclusive(&lock);for(auto &s:sessions)if(!s.handle){s.handle=*out;s.dispatch=d;s.epoch=++epoch_counter;
+        auto chain=info?reinterpret_cast<const XrBaseInStructure *>(info->next):nullptr;
+        for(unsigned n=0;chain&&n<32;++n,chain=chain->next)if(chain->type==XR_TYPE_GRAPHICS_BINDING_D3D11_KHR)s.d3d11=true;stored=true;break;}ReleaseSRWLockExclusive(&lock);
         if(!stored){if(d.destroy_session)d.destroy_session(*out);*out=XR_NULL_HANDLE;return XR_ERROR_LIMIT_REACHED;}}
     return r;
 }
 static XrResult XRAPI_CALL DestroySession(XrSession h){
     auto d=ForSession(h);if(!d.destroy_session)return XR_ERROR_HANDLE_INVALID;auto r=d.destroy_session(h);
-    if(XR_SUCCEEDED(r)){AcquireSRWLockExclusive(&lock);for(auto &s:sessions)if(s.handle==h)s={};ReleaseSRWLockExclusive(&lock);}return r;
+    if(XR_SUCCEEDED(r)){AcquireSRWLockExclusive(&lock);for(auto i=depth_swapchains.begin();i!=depth_swapchains.end();)if(i->second.session==h)i=depth_swapchains.erase(i);else ++i;for(auto &s:sessions)if(s.handle==h)s={};ReleaseSRWLockExclusive(&lock);}return r;
+}
+template<class Fn> static Fn DepthProc(const Instance &d,const char *name){Fn fn=nullptr;if(d.gipa)d.gipa(d.handle,name,reinterpret_cast<PFN_xrVoidFunction *>(&fn));return fn;}
+static XrResult XRAPI_CALL CreateDepthSwapchain(XrSession h,const XrSwapchainCreateInfo *info,XrSwapchain *out){
+ auto d=ForSession(h);auto fn=DepthProc<PFN_xrCreateSwapchain>(d,"xrCreateSwapchain");if(!fn)return XR_ERROR_HANDLE_INVALID;
+ auto result=fn(h,info,out);if(XR_FAILED(result)||!out||!info)return result;
+ DepthSwapchain initial;initial.session=h;initial.dispatch=d;
+ AcquireSRWLockExclusive(&lock);if(depth_swapchains.size()<128)depth_swapchains[*out]=initial;ReleaseSRWLockExclusive(&lock);
+ // The composition depth reference authorizes selection; usage flags alone
+ // do not identify depth copied into a shader-writable swapchain.
+ bool supported=false;AcquireSRWLockShared(&lock);for(const auto &s:sessions)if(s.handle==h)supported=s.d3d11;ReleaseSRWLockShared(&lock);
+ if(!supported)return result;
+ auto enumerate=DepthProc<PFN_xrEnumerateSwapchainImages>(d,"xrEnumerateSwapchainImages");unsigned count=0;
+ if(!enumerate||XR_FAILED(enumerate(*out,0,&count,nullptr))||!count||count>32)return result;
+ std::vector<XrSwapchainImageD3D11KHR> images(count);for(auto &i:images)i.type=XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR;
+ if(XR_FAILED(enumerate(*out,count,&count,reinterpret_cast<XrSwapchainImageBaseHeader *>(images.data()))))return result;
+ DepthSwapchain state;state.session=h;state.dispatch=d;for(const auto &i:images){if(!i.texture)return result;state.images.emplace_back(i.texture);}
+ AcquireSRWLockExclusive(&lock);if(depth_swapchains.size()<128)depth_swapchains[*out]=std::move(state);ReleaseSRWLockExclusive(&lock);return result;
+}
+static Instance DepthDispatch(XrSwapchain h){Instance d{};AcquireSRWLockShared(&lock);auto i=depth_swapchains.find(h);if(i!=depth_swapchains.end())d=i->second.dispatch;else for(const auto &s:sessions)if(s.handle){d=s.dispatch;break;}ReleaseSRWLockShared(&lock);return d;}
+static XrResult XRAPI_CALL AcquireDepthImage(XrSwapchain h,const XrSwapchainImageAcquireInfo *info,unsigned *index){
+ auto fn=DepthProc<PFN_xrAcquireSwapchainImage>(DepthDispatch(h),"xrAcquireSwapchainImage");if(!fn)return XR_ERROR_HANDLE_INVALID;auto r=fn(h,info,index);
+ if(XR_SUCCEEDED(r)&&index){AcquireSRWLockExclusive(&lock);auto i=depth_swapchains.find(h);if(i!=depth_swapchains.end()&&i->second.acquired.size()<32)i->second.acquired.emplace_back(*index,false);ReleaseSRWLockExclusive(&lock);}return r;
+}
+static XrResult XRAPI_CALL WaitDepthImage(XrSwapchain h,const XrSwapchainImageWaitInfo *info){
+ auto fn=DepthProc<PFN_xrWaitSwapchainImage>(DepthDispatch(h),"xrWaitSwapchainImage");if(!fn)return XR_ERROR_HANDLE_INVALID;auto r=fn(h,info);
+ if(r==XR_SUCCESS){AcquireSRWLockExclusive(&lock);auto i=depth_swapchains.find(h);if(i!=depth_swapchains.end())for(auto &a:i->second.acquired)if(!a.second){a.second=true;break;}ReleaseSRWLockExclusive(&lock);}return r;
+}
+static XrResult XRAPI_CALL ReleaseDepthImage(XrSwapchain h,const XrSwapchainImageReleaseInfo *info){
+ auto fn=DepthProc<PFN_xrReleaseSwapchainImage>(DepthDispatch(h),"xrReleaseSwapchainImage");if(!fn)return XR_ERROR_HANDLE_INVALID;auto r=fn(h,info);
+ if(XR_SUCCEEDED(r)){AcquireSRWLockExclusive(&lock);auto i=depth_swapchains.find(h);if(i!=depth_swapchains.end()&&!i->second.acquired.empty()){auto a=i->second.acquired.front();i->second.acquired.pop_front();i->second.released=a.second?a.first:~0u;}ReleaseSRWLockExclusive(&lock);}return r;
+}
+static XrResult XRAPI_CALL DestroyDepthSwapchain(XrSwapchain h){
+ auto fn=DepthProc<PFN_xrDestroySwapchain>(DepthDispatch(h),"xrDestroySwapchain");if(!fn)return XR_ERROR_HANDLE_INVALID;
+ AcquireSRWLockExclusive(&lock);depth_swapchains.erase(h);for(auto &s:sessions)for(const auto &eye:s.depth.eye)if(eye.swapchain==(uint64_t)h){s.depth={};break;}ReleaseSRWLockExclusive(&lock);return fn(h);
+}
+extern "C" __declspec(dllexport) bool __cdecl DLSS5ReadOpenXRDepthImages(SubmittedDepthImages *out,unsigned size){
+ if(!out||size!=sizeof(*out))return false;SubmittedDepthImages result{};bool valid=false;
+ AcquireSRWLockShared(&lock);
+ for(const auto &s:sessions)if(s.handle&&s.d3d11&&s.depth.present_mask==3&&GetTickCount64()-s.depth.tick<=100){
+  if(valid){valid=false;break;}result.metadata=s.depth;valid=true;
+  for(unsigned eye=0;eye<2;++eye){auto i=depth_swapchains.find((XrSwapchain)s.depth.eye[eye].swapchain);
+   if(i==depth_swapchains.end()||i->second.session!=s.handle||i->second.released>=i->second.images.size()||std::any_of(i->second.acquired.begin(),i->second.acquired.end(),[&](const auto &a){return a.first==i->second.released;})){valid=false;break;}
+   result.texture[eye]=i->second.images[i->second.released].Get();}
+ }
+ if(valid)for(auto texture:result.texture)texture->AddRef();ReleaseSRWLockShared(&lock);
+ if(valid)*out=result;return valid;
 }
 static XrResult XRAPI_CALL LocateViews(XrSession h,const XrViewLocateInfo *info,XrViewState *state,uint32_t capacity,uint32_t *count,XrView *views){
     auto d=ForSession(h);if(!d.locate)return XR_ERROR_HANDLE_INVALID;auto r=d.locate(h,info,state,capacity,count,views);
@@ -121,6 +180,11 @@ static XrResult XRAPI_CALL GetProc(XrInstance h,const char *name,PFN_xrVoidFunct
     else HOOK("xrDestroyInstance",DestroyInstance);
     else HOOK("xrCreateSession",CreateSession);
     else HOOK("xrDestroySession",DestroySession);
+    else HOOK("xrCreateSwapchain",CreateDepthSwapchain);
+    else HOOK("xrAcquireSwapchainImage",AcquireDepthImage);
+    else HOOK("xrWaitSwapchainImage",WaitDepthImage);
+    else HOOK("xrReleaseSwapchainImage",ReleaseDepthImage);
+    else HOOK("xrDestroySwapchain",DestroyDepthSwapchain);
     else HOOK("xrLocateViews",LocateViews);
     else HOOK("xrEndFrame",EndFrame);
     else HOOK("xrPollEvent",PollEvent);

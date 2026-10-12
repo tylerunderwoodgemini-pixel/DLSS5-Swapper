@@ -1,0 +1,29 @@
+Nivalis Nights: submitted OpenXR D3D11 depth delivery
+
+Observed 2026-10-11 logs: DFC successfully evaluated cropped neural passes,
+while Feeder selected CURRENT NATIVE fallback (pose=1, depth=0). Generic
+Depth sampled zero; the VR depth bridge could not find a fresh packed or
+layered scene capture. OpenXR submitted depth metadata identified two
+separate 3080x3272 eye rectangles. Thus successful evaluations did not imply
+visible processed pixels.
+
+The capture layer now tracks the actual D3D11 swapchain image indices through
+acquire/wait/release. The bridge reads both explicitly submitted depth images,
+validates device identity, formats and viewports, snapshots each complete depth
+subresource, and packs the declared eye rectangles. Whole-subresource copying
+preserves D3D11 depth/stencil restrictions. Application bindings are restored.
+Reacquired, missing, stale, cross-device or mismatched guides remain rejected.
+The existing motion/depth presentation guard remains enabled.
+
+Both payload copies and the offline prebuilt depth bridge/cache manifest are
+updated. No installed game or shared runtime files were overwritten. Close VR
+games, restart the local swapper and reinstall Nivalis Nights to update the
+shared pose layer and local depth addon. Check the next ReShade.log for:
+VR stereo depth v6: packed both eyes ... layout=OpenXR-submitted-depth.
+Feeder should then report verified depth and resume neural output when its
+current guide-quality checks pass. Actual Nivalis headset confirmation remains
+outstanding; automated tests are not proof of its runtime pixel delivery.
+
+Validation: actual capture code image-index/lifecycle test, OpenXR pose dispatch
+regression, WARP separate-eye pixel readback with offsets/source clears,
+D32/D24/MSAA capture/packing regressions, VR install/cache suites.
