@@ -10,7 +10,7 @@ try{
  assert(!events.some(e=>e.params.state==='building'),'installation copies offline payload without a compiler/download');
  const digest=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
  assert.equal(digest(installed.addon64),'f3624bb34b5898501b48530c75e528de8308479e6aaf293a031d76be58eb79fb');
- assert.equal(digest(installed.depthBridge),'2eb218cad17e201c0024d984ab00f9e31ec842858b37dec2e7bc27cdf3585e14');
+ assert.equal(digest(installed.depthBridge),'fc8c5a0b5c42aa4a3bd4afcc3fe61600d979cfc293d5d3ad622a4133c8c90cb9');
  assert.equal(digest(path.join(path.dirname(installed.addon64),'vr-current-input.addon64')),'b63f208998a89e3c9697eb248e7262733a63021c33f798e4a9a37d5b3dcdf0df');
  assert.equal(digest(installed.feedShader),digest(path.join(root,'DLSS5_Feed.fx')));
  assert(fs.existsSync(path.join(installed.shaderRoot,'Shaders/ReShade.fxh')));

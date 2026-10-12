@@ -173,3 +173,27 @@ This audit records implemented/shipped differences and observed metadata. It doe
 ## vr.3 additions since vr.2
 
 Full stationary OpenXR ReShade menu/controller input blocking, working native D3D12 crop/reduced-resolution/feather pipeline with GPU-fenced history retirement and compute binding restoration, DFC queue identity pause/loading recovery, NMS Vulkan/Streamline/device identity repairs, Starfield folder-scan fixes, runtime guide validation and bounded recovery, live per-feature diagnostics/report export, tracked capability reports and an evidence-based compatibility matrix. Exact binary repair scripts and new regression harnesses are included. Native Vulkan/D3D11 crop and universal game certification remain unavailable.
+
+## vr.4 additions since vr.3
+
+- Packages the exact supplied NMS-VR-v8.1 native Vulkan mirror (1.4.13-pre7)
+  with pinned SHA-256, original component notices and binary provenance.
+  NMS/Vulkan/x64/DFC installs and reinstalls automatically use the native game
+  producer, `unwrap=0`, and disabled synthetic Feeder evaluation. All bridge
+  files and configs are tracked for original restoration. Other games/providers
+  keep the existing paths; this is not a generic native Vulkan installer.
+- Actual OpenXR D3D11 swapchain image acquisition/wait/release depth capture,
+  per-eye viewport packing, depth-convention normalization and matching physical
+  inverse-Z coefficients replace missing synthetic guides where available.
+- Explicit pose/focus discontinuity resets cannot be bypassed by valid depth;
+  current native output during warmup and bounded current-frame fade-in cover
+  D3D11/12 Feeder paths, including D3D12 presentation weighting.
+- Scoped D3D11 semantic binding ownership prevents stale bridge DEPTH views
+  from persisting into later frames and preserves newer third-party bindings.
+- Duplicate controlled INI/Feeder keys are removed with unrelated settings
+  retained; old disabled-addon lists cannot silently suppress NMS's bridges.
+- Whole-view spatial edge AA is bundled, with preserved settings and explicit
+  limits: user testing found it insufficient for Nivalis and it is not DLAA.
+- Adds actual installer/reinstall/original restore tests for NMS, binding-owner
+  regressions, deterministic history-guard tests, source/payload integrity checks,
+  and verified portable packaging with an independently staged versioned shell.

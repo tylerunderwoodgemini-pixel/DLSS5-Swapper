@@ -44,9 +44,8 @@ function setIni(text, section, key, value) {
       const match = lines[i].match(/^\s*([^;#][^=]*?)\s*=/);
       if (match && match[1].trim().toLowerCase() === wanted) {
         const spacing = (lines[i].match(/^(\s*[^=]+?\s*=\s*)/) || [])[1] || `${key}=`;
-        lines[i] = spacing + value;
-        changed = true;
-        break;
+        if (!changed) { lines[i] = spacing + value; changed = true; }
+        else { lines.splice(i, 1); i--; bounds.end--; }
       }
     }
     if (!changed) lines.splice(bounds.end, 0, `${key}=${value}`);
@@ -177,9 +176,10 @@ function configureFeed(text, overrides = {}) {
     if (!match) return line;
     const key = match[1].trim().toLowerCase();
     if (!(key in values)) return line;
+    if (seen.has(key)) return null; // Keep the first value used by getIni; remove contradictory duplicates.
     seen.add(key);
     return Object.prototype.hasOwnProperty.call(overrides, key) ? `${key}=${values[key]}` : `${key}=${match[2].trim()}`;
-  }).filter((line, index, all) => !(line === '' && index === all.length - 1));
+  }).filter((line, index, all) => line !== null && !(line === '' && index === all.length - 1));
   for (const [key, value] of Object.entries(values)) {
     if (!seen.has(key)) out.push(`${key}=${value}`);
   }

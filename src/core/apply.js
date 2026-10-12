@@ -522,6 +522,7 @@ async function applyFeeder(config, log) {
     });
   }
 
+  require('./native-vulkan-mirror').verify({...config,bitness,neuralProvider});
   const manifest = beginManifest(gameDir, exePath, api);
   manifest.route = 'feeder';
   manifest.neuralProvider = neuralProvider;
@@ -993,6 +994,8 @@ async function applyFeeder(config, log) {
       core: { writeTracked, saveActiveManifest }, manifest, gameDir, exeDir, neuralProvider
     });
   }
+
+  await require('./native-vulkan-mirror').install({...config,bitness,neuralProvider,manifest}, {copyTracked,writeTracked,saveActiveManifest});
 
   await saveActiveManifest(gameDir, manifest);
 

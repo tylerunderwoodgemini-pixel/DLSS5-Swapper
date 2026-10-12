@@ -21,7 +21,7 @@ Download the portable ZIP from this fork's Releases, extract it completely, and 
 - D3D11 depth detection for layered, aligned, offset and gapped eye layouts.
 - Submitted-image pose synchronization, current-frame compositing and temporal history/fallback/recovery protection.
 - UEVR desktop UI, D3D12 queue/device compatibility and missing matching Agility runtime support.
-- Verified offline feeder v26.29 and cache integrity checks.
+- Verified offline feeder v26.30 and cache integrity checks.
 - Install-time temporal history and synthetic guide repair, with tracked backups and verification records; conservative packaged DFC appearance settings.
 - Native test fixtures, portable build support, component notices, usage instructions and release checksums.
 
@@ -63,3 +63,7 @@ Original application: **Rakan Alkhaldi**, MIT licence. Fork integration: **Tyler
 [Original v2.2.0 README](docs/UPSTREAM-README-v2.2.0.md).
 
 See [vr.3 compatibility coverage](docs/COMPATIBILITY_MATRIX.md) and the [new release notes](docs/RELEASE_NOTES_VR_3.md) for working paths, recovery changes, diagnostic reports and remaining limits.
+
+## vr.4 update
+
+NMS + DFC now automatically uses the bundled native Vulkan DLSS mirror with Feeder evaluation disabled. Includes submitted OpenXR depth/convention/projection fixes, focus-transition history recovery, stale depth-binding restoration and duplicate configuration repair. See [vr.4 release notes](docs/RELEASE_NOTES_VR_4.md).

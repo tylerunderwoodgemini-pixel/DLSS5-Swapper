@@ -1,6 +1,6 @@
 # Using the CreatorBase DLSS 5 Swapper fork
 
-For the **2.2.3-vr.2 prerelease**, with feeder **v26.28**. These instructions use the English UI labels. The Swapper selects and installs files; ReShade provides the controls while the game is running.
+For the **2.2.3-vr.4 prerelease**, with feeder **v26.30**. These instructions use the English UI labels. The Swapper selects and installs files; ReShade provides the controls while the game is running.
 
 ## Quick start: VR or UEVR without native DLSS
 
@@ -185,3 +185,40 @@ menus are not implemented.
 Each managed install creates `dlss5-compatibility.json` beside the executable. It records supported foveation paths and limitations; restore removes or restores it through the installation journal. For native cropping, the F8 full ReShade menu contains **Native DLSS VR foveation**: check recent features, cropping status, eye count and dimensions. **Save compatibility report** writes `dlss5-native-foveation-status.json` beside the executable. Older counters alone do not prove an active effect.
 
 Pause/loading and late VR startup reset stale histories automatically. A cropped evaluation failure receives at most two retries after a five-second delay and completed GPU retirement. Unknown states and unsupported layouts retain the ordinary rendering path. Native Vulkan/D3D11 cropping is not available; use the documented Feeder path where supported. See [compatibility coverage](COMPATIBILITY_MATRIX.md) before treating an untested game as supported.
+
+## No Man's Sky native DLSS (vr.4)
+
+Choose the real `NMS.exe`, **Vulkan**, and **Deep Fried Chicken**, then install
+through the available Vulkan/Feeder route. The swapper now automatically
+installs the verified native Vulkan mirror bridge and configures `unwrap=0`.
+The Feeder DLL supplies interop support but its synthetic evaluation is disabled.
+DFC uses the game's real DLSS/DLAA color, depth and motion-vector contract.
+Enable **DLSS** or **DLAA** in NMS's own graphics settings, including its VR
+settings. Keep DFC enabled. The old native test script is no longer needed
+for fresh installs or repairs using this release.
+
+`dlss5-compatibility.json` identifies `game-native-vulkan-dlss` as the producer.
+To diagnose absent output, collect `dlss5-bridge.log` and `deep-fried-chicken.log`:
+the mirror must build its private feature and deliver frames, and DFC must
+complete neural evaluations. Feeder showing disabled is expected on this path.
+Other Vulkan games and other providers retain their existing installation paths.
+The native mirror does not add Vulkan F8 headset-menu support.
+
+## Guide validity and configuration recovery (vr.4)
+
+OpenXR D3D11 submitted depth is read from the actual released eye images,
+normalized to the shader's depth convention, and paired with physical inverse-Z
+projection coefficients. Missing, stale, cross-device or unsupported captures
+are rejected rather than declared valid. The depth bridge restores the prior
+DEPTH binding after effects, preserving newer bindings from other addons.
+
+Feeder VR history resets on tracking/focus/session interruptions even when
+depth remains valid; fresh frames are evaluated during a short native-output
+warmup followed by a current-frame fade-in. Normal head movement is not an
+explicit focus reset. Conflicting duplicate install-controlled keys are repaired.
+
+These checks improve the supported paths; they do not manufacture depth that a
+game does not expose. The whole-view spatial AA filter is a fallback and was
+reported insufficient in Nivalis. Feeder's reconstructed guides and zero jitter
+do not constitute full-view engine-integrated DLAA. Unsupported APIs or layouts
+still require their own integration and testing.

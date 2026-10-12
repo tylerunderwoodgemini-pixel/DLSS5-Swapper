@@ -4,4 +4,5 @@ if(!vr.cacheValid(path.join(root,'prebuilt'),vr.buildFingerprint(root)))throw Er
 require('../src/core/native-foveation-install').verifyPayload(path.resolve(__dirname,'../payload'));
 const scan=require('../src/core/scan').scanSource(path.resolve(__dirname,'../payload'));
 if(!scan.feeder.ok32||!scan.feeder.ok64||!scan.deepFriedChicken.ok)throw Error('Incomplete application payload; restore it from the fork portable release.');
+require('../src/core/native-vulkan-mirror').verify({api:'vulkan',bitness:64,exePath:'NMS.exe',neuralProvider:'deep-fried-chicken',source:scan});
 console.log('PASS: verified fork VR prebuilt and application payload');

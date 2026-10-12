@@ -25,6 +25,8 @@ function plan(options={}) {
     lateVrStartup:bits===64&&direct&&requested!=='off',foveationPath:path,reason,
     preset,center:{widthPercent:geometry.width,heightPercent:geometry.height},
     enabled:!!geometry.enabled&&path!=='unavailable',
+    effectiveProducer:options.manifest?.nativeDlssMirror?.producer || (route==='feeder'?'synthetic-feeder':route==='native'||route==='optiscaler'?'game-native-dlss':'unknown'),
+    requiresGameDlss:!!options.manifest?.nativeDlssMirror,
     runtimeValidationRequired:true,runtimeStatusFile:path.includes('nr')?'dlss5-native-foveation-status.json':null,
     checks:['active headset submission','per-eye viewport and guides','resource states and queue identity','history reset and fenced retirement'],
     limits:['No universal game certification','Native Vulkan and native D3D11 NR cropping are not implemented','Packed layouts require explicit matching configuration']};
@@ -33,6 +35,7 @@ async function install(options) {
   if(!options.manifest)return;
   const path=require('path'),core=require('./apply');
   const report=plan(options);
+  if(options.manifest.nativeDlssMirror) {report.nativeDlssMirror=options.manifest.nativeDlssMirror;if(report.foveationPath==='vulkan-feeder-d3d12-nr')report.foveationPath='vulkan-native-mirror-d3d12-nr';report.reason='NMS native Vulkan DLSS mirrored to D3D12; Feeder evaluation disabled. Enable DLSS or DLAA in the game.';}
   await core.writeTracked(options.manifest,options.gameDir,path.join(path.dirname(options.exePath),CONFIG),JSON.stringify(report,null,2)+'\n',{kind:'config'});
   options.manifest.vrCompatibility=report;
   await core.saveActiveManifest(options.gameDir,options.manifest);

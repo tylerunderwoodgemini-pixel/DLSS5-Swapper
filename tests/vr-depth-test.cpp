@@ -3,7 +3,21 @@
 #include <cmath>
 #include <cstdlib>
 static void Check(bool ok,const char *name){if(!ok){printf("FAIL: %s\n",name);exit(1);}}
+struct BindingRuntime {
+    resource_view linear{11},srgb{12};bool has_slot=true;
+    effect_texture_variable find_texture_variable(const char*,const char*){return {has_slot?1ull:0ull};}
+    void get_texture_binding(effect_texture_variable,resource_view *a,resource_view *b){*a=linear;*b=srgb;}
+    void update_texture_bindings(const char*,resource_view a,resource_view b){linear=a;srgb=b;}
+};
 int main(){
+    BindingRuntime rt,other;DepthBindingScope scope;
+    Check(BindScopedDepth(scope,&rt,{99}) && rt.linear.handle==99,"packed guide binding owns replacement");
+    RestoreDepthBinding(scope,&other);Check(rt.linear.handle==99,"other runtime cannot retire active guide");
+    RestoreDepthBinding(scope,&rt);Check(rt.linear.handle==11 && rt.srgb.handle==12,"original Generic Depth binding restored after effect render");
+    BindScopedDepth(scope,&rt,{99});rt.linear={55};rt.srgb={56};RestoreDepthBinding(scope,&rt);
+    Check(rt.linear.handle==55 && rt.srgb.handle==56,"newer third-party guide preserved");
+    rt.has_slot=false;Check(!BindScopedDepth(scope,&rt,{99}) && rt.linear.handle==55,"unresolvable depth semantic rejected rather than marked valid");
+
     ComPtr<ID3D11Device> dev;ComPtr<ID3D11DeviceContext> ctx;
     Check(SUCCEEDED(D3D11CreateDevice(nullptr,D3D_DRIVER_TYPE_WARP,nullptr,0,nullptr,0,D3D11_SDK_VERSION,&dev,nullptr,&ctx)),"WARP device");
     for(auto format : {DXGI_FORMAT_D32_FLOAT,DXGI_FORMAT_D24_UNORM_S8_UINT})for(unsigned samples : {1u,2u}){

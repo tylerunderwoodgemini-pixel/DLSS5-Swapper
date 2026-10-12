@@ -1,0 +1,16 @@
+Native Vulkan DLSS mirror payload
+
+File: dlss5-native-vulkan-bridge.addon64
+Installed name: dlss5-bridge.addon64
+Version: 1.4.13-pre7, supplied NMS-VR-v8.1 build dated 2026-09-17
+SHA256: 6086e194136847afeb85c2ac96bc179a2b88dab78cb153936cf95e5844d1dbf6
+
+Exact binary from the user's existing working No Man's Sky installation.
+No new executable patch has been applied for this release. The installer
+uses vk_mirror=1, synth=0, source=mirror, stage=3, mode=2 and unwrap=0,
+with Feeder evaluation disabled. See docs/NMS-NATIVE-MIRROR-DIAGNOSIS.txt.
+
+NIGos' bridge notice is retained in LICENSE-NIGos-dlss5-bridge.md and the
+Vulkan shader notices in LICENSE-dlss5-bridge-vulkan-shader.md beside this
+binary. Complete transformed source for this supplied build is not tracked;
+we do not claim a source-reproducible bridge build or general Vulkan support.

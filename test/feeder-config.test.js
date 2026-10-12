@@ -73,3 +73,20 @@ test('Xenia mitigation disables experimental camera vectors and enables validati
   assert.equal(config.getIni(ini, 'RenoDX.DLSS5', 'NRUICorrection'), '1');
   assert.equal(config.getIni(ini, 'RenoDX.DLSS5', 'NRAutoMask'), '1');
 });
+
+test('INI updates remove conflicting duplicate keys only in the selected section',()=>{
+ const before='[GENERAL]\r\nPresetPath=Old.ini\r\npresetpath=Conflicting.ini\r\nKeep=1\r\n[OTHER]\r\nPresetPath=Other.ini\r\n';
+ const result=config.setIni(before,'GENERAL','PresetPath','New.ini');
+ assert.equal((result.match(/^presetpath=/gmi)||[]).length,2);
+ assert.equal(config.getIni(result,'GENERAL','PresetPath'),'New.ini');
+ assert.equal(config.getIni(result,'OTHER','PresetPath'),'Other.ini');
+ assert.match(result,/Keep=1/);
+ assert.equal(config.setIni(result,'GENERAL','PresetPath','New.ini'),result);
+});
+
+test('Feeder removes contradictory duplicate known settings and retains unrelated keys',()=>{
+ const output=config.configureFeed('enabled=1\nenabled=0\nmv_scale_x=2\nmv_scale_x=9\ncustom=42\n',{mv_scale_x:'1.000'});
+ assert.equal(output.match(/^enabled=/gm).length,1);assert.equal(config.getIni(output,'','enabled'),'1');
+ assert.equal(output.match(/^mv_scale_x=/gm).length,1);assert.equal(config.getIni(output,'','mv_scale_x'),'1.000');
+ assert.match(output,/custom=42/);assert.equal(config.configureFeed(output,{mv_scale_x:'1.000'}),output);
+});

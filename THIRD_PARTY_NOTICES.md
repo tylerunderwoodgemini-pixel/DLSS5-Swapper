@@ -91,3 +91,7 @@ Deep Fried Chicken and its neural controls are credited to Alexander and remain 
 ## Native foveation ImGui headers
 
 The native foveation source includes Dear ImGui 1.92.5 headers by Omar Cornut and contributors under the MIT licence. See `payload/vr-foveated/native/imgui/LICENSE.txt`. NVIDIA NGX SDK headers are separately supplied by the builder and are not relicensed here.
+
+## NMS native Vulkan mirror
+
+The supplied NIGos bridge 1.4.13-pre7 / NMS-VR-v8.1 is packaged without a new binary patch. Its original bridge and Alan Z/NIGos Vulkan-shader MIT notices remain in `payload/deep-fried-chicken`, alongside `NMS-NATIVE-MIRROR-PROVENANCE.txt`. Complete transformed source for this supplied build is not tracked.

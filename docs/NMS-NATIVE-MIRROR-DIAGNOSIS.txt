@@ -59,3 +59,8 @@ Do not automatically apply this to Feeder games: disabling their only DLSS
 producer removes the effect. Vulkan native route packaging, bridge licensing/
 provenance and installation ownership must be integrated before calling this
 an automatic release fix for arbitrary native Vulkan games.
+
+Release vr.4 integration: the verified bridge is now packaged and automatically
+installed for NMS/Vulkan/x64 with DFC. Both configs and the addon are managed
+by the install journal. The helper test is retained for diagnostics; normal
+vr.4 install/repair no longer requires it. Other Vulkan games are unchanged.

@@ -13,12 +13,13 @@
 #include <cmath>
 #include "vr-depth-layout.h"
 #include "submitted-depth.h"
+#include "vr-depth-binding.h"
 using Microsoft::WRL::ComPtr;
 using namespace reshade::api;
 static thread_local bool internal=false;
 struct Candidate {ComPtr<ID3D11Texture2D> texture;D3D11_TEXTURE2D_DESC desc={};uint64_t score=0;unsigned mask=0;DepthRect rects[2]={};unsigned rect_count=0;};
 struct DepthState {
-    effect_runtime *owner=nullptr;bool submitted=false;float inverse[2][4]{};
+    effect_runtime *owner=nullptr;DepthBindingScope binding;bool submitted=false;float inverse[2][4]{};
     float depth_mul[2]={1,1},depth_add[2]={0,0};
     unsigned width=0,height=0,captured_mask=0;uint64_t best_score=0,selected=0;bool fresh=false,bound=false,reported=false;
     std::unordered_map<uint64_t,Candidate> candidates;
@@ -229,17 +230,19 @@ static void Begin(effect_runtime *rt,command_list *cl,resource_view,resource_vie
     if(rt->get_device()->get_api()!=device_api::d3d11)return;
     std::lock_guard guard(mutex);auto &s=states[rt->get_device()];unsigned w,h;rt->get_screenshot_width_and_height(&w,&h);
     if(s.width!=w || s.height!=h){s.width=w;s.height=h;s.fresh=false;s.best_score=0;s.captured_mask=0;s.selected=0;}
+    RestoreDepthBinding(s.binding,rt);
     s.owner=rt;s.submitted=false;auto ctx=reinterpret_cast<ID3D11DeviceContext *>(cl->get_native());
     if(!ReadSubmittedSnapshot(s,ctx,rt)){if(s.depth_mul[0]!=1||s.depth_mul[1]!=1||s.depth_add[0]!=0||s.depth_add[1]!=0){s.ps.Reset();s.depth_mul[0]=s.depth_mul[1]=1;s.depth_add[0]=s.depth_add[1]=0;}for(auto &[key,c]:s.candidates)Snapshot(s,c,ctx);}
-    const bool ready=Pack(s,ctx);
+    bool ready=Pack(s,ctx);
+    if(ready)ready=BindScopedDepth(s.binding,rt,{reinterpret_cast<uint64_t>(s.output.Get())});
     const auto valid_uniform=rt->find_uniform_variable("DLSS5_Feed.fx","VR_STEREO_DEPTH_VALID");
     const float valid=ready?1.f:0.f;if(valid_uniform.handle)rt->set_uniform_value_float(valid_uniform,&valid,1);
-    if(ready){rt->update_texture_bindings("DEPTH",{reinterpret_cast<uint64_t>(s.output.Get())},{reinterpret_cast<uint64_t>(s.output.Get())});}
     if(!s.reported || ready!=s.bound){s.reported=true;s.bound=ready;char message[300];sprintf_s(message,"VR stereo depth v6: %s; layout=%s; output=%ux%u",ready?"packed both eyes into current-frame DEPTH guide":"no matching fresh stereo capture; Generic Depth remains responsible",ready?s.layout.method:"unresolved",w,h);reshade::log::message(reshade::log::level::info,message);}
 }
 static void Finish(effect_runtime *rt,command_list *,resource_view,resource_view){
     std::lock_guard guard(mutex);auto it=states.find(rt->get_device());if(it==states.end())return;
-    auto &s=it->second;if(rt->get_hwnd()!=0 && s.width!=0)return;
+    auto &s=it->second;if(s.owner!=rt)return;
+    RestoreDepthBinding(s.binding,rt);
     s.best_score=0;s.fresh=false;s.captured_mask=0;s.selected=0;s.candidates.clear();
 }
 static void DestroyList(command_list *cl){std::lock_guard guard(mutex);draws.erase(cl);}
