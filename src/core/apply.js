@@ -762,7 +762,7 @@ async function applyFeeder(config, log) {
     feederConfig.configurePreset(
       feederConfig.readText(preset),
       provider,
-      { xenia }
+      { xenia, vrAA: Number(bitness)===64 && vrFoveation!=='off' }
     ),
     { kind: 'config' }
   );

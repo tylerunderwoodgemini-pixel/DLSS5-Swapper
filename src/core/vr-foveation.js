@@ -51,7 +51,7 @@ function copyTree(src,dst) {
 
 function buildFingerprint(root) {
   const hash=createHash('sha256');
-  for (const name of ['Build-And-Install-VRUniversalFoveated-v26.ps1','DLSS5_Feed.fx','vr-pose-bridge-v1.addon64','vr-depth-bridge.addon64','vr-projection-bridge.addon64','vr-current-input.addon64','DLSS5OpenXRPose.dll','dlss5-vr-compat.addon64','native/Patch-D3D12-VRFoveation.ps1','native/vr-foveated-d3d12.h','native/vr-depth-layout.h','native/vr-depth-bridge.cpp','native/vr-projection-bridge.cpp']) {
+  for (const name of ['Build-And-Install-VRUniversalFoveated-v26.ps1','DLSS5_SpatialAA.fx','DLSS5_Feed.fx','vr-pose-bridge-v1.addon64','vr-depth-bridge.addon64','vr-projection-bridge.addon64','vr-current-input.addon64','DLSS5OpenXRPose.dll','dlss5-vr-compat.addon64','native/Patch-D3D12-VRFoveation.ps1','native/vr-foveated-d3d12.h','native/vr-depth-layout.h','native/vr-depth-bridge.cpp','native/vr-projection-bridge.cpp']) {
     hash.update(name); hash.update(fs.readFileSync(path.join(root,name)));
   }
   return hash.digest('hex');
@@ -117,6 +117,7 @@ function ensureBuilt({payloadDir,stockFeeder}, send=()=>{}) {
     copyTree(stockFeeder.shaderRoot,combinedShaders);
     fs.mkdirSync(path.dirname(combinedFeedShader),{recursive:true});
     fs.copyFileSync(shader,combinedFeedShader);
+    fs.copyFileSync(path.join(root,'DLSS5_SpatialAA.fx'),path.join(combinedShaders,'Shaders','DLSS5_SpatialAA.fx'));
   }
 
   return { addon64:addon, feedShader:fs.existsSync(combinedFeedShader)?combinedFeedShader:shader, shaderRoot:fs.existsSync(combinedFeedShader)?combinedShaders:null, bridge, depthBridge:path.join(cache,'vr-depth-bridge.addon64'), version:BUILD_MARKER };

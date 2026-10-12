@@ -117,15 +117,15 @@ function configureConsumer(text, { host = false, xenia = false } = {}) {
   return out;
 }
 
-function configurePreset(text, provider = 2, { xenia = false } = {}) {
+function configurePreset(text, provider = 2, { xenia = false, vrAA = false } = {}) {
   let out = String(text || '');
   const providerTechnique = provider === 3
     ? 'Lumenite_Kernel@lumenite_Kernel.fx'
     : 'vort_MotionEffects@vort_Motion.fx';
-  const required = [providerTechnique, 'DLSS5_Feed@DLSS5_Feed.fx'];
+  const required = [providerTechnique, 'DLSS5_Feed@DLSS5_Feed.fx', ...(vrAA ? ['DLSS5_SpatialAA@DLSS5_SpatialAA.fx'] : [])];
   const techniqueName = (item) => item.split('@')[0].trim();
   const feederTechniques = new Set([
-    'Lumenite_Kernel', 'Lumenite_QuantMotion', 'vort_MotionEffects', 'DLSS5_Feed', 'Launchpad'
+    'Lumenite_Kernel', 'Lumenite_QuantMotion', 'vort_MotionEffects', 'DLSS5_Feed', 'Launchpad', ...(vrAA ? ['DLSS5_SpatialAA'] : [])
   ].map((name) => name.toLowerCase()));
   for (const key of ['Techniques', 'TechniqueSorting']) {
     const current = getIni(out, '', key);
@@ -148,6 +148,10 @@ function configurePreset(text, provider = 2, { xenia = false } = {}) {
     getIni(out, 'DLSS5_Feed.fx', 'PreprocessorDefinitions'),
     [`DLSS5_MV_PROVIDER=${provider}`], item => item.split('=')[0].trim()
   ));
+  if(vrAA){
+    if(!getIni(out,'DLSS5_SpatialAA.fx','AA_STRENGTH'))out=setIni(out,'DLSS5_SpatialAA.fx','AA_STRENGTH','0.65');
+    if(!getIni(out,'DLSS5_SpatialAA.fx','AA_PACKED_STEREO'))out=setIni(out,'DLSS5_SpatialAA.fx','AA_PACKED_STEREO','1');
+  }
   if (xenia) {
     for (const [key, value] of Object.entries({ GEOM_ENABLE: '0', MV_VALIDATE: '1', VALIDATE_STATIC: '1', VALIDATE_LUMA: '1', VALIDATE_DEPTH: '1', VALIDATE_MV: '1', MASK_STRENGTH: '1.0' })) {
       out = setIni(out, 'DLSS5_Feed.fx', key, value);

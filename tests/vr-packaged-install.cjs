@@ -14,6 +14,7 @@ try{
  assert.equal(digest(path.join(path.dirname(installed.addon64),'vr-current-input.addon64')),'b63f208998a89e3c9697eb248e7262733a63021c33f798e4a9a37d5b3dcdf0df');
  assert.equal(digest(installed.feedShader),digest(path.join(root,'DLSS5_Feed.fx')));
  assert(fs.existsSync(path.join(installed.shaderRoot,'Shaders/ReShade.fxh')));
+ assert.equal(digest(path.join(installed.shaderRoot,'Shaders/DLSS5_SpatialAA.fx')),digest(path.join(root,'DLSS5_SpatialAA.fx')),'current full-view AA included in offline shader installation');
  fs.appendFileSync(installed.depthBridge,'stale');
  installed=vr.ensureBuilt({payloadDir:payload,stockFeeder});assert.equal(digest(installed.depthBridge),digest(path.join(root,'vr-depth-bridge.addon64')),'corrupt cache restored from package');
  const altered=path.join(temp,'altered');fs.cpSync(root,altered,{recursive:true});
