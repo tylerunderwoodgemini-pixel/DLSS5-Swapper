@@ -1,0 +1,44 @@
+NMS native Vulkan DLSS mirror diagnosis (2026-10-11)
+
+Active installation: D:/GOG Galaxy/Games/No Man's Sky/Binaries.
+The OpenVR Start Menu shortcut points to this installation. Installed VR
+settings select DLAA and MaxQuality; native Vulkan NGX creates/evaluates
+successfully. Native DLSS has not disappeared from the game.
+
+The 23:18-23:20 logs show two independent paths:
+- Feeder 26.29 starts a synthetic D3D12 DLAA contract at 6160x3272.
+  DFC attaches to this feature (feeder_marker=1) and runs successfully.
+- Existing dlss5-bridge 1.4.13-pre7 captures the game's Vulkan DLSS contract.
+  At 23:19:33.811 its private D3D12 create throws 0xC0000005 inside
+  D3D12Core.dll +0x2415BE. The bridge permanently disables the mirror for
+  this session and forwards native game DLSS unchanged.
+
+Installed manifest route is feeder. The current installer policy does not
+expose the normal native route for Vulkan. Reinstalling that route therefore
+does not select the old Vulkan mirror. Installed DFC/helper binaries also
+predate the latest packaged repairs; update through the local swapper first.
+
+The bridge logs that it unwraps its ReShade-created private D3D12 device
+before initialization. Whether this creates an inconsistent device/object
+contract in the modified ReShade is a hypothesis, not an established cause.
+The first controlled test is the bridge's existing unwrap=0 option with
+Feeder disabled, leaving the game's real DLSS contract as the sole producer.
+Do not claim the native mirror is repaired until feature creation and
+neural evaluations succeed in the resulting logs and headset output.
+
+scripts/Test-NMS-Native-DLSS.ps1 is preview-only by default. -Apply backs up
+both configs into a unique _NMS_Native_Test directory, disables Feeder
+processing, enables native mirror mode and sets unwrap=0. Existing binaries,
+DFC appearance controls and game graphics settings are preserved. It refuses
+changes while NMS is running. -RestoreFrom <backup-directory> restores both
+original configs. Apply failures restore both configs automatically.
+
+Run after reinstalling from the local swapper, then launch the usual OpenVR
+shortcut. Swapper reinstall may re-enable Feeder, so run the native test last.
+The test does not change the production installer or claim Vulkan native
+foveation is supported. It is a diagnostic for this existing bridge install.
+
+Validation: script parsed and previewed against the installed configs without
+writing them; isolated fixture verified preview/no writes, applying one
+canonical enabled key, preserving other settings and exact restoration.
+No installed game files or shared runtime registrations were changed.
