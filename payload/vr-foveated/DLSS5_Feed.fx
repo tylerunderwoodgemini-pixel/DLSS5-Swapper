@@ -239,6 +239,12 @@ uniform float VR_MAX_MOTION_PX <
 //
 // The bridge deliberately supplies rotation only.  Translation needs depth for correct parallax.
 // ---------------------------------------------------------------------------------------------
+uniform float VR_HISTORY_RESET <
+    source = "vr_pose_bridge";
+    ui_category = "VR pose reprojection";
+    ui_label = "VR history transition reset";
+> = 0.0;
+
 uniform float VR_POSE_VALID <
     source = "vr_pose_bridge";
     ui_category = "VR pose reprojection";
@@ -1187,6 +1193,8 @@ void PS_MotionVectors(float4 vpos : SV_Position, float2 uv : TEXCOORD,
     const bool outside = any(previous_uv < 0.0) || any(previous_uv > 1.0);
     if (crossed_eye || outside || !VR_InsideHistoryCrop(uv, previous_uv)) { mv_out = 0.0; distrust = 1.0; }
     mask = saturate(distrust * MASK_STRENGTH + vr_relief);
+    // No image-flow or pose history from before a VR transition is usable.
+    if (VR_HISTORY_RESET > 0.5) { mv_out = 0.0; mask = 1.0; }
     depth = RawDepth(uv);
 }
 

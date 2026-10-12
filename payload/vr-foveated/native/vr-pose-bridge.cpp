@@ -48,14 +48,14 @@ static bool OpenVRFrame(PoseFrame &frame){
         frame.valid = frame.valid && ValidEye(frame.eye[i]);}
     return frame.valid!=0;
 }
-struct State {reshade::api::effect_runtime *runtime=nullptr;PoseFrame previous={};float rotation[2][9]={};float displacement[2][3]={};float previous_projection[2][4]={};float translation=0;bool valid=false;int source=0,depth_mask=-1;};
+struct State {reshade::api::effect_runtime *runtime=nullptr;PoseFrame previous={};float rotation[2][9]={};float displacement[2][3]={};float previous_projection[2][4]={};float translation=0;bool valid=false;int source=0,depth_mask=-1;DWORD foreground_process=0;};
 static State states[16];static SRWLOCK state_lock=SRWLOCK_INIT;
 static void Set(reshade::api::effect_runtime *rt,const char *name,const float *data,size_t count){
     const auto uniform=rt->find_uniform_variable("DLSS5_Feed.fx",name);if(uniform.handle)rt->set_uniform_value_float(uniform,data,count);
 }
 static void Valid(reshade::api::effect_runtime *rt,bool valid){float v=valid?1.f:0.f;Set(rt,"VR_POSE_VALID",&v,1);}
 static void OnBegin(reshade::api::effect_runtime *rt,reshade::api::command_list *,reshade::api::resource_view,reshade::api::resource_view){
-    if(rt->get_hwnd()!=0){Valid(rt,false);return;}
+    if(rt->get_hwnd()!=0){Valid(rt,false);float reset=0;Set(rt,"VR_HISTORY_RESET",&reset,1);return;}
     AcquireSRWLockExclusive(&state_lock);
     // The capture layer may load after ReShade's desktop add-on scan.
     if(!capture_module && GetModuleHandleExW(0,L"DLSS5OpenXRPose.dll",&capture_module)) {
@@ -77,12 +77,20 @@ static void OnBegin(reshade::api::effect_runtime *rt,reshade::api::command_list 
     PoseFrame frame;int source=0;
     if(read_xr && read_xr(&frame,sizeof(frame)))source=2;
     else if(!(active_xr && active_xr()) && OpenVRFrame(frame))source=1;
-    if(!state || !source){if(state){state->previous.valid=0;state->valid=false;}Valid(rt,false);ReleaseSRWLockExclusive(&state_lock);return;}
+    if(!state || !source){if(state){state->previous.valid=0;state->valid=false;}Valid(rt,false);float reset=1;Set(rt,"VR_HISTORY_RESET",&reset,1);ReleaseSRWLockExclusive(&state_lock);return;}
     // Shader luma/depth history advances on every effects render. Match its
     // cadence even when OpenXR repeats a predicted display timestamp; retaining
     // the last nonzero delta would apply the same head turn to history twice.
     {
-        state->valid=ContinuousPose(state->previous,frame) && state->source==source;
+        DWORD foreground_process=0;GetWindowThreadProcessId(GetForegroundWindow(),&foreground_process);
+        // Process transitions cover desktop/VR switching that does not emit an XR focus event.
+        // Switching between windows in this same game (including the overlay) is not a break.
+        const bool foreground_changed=state->foreground_process && foreground_process &&
+            (state->foreground_process==GetCurrentProcessId())!=(foreground_process==GetCurrentProcessId());
+        const bool history_break=PoseHistoryBreak(state->previous,frame) || state->source!=source || foreground_changed;
+        state->foreground_process=foreground_process;
+        float reset=history_break?1.f:0.f;Set(rt,"VR_HISTORY_RESET",&reset,1);
+        state->valid=!history_break && ContinuousPose(state->previous,frame) && state->source==source;
         float distance=0;
         for(int k=0;k<3;++k){
             const float d=(frame.eye[0].position[k]+frame.eye[1].position[k]-state->previous.eye[0].position[k]-state->previous.eye[1].position[k])*0.5f;

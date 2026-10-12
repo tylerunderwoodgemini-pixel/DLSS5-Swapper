@@ -172,7 +172,7 @@ static bool VrGuideProbeDue(ULONGLONG now)
     $src = Replace-LiteralOnce $src '    if ((g_guide_probe_frames % kGuideProbeEvery) != 0) return;' $probeCapture 'VR probe owner'
 
     # Mark the binary clearly.
-    $src = Replace-LiteralOnce $src '#define FEED_VERSION "1.16.0-beta.4"' '#define FEED_VERSION "1.16.0-beta.4-vr-universal-foveated26.29"' 'version marker'
+    $src = Replace-LiteralOnce $src '#define FEED_VERSION "1.16.0-beta.4"' '#define FEED_VERSION "1.16.0-beta.4-vr-universal-foveated26.30"' 'version marker'
 
     # Insert the helpers immediately before the real function. This is deliberately
     # independent of comments/newline style around the function.
@@ -845,6 +845,10 @@ static bool VrUnresolvedPoseMotion(reshade::api::effect_runtime *rt)
 // Bias-current is a hint, not a substitute for resetting invalid history.
 static bool VrHistoryGuard(reshade::api::effect_runtime *rt)
 {
+    const auto transition_uniform=rt->find_uniform_variable("DLSS5_Feed.fx","VR_HISTORY_RESET");
+    float transition_value=0;
+    if(transition_uniform.handle)rt->get_uniform_value_float(transition_uniform,&transition_value,1);
+    const bool transition=transition_value>0.5f;
     const bool pose_valid = VrHasPoseGuide(rt);
     const bool depth_valid = VrHasStereoDepthGuide(rt) && g_vr_depth_guides_reliable &&
         g_vr_guide_owner == rt && g_vr_guide_width == g.width &&
@@ -854,24 +858,26 @@ static bool VrHistoryGuard(reshade::api::effect_runtime *rt)
     static ULONGLONG settle_until = 0;
     static ULONGLONG last_reset = 0;
     static bool recovering = false;
+    static bool transition_recovery = false;
     const ULONGLONG now = GetTickCount64();
     if (owner != rt || width != g.width || height != g.height)
     {
         owner = rt; width = g.width; height = g.height; settle_until = 0;
-        last_reset = now; recovering = true;
+        last_reset = now; recovering = true; transition_recovery = false;
     }
     if (!depth_valid && (!pose_valid || VrUnresolvedPoseMotion(rt))) settle_until = now + 120;
     if (depth_valid) settle_until = 0;
     const bool unresolved_motion = !depth_valid && now < settle_until;
-    const bool reset = (!pose_valid && !depth_valid) || unresolved_motion;
+    const bool reset = transition || (!pose_valid && !depth_valid) || unresolved_motion;
     // Keep evaluating so the neural history can converge after motion, but do
     // not display unstable reset frames. Never blend pixels from an old frame.
     if (reset) { last_reset = now; recovering = true; }
-    if (depth_valid) recovering = false;
+    if (transition) transition_recovery = true;
+    if (depth_valid && !transition_recovery) recovering = false;
     const ULONGLONG elapsed = now - last_reset;
     g_vr_neural_weight = !recovering ? 1.0f :
         (elapsed <= 400 ? 0.0f : (std::min)(1.0f, float(elapsed - 400) / 600.0f));
-    if (g_vr_neural_weight >= 1.0f) recovering = false;
+    if (g_vr_neural_weight >= 1.0f) { recovering = false; transition_recovery = false; }
     static int last_output = -1;
     const int output = g_vr_neural_weight <= 0.0f ? 0 : (g_vr_neural_weight >= 1.0f ? 2 : 1);
     if (last_output != output)
@@ -885,8 +891,8 @@ static bool VrHistoryGuard(reshade::api::effect_runtime *rt)
     if (last != int(reset))
     {
         last = int(reset);
-        Log("[feed] VR HISTORY GUARD: %s (pose=%d depth=%d motionWithoutDepth=%d); neural evaluation remains enabled",
-            reset ? "RESET unusable temporal correspondence" : "REUSE verified/static guides", pose_valid, depth_valid, unresolved_motion);
+        Log("[feed] VR HISTORY GUARD: %s (pose=%d depth=%d motionWithoutDepth=%d transition=%d); neural evaluation remains enabled",
+            reset ? "RESET unusable temporal correspondence" : "REUSE verified/static guides", pose_valid, depth_valid, unresolved_motion, transition);
     }
     return reset;
 }
@@ -2093,7 +2099,7 @@ exit /b %errorlevel%
     Copy-Item -LiteralPath $currentInput -Destination (Join-Path $Out 'vr-current-input.addon64') -Force
     @(
       'VR Universal Current-Frame Foveation v26',
-      'marker=vr-universal-foveated26.29',
+      'marker=vr-universal-foveated26.30',
       'default=balanced-60x50',
       'buffers=packed-sbs-headless-768..16384x384..16384'
     ) | Set-Content -LiteralPath (Join-Path $Out 'VR_FOVEATED_V26.txt') -Encoding UTF8

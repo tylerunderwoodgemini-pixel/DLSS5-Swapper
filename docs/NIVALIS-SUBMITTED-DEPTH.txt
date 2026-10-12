@@ -38,3 +38,32 @@ bound the submitted guide, avoiding overrides of unrelated fallback depth.
 WARP tests verify forward and reversed depth pixels, physical near/far
 endpoints, infinite far and invalid-range rejection. Headset confirmation
 of the flicker fix remains outstanding.
+
+Follow-up monitor/VR transition build 26.30: valid stereo depth previously
+bypassed every pose-history reset. A separate VR_HISTORY_RESET signal now
+covers tracking recovery, session/space/epoch changes, >250 ms pose gaps,
+backward predicted time and transitions between the foreground game process
+and another process. OpenXR focus state changes invalidate the epoch once per
+actual state transition; duplicate notifications do not repeatedly invalidate.
+Ordinary head translation does not generate this signal. Both D3D11 and D3D12
+Feeder evaluations honor the signal even with usable depth. Fresh neural
+frames are evaluated while output stays native for 400 ms, then the current
+frame's neural result fades in over 600 ms. Depth cannot cancel this recovery.
+The D3D12 compositor now uses the same current-frame presentation weight.
+
+Aliasing remains visible with DFC disabled, so it is also in the game's base
+VR image. The spatial filter is enabled but user testing found insufficient
+improvement. Keep the game's AA enabled. For a genuine increase in scene
+samples, try NivalisNightVR.ini [Rendering] ResolutionScale = 1.2, or the
+mod's corresponding resolution control, and restart the game. This raises
+linear render dimensions by 20% and pixel count by 44%, so measure headset
+performance before increasing further; 1.1 costs approximately 21% more pixels.
+This is supersampling, not an engine-integrated DLAA implementation. The
+swapper does not force the resolution increase or change personal DFC settings.
+
+Validation: actual OpenXR layer/bridge tests include focus acquisition/loss,
+duplicate events and separate neural-reset delivery. The actual builder's
+history guard is compiled into a deterministic harness verifying valid-depth
+transition reset, bounded recovery, normal motion and missing-depth fallback.
+No installed game files were modified; reinstall using the local swapper.
+The downloadable GitHub release has not yet been replaced with this build.

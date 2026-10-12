@@ -26,7 +26,7 @@ const context={module:{exports:{}},Buffer,console,process:{...process,env:{...pr
       }
     };
     if(name==='./apply')return {trackBeforeWrite:async(m,g,f)=>events.push('track '+path.basename(f)),saveActiveManifest:async()=>events.push('save')};
-    if(name==='./vr-foveation')return {normalizePreset:v=>v||'off',VERSION:26,ensureBuilt:()=>({addon64:'fixed-26.29',bridge:'pose',depthBridge:'depth',feedShader:'shader',shaderRoot:'shaders',version:'26.29'})};
+    if(name==='./vr-foveation')return {normalizePreset:v=>v||'off',VERSION:26,ensureBuilt:()=>({addon64:'fixed-26.30',bridge:'pose',depthBridge:'depth',feedShader:'shader',shaderRoot:'shaders',version:'26.30'})};
     if(name==='./native-foveation-install')return {verifyPayload:()=>events.push('native payload verified'),install:async opts=>{events.push('native foveation installed');assert.equal(opts.preset,'balanced');}};
     if(name==='./openxr-pose-install')return {verifyPayload:()=>{},install:async()=>events.push('pose installed')};
     return nativeRequire(name);
@@ -68,7 +68,7 @@ fs.writeFileSync(path.join(dir,'dxgi.dll'),"crosire's ReShade stock");return {mo
     const current=fixture('matrix-'+mode);let chosen;
     const target={install:async o=>{chosen=o;return current.manifest;}};api.wrapBackendManager(target);
     await target.install({...current,route:'feeder',vrMode:'auto',vrFoveation:'balanced',source:{feeder:{}},installReShade:true});
-    assert.equal(chosen.source.feeder.addon64,'fixed-26.29',mode+' uses current feeder');
+    assert.equal(chosen.source.feeder.addon64,'fixed-26.30',mode+' uses current feeder');
     assert.equal(chosen.reshadeSetup,path.join(xr,setupName),mode+' uses modified ReShade');
   }
   const noVR=fixture('explicit-off');events.length=0;

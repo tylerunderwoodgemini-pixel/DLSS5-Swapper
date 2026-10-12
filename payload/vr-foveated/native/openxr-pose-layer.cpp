@@ -20,7 +20,7 @@ struct Instance {
     PFN_xrDestroySession destroy_session={}; PFN_xrLocateViews locate={};
     PFN_xrEndFrame end_frame={}; PFN_xrPollEvent poll={};
 };
-struct Session {XrSession handle={};Instance dispatch={};PoseFrame frame={};DepthSubmissionInfo depth={};uint64_t epoch=1;bool d3d11=false;};
+struct Session {XrSession handle={};Instance dispatch={};PoseFrame frame={};DepthSubmissionInfo depth={};uint64_t epoch=1;bool d3d11=false;XrSessionState state=XR_SESSION_STATE_UNKNOWN;};
 static SRWLOCK lock=SRWLOCK_INIT;
 static Instance instances[16];static Session sessions[32];
 struct DepthSwapchain {XrSession session{};Instance dispatch{};std::vector<Microsoft::WRL::ComPtr<ID3D11Texture2D>> images;std::deque<std::pair<unsigned,bool>> acquired;unsigned released=~0u;};
@@ -166,7 +166,15 @@ static XrResult XRAPI_CALL PollEvent(XrInstance h,XrEventDataBuffer *event){
         if(event->type==XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING)
             Invalidate(reinterpret_cast<XrEventDataReferenceSpaceChangePending *>(event)->session);
         if(event->type==XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED){auto e=reinterpret_cast<XrEventDataSessionStateChanged *>(event);
-            if(e->state==XR_SESSION_STATE_STOPPING||e->state==XR_SESSION_STATE_LOSS_PENDING||e->state==XR_SESSION_STATE_EXITING)Invalidate(e->session);}
+            AcquireSRWLockExclusive(&lock);
+            for(auto &s:sessions)if(s.handle==e->session){
+                const bool focus_change=s.state!=e->state &&
+                    (s.state==XR_SESSION_STATE_FOCUSED || e->state==XR_SESSION_STATE_FOCUSED);
+                const bool stopping=e->state==XR_SESSION_STATE_STOPPING || e->state==XR_SESSION_STATE_LOSS_PENDING || e->state==XR_SESSION_STATE_EXITING;
+                if(focus_change || (stopping && s.state!=e->state)){s.frame.valid=0;s.depth={};s.epoch=++epoch_counter;}
+                s.state=e->state;break;
+            }
+            ReleaseSRWLockExclusive(&lock);}
     }return r;
 }
 static XrResult XRAPI_CALL GetProc(XrInstance h,const char *name,PFN_xrVoidFunction *out){

@@ -48,6 +48,12 @@ inline void RelativeTranslation(const PoseEye &previous,const PoseEye &current,f
     for(int row=0;row<3;++row){t[row]=0;for(int k=0;k<3;++k)
         t[row]+=r[k*3+row]*(current.position[k]-previous.position[k]);}
 }
+// A rendering discontinuity is distinct from ordinary head movement.
+inline bool PoseHistoryBreak(const PoseFrame &previous,const PoseFrame &current) {
+    return !previous.valid || !current.valid || previous.session!=current.session ||
+        previous.space!=current.space || previous.epoch!=current.epoch ||
+        current.display_time<previous.display_time || current.display_time-previous.display_time>250000000;
+}
 inline bool ContinuousPose(const PoseFrame &previous,const PoseFrame &current) {
     if(!previous.valid || !current.valid || previous.session!=current.session || previous.space!=current.space || previous.epoch!=current.epoch ||
        current.display_time<previous.display_time || current.display_time-previous.display_time>250000000)return false;

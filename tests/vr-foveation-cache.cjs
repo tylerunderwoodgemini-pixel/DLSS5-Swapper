@@ -6,7 +6,7 @@ const crypto=require('crypto');
 const {cacheValid,buildFingerprint,configFor}=require('../src/core/vr-foveation');
 const temp=fs.mkdtempSync(path.join(os.tmpdir(),'vr-cache-test-'));
 try {
-  const marker='1.16.0-beta.4-vr-universal-foveated26.29';
+  const marker='1.16.0-beta.4-vr-universal-foveated26.30';
   const files={};
   for(const name of ['dlss5-feed.addon64','DLSS5_Feed.fx','vr-pose-bridge-v1.addon64','vr-depth-bridge.addon64','vr-projection-bridge.addon64','vr-current-input.addon64','VR_FOVEATED_V26.txt']) {
     const data=Buffer.from(name==='dlss5-feed.addon64'?marker:name);

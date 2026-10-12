@@ -8,7 +8,7 @@ static XrSession session=reinterpret_cast<XrSession>(22);
 static XrSpace space=reinterpret_cast<XrSpace>(33);
 static XrApiLayerNextInfo *expected_next=nullptr;
 static PoseEye current_eye[2];static bool orientation_valid=true;
-static ReadPoseFrame reader=nullptr;static int event_type=0,end_calls=0;
+static ReadPoseFrame reader=nullptr;static int event_type=0,end_calls=0;static XrSessionState focus_state=XR_SESSION_STATE_UNKNOWN;
 void check(bool ok,const char *what){if(!ok){printf("FAIL: %s\n",what);exit(1);}}
 static XrResult XRAPI_CALL StubCreate(const XrInstanceCreateInfo *,const XrApiLayerCreateInfo *layer,XrInstance *out){check(layer->nextInfo==expected_next,"layer chain advances exactly once");*out=instance;return XR_SUCCESS;}
 static XrResult XRAPI_CALL StubDestroyInstance(XrInstance){return XR_SUCCESS;}
@@ -27,6 +27,7 @@ static XrResult XRAPI_CALL StubEnd(XrSession,const XrFrameEndInfo *info){PoseFra
 }
 static XrResult XRAPI_CALL StubPoll(XrInstance,XrEventDataBuffer *data){
     if(!event_type)return XR_EVENT_UNAVAILABLE;
+    if(event_type==2){auto e=reinterpret_cast<XrEventDataSessionStateChanged *>(data);e->type=XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED;e->session=session;e->state=focus_state;event_type=0;return XR_SUCCESS;}
     auto e=reinterpret_cast<XrEventDataReferenceSpaceChangePending *>(data);e->type=XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING;e->session=session;event_type=0;return XR_SUCCESS;
 }
 static void XRAPI_CALL Unrelated(){}
@@ -63,7 +64,7 @@ int main(){
     XrViewLocateInfo info={XR_TYPE_VIEW_LOCATE_INFO};info.viewConfigurationType=XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO;info.space=space;info.displayTime=1000000000;
     XrViewState view_state={XR_TYPE_VIEW_STATE};XrView views[2]={{XR_TYPE_VIEW},{XR_TYPE_VIEW}};uint32_t count=0;
     check(locate(session,&info,&view_state,2,&count,views)==XR_SUCCESS,"locate forwards");PoseFrame first;check(reader(&first,sizeof(first)) && first.abi==2,"capture successful stereo views");
-    reshade::api::effect_runtime rt;OnBegin(&rt,nullptr,{},{});check(rt.values["VR_POSE_VALID"][0]==0,"first pose warms history");
+    reshade::api::effect_runtime rt;OnBegin(&rt,nullptr,{},{});check(rt.values["VR_POSE_VALID"][0]==0,"first pose warms history");check(rt.values["VR_HISTORY_RESET"][0]==1,"first frame explicitly resets neural history even with depth");
     const float angle=0.1f;current_eye[0].q[1]=sinf(angle/2);current_eye[0].q[3]=cosf(angle/2);
     current_eye[1].q[1]=-sinf(angle/2);current_eye[1].q[3]=cosf(angle/2);
     info.displayTime+=14000000;locate(session,&info,&view_state,2,&count,views);OnBegin(&rt,nullptr,{},{});
@@ -121,7 +122,18 @@ int main(){
     info.displayTime+=14000000;locate(session,&info,&view_state,2,&count,views);OnBegin(&rt,nullptr,{},{});check(rt.values["VR_POSE_VALID"][0]==1,"tracking recovery becomes valid");
     event_type=1;XrEventDataBuffer event={XR_TYPE_EVENT_DATA_BUFFER};poll(instance,&event);
     info.displayTime+=14000000;locate(session,&info,&view_state,2,&count,views);OnBegin(&rt,nullptr,{},{});check(rt.values["VR_POSE_VALID"][0]==0,"recenter epoch resets even if space handle unchanged");
-    current_eye[0].position[0]=0.1f;info.displayTime+=14000000;locate(session,&info,&view_state,2,&count,views);OnBegin(&rt,nullptr,{},{});check(rt.values["VR_POSE_VALID"][0]==0,"large translation cannot claim rotation-only validity");
+    check(rt.values["VR_HISTORY_RESET"][0]==1,"recenter explicitly resets neural history");
+    focus_state=XR_SESSION_STATE_FOCUSED;event_type=2;poll(instance,&event);
+    info.displayTime+=14000000;locate(session,&info,&view_state,2,&count,views);OnBegin(&rt,nullptr,{},{});
+    check(rt.values["VR_HISTORY_RESET"][0]==1,"focus acquisition resets neural history");
+    event_type=2;poll(instance,&event);info.displayTime+=14000000;locate(session,&info,&view_state,2,&count,views);OnBegin(&rt,nullptr,{},{});
+    check(rt.values["VR_HISTORY_RESET"][0]==0,"duplicate focus event does not repeat reset");
+    focus_state=XR_SESSION_STATE_VISIBLE;event_type=2;poll(instance,&event);
+    info.displayTime+=14000000;locate(session,&info,&view_state,2,&count,views);OnBegin(&rt,nullptr,{},{});
+    check(rt.values["VR_HISTORY_RESET"][0]==1,"focus loss resets neural history");
+    info.displayTime+=14000000;locate(session,&info,&view_state,2,&count,views);OnBegin(&rt,nullptr,{},{});
+    check(rt.values["VR_HISTORY_RESET"][0]==0,"steady visible frames clear transition reset");
+    current_eye[0].position[0]=0.1f;info.displayTime+=14000000;locate(session,&info,&view_state,2,&count,views);OnBegin(&rt,nullptr,{},{});check(rt.values["VR_POSE_VALID"][0]==0,"large translation cannot claim rotation-only validity");check(rt.values["VR_HISTORY_RESET"][0]==0,"ordinary head movement is not a focus discontinuity");
     current_eye[0].q[3]=NAN;info.displayTime+=14000000;locate(session,&info,&view_state,2,&count,views);check(!reader(&frame,sizeof(frame)),"NaN pose rejected");
     Proc<PFN_xrDestroySession>(g,"xrDestroySession")(session);check(!reader(&frame,sizeof(frame)),"destroyed session cannot leak pose");
     check(Proc<PFN_xrDestroyInstance>(g,"xrDestroyInstance")(instance)==XR_SUCCESS,"destroy forwarding");

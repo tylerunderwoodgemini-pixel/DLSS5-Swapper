@@ -29,7 +29,7 @@ $Text = Replace-LiteralOnce $Text '            g.rs_queue->flush_immediate_comma
             g.rs_queue->flush_immediate_command_list();
 '@ 'D3D12 crop all temporal guides'
 $Text = Replace-LiteralOnce $Text '                    submitted = EndCommands();' @'
-                    if(vr_foveated && NVSDK_NGX_SUCCEED(re))Vr12Composite(bb,w,h,crop_w,crop_h,1.0f);
+                    if(vr_foveated && NVSDK_NGX_SUCCEED(re))Vr12Composite(bb,w,h,crop_w,crop_h,g_vr_neural_weight);
                     submitted = EndCommands();
 '@ 'D3D12 current-frame feather composite'
 $Text = Replace-LiteralOnce $Text "                    // The copy home is recorded on the (fresh) immediate list: it executes on" @'
@@ -42,4 +42,5 @@ $Text = Replace-LiteralOnce $Text "                    // The copy home is recor
 $Text = Replace-LiteralOnce $Text '                    restored = true;' "                    }`n                    restored = true;" 'D3D12 compositor state restore'
 $Text = Replace-LiteralOnce $Text 'ep.InMVScaleX        = g_cfg.mv_scale_x;' 'ep.InMVScaleX        = VrMotionScale(rt,g_cfg.mv_scale_x);' 'D3D12 exact pose MV X'
 $Text = Replace-LiteralOnce $Text 'ep.InMVScaleY        = g_cfg.mv_scale_y;' 'ep.InMVScaleY        = VrMotionScale(rt,g_cfg.mv_scale_y);' 'D3D12 exact pose MV Y'
+$Text = Replace-LiteralOnce $Text 'const int reset = (g.need_reset || g_cfg.reset_every) ? 1 : 0;' 'const bool vr_history_reset=VrHistoryGuard(rt); const int reset = (g.need_reset || g_cfg.reset_every || vr_history_reset) ? 1 : 0;' 'D3D12 VR transition history reset'
 $Text

@@ -29,3 +29,5 @@ __pycache__/
 
 dashboard-preview.bmp
 full-menu-rgba.raw
+
+/tests/transition-build/
