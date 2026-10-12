@@ -42,3 +42,20 @@ Validation: script parsed and previewed against the installed configs without
 writing them; isolated fixture verified preview/no writes, applying one
 canonical enabled key, preserving other settings and exact restoration.
 No installed game files or shared runtime registrations were changed.
+
+Confirmed follow-up (2026-10-12): user reports the native-only setup works
+perfectly. The resulting bridge log records more than 13,800 delivered frames,
+mirroring the real game's 4107x2181 -> 6160x3272 DLSS reconstruction contract.
+DFC logs confirm two successful neural passes and game depth/motion guides.
+Feeder config contains enabled=0 and the bridge uses unwrap=0. This confirms
+the combined configuration; the test does not isolate which change alone
+removed the exception. The prior run used full-resolution DLAA, so do not
+claim that all input modes or every Vulkan game were independently validated.
+
+To apply from this source checkout after a Swapper reinstall:
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/Test-NMS-Native-DLSS.ps1 -Apply -GameDir "D:/GOG Galaxy/Games/No Man's Sky/Binaries"
+
+Do not automatically apply this to Feeder games: disabling their only DLSS
+producer removes the effect. Vulkan native route packaging, bridge licensing/
+provenance and installation ownership must be integrated before calling this
+an automatic release fix for arbitrary native Vulkan games.
