@@ -1,7 +1,7 @@
 {
   "auditDate": "2026-10-11",
   "scope": "Runtime code snapshot and complete active payload; later documentation edits are outside this snapshot.",
-  "runtimeCodeCommit": "f33ba34e40a692095f7605d0c6e82e31f6e6c1a0",
+  "runtimeCodeCommit": "38c7d54d08643d294f21f84ded6a7516b41bedad",
   "base": {
     "tag": "v2.2.0",
     "commit": "cc1633f6ceff6166b970d63f7fbf3c8eb80b5d1c"
@@ -39,6 +39,10 @@
     {
       "status": "A",
       "path": "docs/DFC-QUEUE-IDENTITY-REPAIR.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/FEEDER-AA-REQUIREMENTS.md"
     },
     {
       "status": "A",
@@ -90,6 +94,14 @@
     },
     {
       "status": "A",
+      "path": "docs/NIVALIS-SUBMITTED-DEPTH.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/NMS-NATIVE-MIRROR-DIAGNOSIS.txt"
+    },
+    {
+      "status": "A",
       "path": "docs/NMS-STREAMLINE-CRASH-FIX.txt"
     },
     {
@@ -99,6 +111,10 @@
     {
       "status": "A",
       "path": "docs/RELEASE_NOTES_VR_3.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/RELEASE_NOTES_VR_4.md"
     },
     {
       "status": "A",
@@ -174,6 +190,10 @@
     },
     {
       "status": "A",
+      "path": "payload/deep-fried-chicken/NMS-NATIVE-MIRROR-PROVENANCE.txt"
+    },
+    {
+      "status": "A",
       "path": "payload/deep-fried-chicken/NOTE-TO-DLSS5-FEEDER-DEVELOPER.md"
     },
     {
@@ -214,6 +234,10 @@
     },
     {
       "status": "A",
+      "path": "payload/deep-fried-chicken/dlss5-native-vulkan-bridge.addon64"
+    },
+    {
+      "status": "A",
       "path": "payload/feeder/licenses/DLSS5-Feeder-LICENSE.txt"
     },
     {
@@ -223,6 +247,10 @@
     {
       "status": "A",
       "path": "payload/feeder/licenses/VORT-LICENSE.txt"
+    },
+    {
+      "status": "A",
+      "path": "payload/feeder/reshade-shaders/Shaders/DLSS5_SpatialAA.fx"
     },
     {
       "status": "A",
@@ -267,6 +295,10 @@
     {
       "status": "A",
       "path": "payload/vr-foveated/DLSS5_Feed.fx"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/DLSS5_SpatialAA.fx"
     },
     {
       "status": "A",
@@ -458,11 +490,19 @@
     },
     {
       "status": "A",
+      "path": "payload/vr-foveated/native/submitted-depth.h"
+    },
+    {
+      "status": "A",
       "path": "payload/vr-foveated/native/vcvars.bat"
     },
     {
       "status": "A",
       "path": "payload/vr-foveated/native/vr-current-input.cpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vr-depth-binding.h"
     },
     {
       "status": "A",
@@ -542,6 +582,10 @@
     },
     {
       "status": "A",
+      "path": "scripts/Test-NMS-Native-DLSS.ps1"
+    },
+    {
+      "status": "A",
       "path": "scripts/audit-fork-differences.cjs"
     },
     {
@@ -606,6 +650,10 @@
     },
     {
       "status": "A",
+      "path": "src/core/native-vulkan-mirror.js"
+    },
+    {
+      "status": "A",
       "path": "src/core/openxr-pose-install.js"
     },
     {
@@ -637,6 +685,10 @@
       "path": "src/steamart.js"
     },
     {
+      "status": "M",
+      "path": "test/feeder-config.test.js"
+    },
+    {
       "status": "A",
       "path": "test/fixtures/dfc-1.4.8-stock.addon64"
     },
@@ -654,7 +706,15 @@
     },
     {
       "status": "A",
+      "path": "test/native-vulkan-mirror.test.js"
+    },
+    {
+      "status": "A",
       "path": "test/scan-bethesda-assets.test.js"
+    },
+    {
+      "status": "A",
+      "path": "test/spatial-aa-preset.test.js"
     },
     {
       "status": "A",
@@ -762,6 +822,10 @@
     },
     {
       "status": "A",
+      "path": "tests/openxr-submitted-depth-test.cpp"
+    },
+    {
+      "status": "A",
       "path": "tests/prepare-vr-6dof-test.py"
     },
     {
@@ -794,7 +858,15 @@
     },
     {
       "status": "A",
+      "path": "tests/run-vr-history-guard-test.cmd"
+    },
+    {
+      "status": "A",
       "path": "tests/run-vr-temporal-test.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/spatial-aa-test.cpp"
     },
     {
       "status": "A",
@@ -811,6 +883,10 @@
     {
       "status": "A",
       "path": "tests/vr-foveation-cache.cjs"
+    },
+    {
+      "status": "A",
+      "path": "tests/vr-history-guard-test.cjs"
     },
     {
       "status": "A",
@@ -976,6 +1052,10 @@
     },
     {
       "status": "A",
+      "path": "docs/FEEDER-AA-REQUIREMENTS.md"
+    },
+    {
+      "status": "A",
       "path": "docs/FORK_AUDIT.json"
     },
     {
@@ -1024,6 +1104,14 @@
     },
     {
       "status": "A",
+      "path": "docs/NIVALIS-SUBMITTED-DEPTH.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/NMS-NATIVE-MIRROR-DIAGNOSIS.txt"
+    },
+    {
+      "status": "A",
       "path": "docs/NMS-STREAMLINE-CRASH-FIX.txt"
     },
     {
@@ -1033,6 +1121,10 @@
     {
       "status": "A",
       "path": "docs/RELEASE_NOTES_VR_3.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/RELEASE_NOTES_VR_4.md"
     },
     {
       "status": "A",
@@ -1272,6 +1364,10 @@
     },
     {
       "status": "A",
+      "path": "payload/deep-fried-chicken/NMS-NATIVE-MIRROR-PROVENANCE.txt"
+    },
+    {
+      "status": "A",
       "path": "payload/deep-fried-chicken/NOTE-TO-DLSS5-FEEDER-DEVELOPER.md"
     },
     {
@@ -1312,6 +1408,10 @@
     },
     {
       "status": "A",
+      "path": "payload/deep-fried-chicken/dlss5-native-vulkan-bridge.addon64"
+    },
+    {
+      "status": "A",
       "path": "payload/feeder/licenses/DLSS5-Feeder-LICENSE.txt"
     },
     {
@@ -1321,6 +1421,10 @@
     {
       "status": "A",
       "path": "payload/feeder/licenses/VORT-LICENSE.txt"
+    },
+    {
+      "status": "A",
+      "path": "payload/feeder/reshade-shaders/Shaders/DLSS5_SpatialAA.fx"
     },
     {
       "status": "A",
@@ -1365,6 +1469,10 @@
     {
       "status": "A",
       "path": "payload/vr-foveated/DLSS5_Feed.fx"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/DLSS5_SpatialAA.fx"
     },
     {
       "status": "A",
@@ -1556,11 +1664,19 @@
     },
     {
       "status": "A",
+      "path": "payload/vr-foveated/native/submitted-depth.h"
+    },
+    {
+      "status": "A",
       "path": "payload/vr-foveated/native/vcvars.bat"
     },
     {
       "status": "A",
       "path": "payload/vr-foveated/native/vr-current-input.cpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vr-depth-binding.h"
     },
     {
       "status": "A",
@@ -1637,6 +1753,10 @@
     {
       "status": "M",
       "path": "preload.js"
+    },
+    {
+      "status": "A",
+      "path": "scripts/Test-NMS-Native-DLSS.ps1"
     },
     {
       "status": "A",
@@ -1761,6 +1881,10 @@
     {
       "status": "A",
       "path": "src/core/native-foveation-install.js"
+    },
+    {
+      "status": "A",
+      "path": "src/core/native-vulkan-mirror.js"
     },
     {
       "status": "A",
@@ -2067,6 +2191,10 @@
       "path": "test/multipass.test.js"
     },
     {
+      "status": "A",
+      "path": "test/native-vulkan-mirror.test.js"
+    },
+    {
       "status": "D",
       "path": "test/optiscaler-build-choice.test.js"
     },
@@ -2153,6 +2281,10 @@
     {
       "status": "D",
       "path": "test/single-instance.test.js"
+    },
+    {
+      "status": "A",
+      "path": "test/spatial-aa-preset.test.js"
     },
     {
       "status": "D",
@@ -2264,6 +2396,10 @@
     },
     {
       "status": "A",
+      "path": "tests/openxr-submitted-depth-test.cpp"
+    },
+    {
+      "status": "A",
       "path": "tests/prepare-vr-6dof-test.py"
     },
     {
@@ -2296,7 +2432,15 @@
     },
     {
       "status": "A",
+      "path": "tests/run-vr-history-guard-test.cmd"
+    },
+    {
+      "status": "A",
       "path": "tests/run-vr-temporal-test.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/spatial-aa-test.cpp"
     },
     {
       "status": "A",
@@ -2313,6 +2457,10 @@
     {
       "status": "A",
       "path": "tests/vr-foveation-cache.cjs"
+    },
+    {
+      "status": "A",
+      "path": "tests/vr-history-guard-test.cjs"
     },
     {
       "status": "A",
@@ -2496,6 +2644,11 @@
       "sha256": "014ab26c0437fd6180595452c2acc3ecba50b1df42c088212f1b20baaeff4cec"
     },
     {
+      "path": "deep-fried-chicken/dlss5-native-vulkan-bridge.addon64",
+      "bytes": 533504,
+      "sha256": "6086e194136847afeb85c2ac96bc179a2b88dab78cb153936cf95e5844d1dbf6"
+    },
+    {
       "path": "deep-fried-chicken/FEEDER-COMPATIBILITY.md",
       "bytes": 11134,
       "sha256": "8b20e8a3660fa9be5c95b81afbf05c58c0c69c07ee7b428eb82d721fb1514cef"
@@ -2544,6 +2697,11 @@
       "path": "deep-fried-chicken/LICENSE-ReShade.md",
       "bytes": 1490,
       "sha256": "d2bb5eb908e9aa7ac2f7f4cf6441d62e1f6ac1256cf22bb5289516c9f30e5f0a"
+    },
+    {
+      "path": "deep-fried-chicken/NMS-NATIVE-MIRROR-PROVENANCE.txt",
+      "bytes": 851,
+      "sha256": "059a5a747f04870a0dc90d4ffd3f66f0f54bf4a690bd5df4b49e3600d995dd80"
     },
     {
       "path": "deep-fried-chicken/NOTE-TO-DLSS5-FEEDER-DEVELOPER.md",
@@ -2624,6 +2782,11 @@
       "path": "feeder/reshade-shaders/Shaders/DLSS5_Feed.fx",
       "bytes": 44306,
       "sha256": "6c4958be3a07956d939533f283b847797fda1959e1c6df0098a7c07d36d70267"
+    },
+    {
+      "path": "feeder/reshade-shaders/Shaders/DLSS5_SpatialAA.fx",
+      "bytes": 2216,
+      "sha256": "7aa15246611fe752b3c6354ea19e4704ef4bfac91cc2d82afe4aa9d2a50a7215"
     },
     {
       "path": "feeder/reshade-shaders/Shaders/Includes/vort_ACES.fxh",
@@ -2912,8 +3075,8 @@
     },
     {
       "path": "vr-foveated/Build-And-Install-VRUniversalFoveated-v26.ps1",
-      "bytes": 98468,
-      "sha256": "d9e80d91a73f8f614feb64ef06457bc40c4a7b7b71aa3e752d72b96cc9cc02e1"
+      "bytes": 98971,
+      "sha256": "3797503b09b8f285ecfa7248592f2c4d4b9bebf16200f00a241134acd5a6a686"
     },
     {
       "path": "vr-foveated/Build-VRPoseBridge-v2.cmd",
@@ -2927,8 +3090,13 @@
     },
     {
       "path": "vr-foveated/DLSS5_Feed.fx",
-      "bytes": 68510,
-      "sha256": "83be76fc83a7f8f77d557651133695d45ec222e123136152ecc5f9dfe6b4ea23"
+      "bytes": 68818,
+      "sha256": "c5e6fa60715ac27a89d848d260bd893e806d77900ace7eaeb5196ca7b9eeef56"
+    },
+    {
+      "path": "vr-foveated/DLSS5_SpatialAA.fx",
+      "bytes": 2216,
+      "sha256": "7aa15246611fe752b3c6354ea19e4704ef4bfac91cc2d82afe4aa9d2a50a7215"
     },
     {
       "path": "vr-foveated/dlss5-vr-compat.addon64",
@@ -2937,8 +3105,8 @@
     },
     {
       "path": "vr-foveated/DLSS5OpenXRPose.dll",
-      "bytes": 126976,
-      "sha256": "9a5a7d50d00b3d83733f76338329d95c620873d2060b2220b8842a3167d81a8a"
+      "bytes": 154112,
+      "sha256": "b23639647f0987be6242eda463900a9d12a2a94e3298c588ae86d1a86180bf75"
     },
     {
       "path": "vr-foveated/native/Build-NativeFoveation.cmd",
@@ -3037,8 +3205,8 @@
     },
     {
       "path": "vr-foveated/native/openxr-pose-layer.cpp",
-      "bytes": 11310,
-      "sha256": "7bbf35a52c408b999664a92540974f0e6cd23ccb3cddfc4f5ed5c5d5a649b3ee"
+      "bytes": 18182,
+      "sha256": "95fd80cebe4b4e72c3cb3759ccae4df3986cf75239ae49d6963d96799cac93f4"
     },
     {
       "path": "vr-foveated/native/openxr-reshade-menu.h",
@@ -3047,13 +3215,13 @@
     },
     {
       "path": "vr-foveated/native/Patch-D3D12-VRFoveation.ps1",
-      "bytes": 3173,
-      "sha256": "8563ab1a7e06e4fb0feaa2b6fadb6a714b0020d7f10716e1115abdf7fd9af8b1"
+      "bytes": 3457,
+      "sha256": "d51e91d71f7302434a6a93c6a05c9f8e295de6c5d2b2a85d09b7adb1cf8cd46e"
     },
     {
       "path": "vr-foveated/native/pose-data.h",
-      "bytes": 3020,
-      "sha256": "5e18206d75e41f787f7fdcdd038146764846850bcd4fdf9cb5005011c26d9b54"
+      "bytes": 3448,
+      "sha256": "145489ff4e0f7b5be5f2c35b5a89d064f993b3e7d96800a6f309b127d1f6f9bc"
     },
     {
       "path": "vr-foveated/native/projection-depth.h",
@@ -3161,6 +3329,11 @@
       "sha256": "74cace805b93c923e2220a78966a1a65526e2c81bd05c4cf5949dfbba4557a70"
     },
     {
+      "path": "vr-foveated/native/submitted-depth.h",
+      "bytes": 1299,
+      "sha256": "9eceed097eef3b7ced9660e72766f905794603f2bfaa0e2034d7a9bed1ca9a2d"
+    },
+    {
       "path": "vr-foveated/native/vcvars.bat",
       "bytes": 1850,
       "sha256": "271dcb349d11b430a67fe51e479103c777f8d17cc721e8a1c72281c8658f01b9"
@@ -3171,9 +3344,14 @@
       "sha256": "0ede45b8e6929037369b17c2543077c49c72a557a9c730af284b1b2d9933fbb3"
     },
     {
+      "path": "vr-foveated/native/vr-depth-binding.h",
+      "bytes": 1464,
+      "sha256": "1a942629c00323c921365bcf15e1f4db740b9e86e8e890236df4da3b38a7f173"
+    },
+    {
       "path": "vr-foveated/native/vr-depth-bridge.cpp",
-      "bytes": 19086,
-      "sha256": "099fbad266952df8f934eeb6e455808f72224e7bd4573001a30879debdc2651a"
+      "bytes": 24579,
+      "sha256": "935e7c729ea62b3ac3e4686815113b2f639e1568cc7015a92eafa2370bfd85d6"
     },
     {
       "path": "vr-foveated/native/vr-depth-layout.h",
@@ -3187,13 +3365,13 @@
     },
     {
       "path": "vr-foveated/native/vr-pose-bridge.cpp",
-      "bytes": 9599,
-      "sha256": "0e0e4944ef4e11bc6d719ab3181785dfdc734e849214f28cfb65358cedc59cc0"
+      "bytes": 10503,
+      "sha256": "40457ef98c2f0dfd3550ec8eff270637f33cf62effb4329c90e173b5a60c59ce"
     },
     {
       "path": "vr-foveated/native/vr-projection-bridge.cpp",
-      "bytes": 6402,
-      "sha256": "cc86d8c63154d7435ff4d667934d561ae11b45f5f4bc7da3a007967cb0e8ec1d"
+      "bytes": 6840,
+      "sha256": "48107e5f314e224bfa5a0eb661c76495d84262ddb21dbfeb42bb123b79c5ee4b"
     },
     {
       "path": "vr-foveated/native/vr-runtime-compat.cpp",
@@ -3233,22 +3411,22 @@
     {
       "path": "vr-foveated/prebuilt/build-manifest.json",
       "bytes": 842,
-      "sha256": "2d6c64f419d60b4fce0170fe510c33dd6b507adf5ce6e214f06654b0ee7a9fe5"
+      "sha256": "bcb223f162b18ff27cb45b7271bbe1a7797091545424f3bff5e7f4172795d2fe"
     },
     {
       "path": "vr-foveated/prebuilt/DLSS5_Feed.fx",
-      "bytes": 68510,
-      "sha256": "83be76fc83a7f8f77d557651133695d45ec222e123136152ecc5f9dfe6b4ea23"
+      "bytes": 68818,
+      "sha256": "c5e6fa60715ac27a89d848d260bd893e806d77900ace7eaeb5196ca7b9eeef56"
     },
     {
       "path": "vr-foveated/prebuilt/dlss5-feed.addon64",
       "bytes": 334848,
-      "sha256": "6daea77823d21dda560e6f713a81e7ae548c5885f2e19062f1b41897e8a4dc67"
+      "sha256": "f3624bb34b5898501b48530c75e528de8308479e6aaf293a031d76be58eb79fb"
     },
     {
       "path": "vr-foveated/prebuilt/VR_FOVEATED_V26.txt",
       "bytes": 152,
-      "sha256": "2405928a8249d719dce0d0632859e244f03e52a325fd3222e8ac814d391066d9"
+      "sha256": "a665f5852e53e2f8c2adeb832c07442adcc93f086aaf56a4ee848e456f854666"
     },
     {
       "path": "vr-foveated/prebuilt/vr-current-input.addon64",
@@ -3257,18 +3435,18 @@
     },
     {
       "path": "vr-foveated/prebuilt/vr-depth-bridge.addon64",
-      "bytes": 189440,
-      "sha256": "7ff2ea7901e3a57731dd51b9bb57f354ca7efbd51a461bac3483fb2242534371"
+      "bytes": 196608,
+      "sha256": "fc8c5a0b5c42aa4a3bd4afcc3fe61600d979cfc293d5d3ad622a4133c8c90cb9"
     },
     {
       "path": "vr-foveated/prebuilt/vr-pose-bridge-v1.addon64",
-      "bytes": 150528,
-      "sha256": "a562afdd30474e3362cf585efc6409853d42649a2bc5fc374c84f2b3a47f48a6"
+      "bytes": 151040,
+      "sha256": "4c878de6fcf9d3a07200602390bee6350ca01cf05ed556939c6d54757ffafa85"
     },
     {
       "path": "vr-foveated/prebuilt/vr-projection-bridge.addon64",
       "bytes": 175616,
-      "sha256": "bbba0b23e0d9146de1967f2598be29ec736ebf9a176b536bf195314f9b14fac8"
+      "sha256": "47892155707b2338c6c4ba49469c45f95136ecfcb6d5834021e7008e84a18655"
     },
     {
       "path": "vr-foveated/README.txt",
@@ -3277,8 +3455,8 @@
     },
     {
       "path": "vr-foveated/VR_FOVEATED_BUILD_LOG.txt",
-      "bytes": 786,
-      "sha256": "f39b307c9b1195c94ea87d4870cb3af0a7e57a1ce003ac047040aca7fa59a592"
+      "bytes": 743,
+      "sha256": "deb5d7e2cda50b9116e29555b374b8f8eeed45c972097eb6736ee40fab3b8d23"
     },
     {
       "path": "vr-foveated/vr-current-input.addon64",
@@ -3287,18 +3465,18 @@
     },
     {
       "path": "vr-foveated/vr-depth-bridge.addon64",
-      "bytes": 189440,
-      "sha256": "7ff2ea7901e3a57731dd51b9bb57f354ca7efbd51a461bac3483fb2242534371"
+      "bytes": 196608,
+      "sha256": "fc8c5a0b5c42aa4a3bd4afcc3fe61600d979cfc293d5d3ad622a4133c8c90cb9"
     },
     {
       "path": "vr-foveated/vr-pose-bridge-v1.addon64",
-      "bytes": 150528,
-      "sha256": "a562afdd30474e3362cf585efc6409853d42649a2bc5fc374c84f2b3a47f48a6"
+      "bytes": 151040,
+      "sha256": "4c878de6fcf9d3a07200602390bee6350ca01cf05ed556939c6d54757ffafa85"
     },
     {
       "path": "vr-foveated/vr-projection-bridge.addon64",
       "bytes": 175616,
-      "sha256": "bbba0b23e0d9146de1967f2598be29ec736ebf9a176b536bf195314f9b14fac8"
+      "sha256": "47892155707b2338c6c4ba49469c45f95136ecfcb6d5834021e7008e84a18655"
     }
   ]
 }
