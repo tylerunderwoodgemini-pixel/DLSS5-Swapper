@@ -1,7 +1,7 @@
 {
   "auditDate": "2026-10-11",
   "scope": "Runtime code snapshot and complete active payload; later documentation edits are outside this snapshot.",
-  "runtimeCodeCommit": "38c7d54d08643d294f21f84ded6a7516b41bedad",
+  "runtimeCodeCommit": "cd767788b3f7088f44dc9432280ff4c998577981",
   "base": {
     "tag": "v2.2.0",
     "commit": "cc1633f6ceff6166b970d63f7fbf3c8eb80b5d1c"
@@ -115,6 +115,10 @@
     {
       "status": "A",
       "path": "docs/RELEASE_NOTES_VR_4.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/RELEASE_NOTES_VR_5.md"
     },
     {
       "status": "A",
@@ -370,7 +374,15 @@
     },
     {
       "status": "A",
+      "path": "payload/vr-foveated/native/openxr-dashboard-transport.h"
+    },
+    {
+      "status": "A",
       "path": "payload/vr-foveated/native/openxr-dashboard.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/openxr-menu-gesture.h"
     },
     {
       "status": "A",
@@ -527,6 +539,74 @@
     {
       "status": "A",
       "path": "payload/vr-foveated/native/vr-runtime-compat.cpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/LICENSE.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/LICENSES/Apache-2.0.txt"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/LICENSES/MIT.txt"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_av1std.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_av1std_decode.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_av1std_encode.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_h264std.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_h264std_decode.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_h264std_encode.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_h265std.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_h265std_decode.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_h265std_encode.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_vp9std.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_vp9std_decode.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codecs_common.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/include/vulkan/vk_platform.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/include/vulkan/vulkan_core.h"
     },
     {
       "status": "A",
@@ -734,6 +814,10 @@
     },
     {
       "status": "A",
+      "path": "tests/build-openxr-menu-addon.cmd"
+    },
+    {
+      "status": "A",
       "path": "tests/build-vr-projection.cmd"
     },
     {
@@ -814,6 +898,18 @@
     },
     {
       "status": "A",
+      "path": "tests/openxr-menu-layer-test.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/openxr-menu-probe.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/openxr-menu-transport.cpp"
+    },
+    {
+      "status": "A",
       "path": "tests/openxr-pose-install.cjs"
     },
     {
@@ -839,6 +935,14 @@
     {
       "status": "A",
       "path": "tests/run-native-foveation-test.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/run-openxr-menu-layer-test.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/run-openxr-menu-transport.cmd"
     },
     {
       "status": "A",
@@ -1125,6 +1229,10 @@
     {
       "status": "A",
       "path": "docs/RELEASE_NOTES_VR_4.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/RELEASE_NOTES_VR_5.md"
     },
     {
       "status": "A",
@@ -1544,7 +1652,15 @@
     },
     {
       "status": "A",
+      "path": "payload/vr-foveated/native/openxr-dashboard-transport.h"
+    },
+    {
+      "status": "A",
       "path": "payload/vr-foveated/native/openxr-dashboard.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/openxr-menu-gesture.h"
     },
     {
       "status": "A",
@@ -1701,6 +1817,74 @@
     {
       "status": "A",
       "path": "payload/vr-foveated/native/vr-runtime-compat.cpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/LICENSE.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/LICENSES/Apache-2.0.txt"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/LICENSES/MIT.txt"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_av1std.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_av1std_decode.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_av1std_encode.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_h264std.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_h264std_decode.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_h264std_encode.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_h265std.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_h265std_decode.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_h265std_encode.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_vp9std.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_vp9std_decode.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codecs_common.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/include/vulkan/vk_platform.h"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/vulkan-headers/include/vulkan/vulkan_core.h"
     },
     {
       "status": "A",
@@ -2308,6 +2492,10 @@
     },
     {
       "status": "A",
+      "path": "tests/build-openxr-menu-addon.cmd"
+    },
+    {
+      "status": "A",
       "path": "tests/build-vr-projection.cmd"
     },
     {
@@ -2388,6 +2576,18 @@
     },
     {
       "status": "A",
+      "path": "tests/openxr-menu-layer-test.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/openxr-menu-probe.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/openxr-menu-transport.cpp"
+    },
+    {
+      "status": "A",
       "path": "tests/openxr-pose-install.cjs"
     },
     {
@@ -2413,6 +2613,14 @@
     {
       "status": "A",
       "path": "tests/run-native-foveation-test.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/run-openxr-menu-layer-test.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/run-openxr-menu-transport.cmd"
     },
     {
       "status": "A",
@@ -3100,13 +3308,13 @@
     },
     {
       "path": "vr-foveated/dlss5-vr-compat.addon64",
-      "bytes": 368640,
-      "sha256": "9b9eb9182ff1d027412e9df0f7dc2a4b545afafee870199579f040c1db0e0901"
+      "bytes": 394240,
+      "sha256": "f862b3932fa65145a18abdc6763eb371ed1f416cb0d04429a1bd420579ab9c40"
     },
     {
       "path": "vr-foveated/DLSS5OpenXRPose.dll",
-      "bytes": 154112,
-      "sha256": "b23639647f0987be6242eda463900a9d12a2a94e3298c588ae86d1a86180bf75"
+      "bytes": 157184,
+      "sha256": "24582718f05cc44eb42714150c13f7a4b7e1b148d14f879c3e81a5368e694b59"
     },
     {
       "path": "vr-foveated/native/Build-NativeFoveation.cmd",
@@ -3195,23 +3403,33 @@
     },
     {
       "path": "vr-foveated/native/openxr-dashboard-input.h",
-      "bytes": 11692,
-      "sha256": "f64349f2fe09eb478ab3f91af2de9188a17b37f1711a299e58aa70f1050f0a0c"
+      "bytes": 23567,
+      "sha256": "cec0294682624430b4462056b16c5ca7f5a4477d20f9148188b0d59f767d8421"
+    },
+    {
+      "path": "vr-foveated/native/openxr-dashboard-transport.h",
+      "bytes": 9501,
+      "sha256": "6da1d5e8ec3a30c0c58a133fb4af68b34fa003d6939edc22c8bd5e6275a1d196"
     },
     {
       "path": "vr-foveated/native/openxr-dashboard.h",
-      "bytes": 23887,
-      "sha256": "b3fcfd75fc060491fdea49da7a7a1e5caeb7729cb7aef5c24088e7df8478592f"
+      "bytes": 30410,
+      "sha256": "9c9573bea717a14f663d2208f704b425b06aa5744e4b2983cd34973e8ac42128"
+    },
+    {
+      "path": "vr-foveated/native/openxr-menu-gesture.h",
+      "bytes": 603,
+      "sha256": "9aaf31c576865c168e8ad4c6822cc42099ab5fa3ab52c5b53746f5cf93499f63"
     },
     {
       "path": "vr-foveated/native/openxr-pose-layer.cpp",
-      "bytes": 18182,
-      "sha256": "95fd80cebe4b4e72c3cb3759ccae4df3986cf75239ae49d6963d96799cac93f4"
+      "bytes": 20827,
+      "sha256": "dea83e0078f2046716c2ab3153fd931e766ca91338dda9234049cf3a9ef04b81"
     },
     {
       "path": "vr-foveated/native/openxr-reshade-menu.h",
-      "bytes": 10744,
-      "sha256": "9ac4ae87b0c25f02221e78b5c9f021fde8e342f435ae91c9bca82d448b844cdf"
+      "bytes": 11734,
+      "sha256": "3e8d8f2fd54d2e5159338b1074d1da42bdda9f7f65e6c4786ac39ca066dacc00"
     },
     {
       "path": "vr-foveated/native/Patch-D3D12-VRFoveation.ps1",
@@ -3375,8 +3593,93 @@
     },
     {
       "path": "vr-foveated/native/vr-runtime-compat.cpp",
-      "bytes": 23990,
-      "sha256": "c6b81579a82ab3bab22a67493fdc1ee89ad8280ff29d9e36558a1bc544f39eec"
+      "bytes": 27258,
+      "sha256": "cf7b6164a2e8358babfa293b908c342346e21c127a4f1aefc17dbb25df0f89bc"
+    },
+    {
+      "path": "vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_av1std_decode.h",
+      "bytes": 4259,
+      "sha256": "e37184b12c11fe5c4990133040158c0e5ecdbafc52285880276cddee6aecb8d5"
+    },
+    {
+      "path": "vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_av1std_encode.h",
+      "bytes": 5988,
+      "sha256": "c0388defe123f7e5fc02908d6ba868f58479a323da31d8e825b5fe2ac0523acb"
+    },
+    {
+      "path": "vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_av1std.h",
+      "bytes": 16697,
+      "sha256": "83bc45ed585e664ccd57f112ad0eaf2a83c12276bf5a30081ae9e742b8ffeb6c"
+    },
+    {
+      "path": "vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_h264std_decode.h",
+      "bytes": 2732,
+      "sha256": "e401c6aea14f2e5d33cc8215d6a6725a9a6659e266a4f0b371c91d2a4cbde505"
+    },
+    {
+      "path": "vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_h264std_encode.h",
+      "bytes": 6887,
+      "sha256": "30ef5fc7be25aec0fbebde8c4908d631690f2063d33c10ccea9edaa2ed0d728a"
+    },
+    {
+      "path": "vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_h264std.h",
+      "bytes": 13964,
+      "sha256": "072e863dd05e8151b9e0f5b18a4cb52acbe618079b4ace71e3b60cce1ec9ccbc"
+    },
+    {
+      "path": "vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_h265std_decode.h",
+      "bytes": 2438,
+      "sha256": "2da3a4c697f9b0b75a11181880e082ab13553ed5d915782c841e01be4793dfb0"
+    },
+    {
+      "path": "vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_h265std_encode.h",
+      "bytes": 7471,
+      "sha256": "bbc4a232434a2268c3689a676a488a13bf1912bfa4ff9aeb3a54077905316bd1"
+    },
+    {
+      "path": "vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_h265std.h",
+      "bytes": 23449,
+      "sha256": "ba1668e412d3483d945fc3707e3b25b30c0c43ffd347d9b8b536a1cc622000a8"
+    },
+    {
+      "path": "vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_vp9std_decode.h",
+      "bytes": 2380,
+      "sha256": "37d5b7847a9dda12480ea6b27dfedb4c509eb61b91090b5b119a12bbb5c5b190"
+    },
+    {
+      "path": "vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_vp9std.h",
+      "bytes": 5394,
+      "sha256": "1c33ed11eda1225ba52250221378930129b9c78c4aecc91bb368fa3d00f9cf36"
+    },
+    {
+      "path": "vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codecs_common.h",
+      "bytes": 667,
+      "sha256": "3fc937e75411bf82fd8dfaa721b07b2bb53307c891a347cc010d4747ce28f971"
+    },
+    {
+      "path": "vr-foveated/native/vulkan-headers/include/vulkan/vk_platform.h",
+      "bytes": 2832,
+      "sha256": "a2cd9085c66776845d2524c3b0e73ccf4827ba046aa6f676c4b8ddbed47d6552"
+    },
+    {
+      "path": "vr-foveated/native/vulkan-headers/include/vulkan/vulkan_core.h",
+      "bytes": 1364067,
+      "sha256": "f331fc8209888d4a6b24d23a6a7baef94d534491ecd3aa0493e4583e505578f0"
+    },
+    {
+      "path": "vr-foveated/native/vulkan-headers/LICENSE.md",
+      "bytes": 495,
+      "sha256": "95ad366d23fadf701d355bc45fb8b82ae2d700239471d35d41286ac3b08ff903"
+    },
+    {
+      "path": "vr-foveated/native/vulkan-headers/LICENSES/Apache-2.0.txt",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "path": "vr-foveated/native/vulkan-headers/LICENSES/MIT.txt",
+      "bytes": 1084,
+      "sha256": "1ca3502222d967f3be5751c55f6b7ee735b5383909c3b501495f54b216dbf227"
     },
     {
       "path": "vr-foveated/NATIVE-FOVEATION-V4.txt",
@@ -3411,7 +3714,7 @@
     {
       "path": "vr-foveated/prebuilt/build-manifest.json",
       "bytes": 842,
-      "sha256": "bcb223f162b18ff27cb45b7271bbe1a7797091545424f3bff5e7f4172795d2fe"
+      "sha256": "734d7616301802e9b51c1765023618605d6ada4bad8006b450390793d77c88fd"
     },
     {
       "path": "vr-foveated/prebuilt/DLSS5_Feed.fx",
