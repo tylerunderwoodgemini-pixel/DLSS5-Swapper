@@ -38,3 +38,18 @@ Game support must be attached to a route, graphics API, runtime, game version an
 The automated suites exercise contract, state, pixels, bindings and lifecycle behavior. They cannot reproduce arbitrary game scene selection or every headset runtime. Passing the procedure above is the basis for adding a game to tested compatibility.
 
 Release vr.4 includes automatic NMS native mirror configuration and the recent OpenXR depth/history fixes. See [usage instructions](USER_GUIDE.md) and [native mirror evidence](NMS-NATIVE-MIRROR-DIAGNOSIS.txt).
+
+## OpenXR menu coverage (vr.5)
+
+| Graphics binding | Full F8 menu | Controller shortcut | Validation |
+|---|---|---|---|
+| D3D11 / D3D12 | Existing stationary quad, updated common deployment | Both stick clicks, 3 s | Actual modified-ReShade GUI click/scroll tests; tracking/input regressions |
+| Vulkan | Private UI surface uploaded to the existing session's quad | Both stick clicks, 3 s | Real Vulkan queue/barrier/fence/color readback plus API-layer dispatch tests |
+| Desktop OpenGL (Windows) | Shared GL upload context with correct vertical orientation | Both stick clicks, 3 s | Real GL image/readback and original-context preservation tests |
+| Vive wands | Same applicable graphics path | Both trackpad clicks, 3 s | Binding/gesture tests; physical-controller confirmation pending |
+| SteamVR / OpenVR | Existing menu preserved | Existing SteamVR controls preserved | OpenXR additions do not replace the OpenVR menu |
+
+All four supported bindings have installer and capture-layer coverage, including
+late XR startup and VR Off. New Vulkan/OpenGL/menu-chord headset tests are not
+certified by GPU or dispatch tests alone. Unsupported profiles, compositor
+formats or exhausted layer budgets do not claim a working menu.

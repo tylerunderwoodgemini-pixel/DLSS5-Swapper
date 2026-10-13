@@ -12,6 +12,7 @@
 #include <filesystem>
 #include "openxr-dashboard-input.h"
 #include "openxr-dashboard-block.h"
+#include "openxr-dashboard-transport.h"
 #ifndef VR_DASHBOARD_TEST
 #include "openxr-reshade-menu.h"
 #endif
@@ -119,6 +120,10 @@ struct Panel {
     D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint={};UINT64 upload_size=0,fence_value=0;
     std::vector<ComPtr<ID3D12Resource>> images;
     std::shared_ptr<vr_dashboard_input::State> controller;
+    vr_dashboard_transport::Vulkan vk;vr_dashboard_transport::OpenGL gl;
+    bool vulkan=false,opengl=false,cpu_copy=false,managed_by_capture=false,xr_focus_known=false,xr_focused=false;int64_t image_format=DXGI_FORMAT_B8G8R8A8_UNORM;
+    std::vector<VkImage> images_vk;std::vector<GLuint> images_gl;
+    ComPtr<ID3D11Device> ui_device;std::vector<uint8_t> ui_pixels;
     bool input_armed=false;
     unsigned max_layers=0;
     #ifndef VR_DASHBOARD_TEST
@@ -129,20 +134,33 @@ struct Panel {
     HWND window=nullptr;
     template<class T>bool Get(const char *name,T &fn){return XR_SUCCEEDED(gipa(instance,name,(PFN_xrVoidFunction *)&fn))&&fn;}
     bool Init(){
-        if(initialized)return true;if(fault || !surface.valid() || (!device11 && (!device || !queue)))return false;
+        if(initialized)return true;if(fault || !surface.valid() || (!vulkan&&!opengl&&!device11 && (!device || !queue)))return false;
         if(!Get("xrLocateSpace",locate)||!Get("xrCreateReferenceSpace",create_space)||!Get("xrDestroySpace",destroy_space)||!Get("xrEnumerateSwapchainFormats",formats)||
            !Get("xrCreateSwapchain",create_swapchain)||!Get("xrDestroySwapchain",destroy_swapchain)||!Get("xrEnumerateSwapchainImages",enumerate)||
            !Get("xrAcquireSwapchainImage",acquire)||!Get("xrWaitSwapchainImage",wait)||!Get("xrReleaseSwapchainImage",release))return false;
         uint32_t count=0;if(XR_FAILED(formats(session,0,&count,nullptr))||!count||count>256)return false;
-        std::vector<int64_t> options(count);if(XR_FAILED(formats(session,count,&count,options.data()))||std::find(options.begin(),options.end(),DXGI_FORMAT_B8G8R8A8_UNORM)==options.end())return false;
+        std::vector<int64_t> options(count);if(XR_FAILED(formats(session,count,&count,options.data())))return false;
+        std::vector<int64_t> preferred=vulkan?std::vector<int64_t>{VK_FORMAT_B8G8R8A8_UNORM,VK_FORMAT_R8G8B8A8_UNORM,VK_FORMAT_B8G8R8A8_SRGB,VK_FORMAT_R8G8B8A8_SRGB}:opengl?std::vector<int64_t>{GL_RGBA8,0x8C43}:std::vector<int64_t>{DXGI_FORMAT_B8G8R8A8_UNORM,DXGI_FORMAT_R8G8B8A8_UNORM,DXGI_FORMAT_B8G8R8A8_UNORM_SRGB,DXGI_FORMAT_R8G8B8A8_UNORM_SRGB};
+        bool found=false;for(auto f:preferred)if(std::find(options.begin(),options.end(),f)!=options.end()){image_format=f;found=true;break;}if(!found)return false;
+        cpu_copy=vulkan||opengl||image_format!=DXGI_FORMAT_B8G8R8A8_UNORM;
+        if(cpu_copy){D3D_FEATURE_LEVEL level;auto module=LoadLibraryW(L"d3d11.dll");auto create=(decltype(&D3D11CreateDevice))GetProcAddress(module,"D3D11CreateDevice");
+            if(!create||FAILED(create(nullptr,D3D_DRIVER_TYPE_HARDWARE,nullptr,D3D11_CREATE_DEVICE_BGRA_SUPPORT,nullptr,0,D3D11_SDK_VERSION,&ui_device,&level,nullptr)))return false;}
         XrReferenceSpaceCreateInfo si{XR_TYPE_REFERENCE_SPACE_CREATE_INFO};si.referenceSpaceType=XR_REFERENCE_SPACE_TYPE_VIEW;si.poseInReferenceSpace.orientation.w=1;
         if(XR_FAILED(create_space(session,&si,&view_space)))return false;
         si.referenceSpaceType=XR_REFERENCE_SPACE_TYPE_LOCAL;if(XR_FAILED(create_space(session,&si,&local_space)))return false;
         XrSwapchainCreateInfo ci{XR_TYPE_SWAPCHAIN_CREATE_INFO};ci.usageFlags=XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT|XR_SWAPCHAIN_USAGE_TRANSFER_DST_BIT;
-        ci.format=DXGI_FORMAT_B8G8R8A8_UNORM;ci.sampleCount=1;ci.width=width;ci.height=height;ci.faceCount=1;ci.arraySize=1;ci.mipCount=1;
+        ci.format=image_format;ci.sampleCount=1;ci.width=width;ci.height=height;ci.faceCount=1;ci.arraySize=1;ci.mipCount=1;
         if(XR_FAILED(create_swapchain(session,&ci,&swapchain)))return false;
         count=0;if(XR_FAILED(enumerate(swapchain,0,&count,nullptr))||!count||count>32)return false;
-        if(device11){
+        if(vulkan){
+            std::vector<XrSwapchainImageVulkanKHR> xr_images(count,{XR_TYPE_SWAPCHAIN_IMAGE_VULKAN_KHR});
+            if(XR_FAILED(enumerate(swapchain,count,&count,(XrSwapchainImageBaseHeader *)xr_images.data()))||!vk.Init(width,height,(VkFormat)image_format))return false;
+            for(auto &i:xr_images){if(!i.image)return false;images_vk.push_back(i.image);}
+        }else if(opengl){
+            std::vector<XrSwapchainImageOpenGLKHR> xr_images(count,{XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR});
+            if(XR_FAILED(enumerate(swapchain,count,&count,(XrSwapchainImageBaseHeader *)xr_images.data()))||!gl.Init(width,height))return false;
+            for(auto &i:xr_images){if(!i.image)return false;images_gl.push_back(i.image);}
+        }else if(device11){
             std::vector<XrSwapchainImageD3D11KHR> xr_images(count,{XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR});
             if(XR_FAILED(enumerate(swapchain,count,&count,(XrSwapchainImageBaseHeader *)xr_images.data())))return false;
             for(auto &i:xr_images){if(!i.texture)return false;images11.emplace_back(i.texture);}
@@ -162,7 +180,7 @@ struct Panel {
         quad.space=space;quad.eyeVisibility=XR_EYE_VISIBILITY_BOTH;quad.subImage.swapchain=swapchain;quad.subImage.imageRect.extent={(int)width,(int)height};
         quad.pose.orientation.w=1;quad.pose.position.z=-1.25f;quad.size={physical_width,physical_height};
         #ifndef VR_DASHBOARD_TEST
-        if(!menu.Init(device11.Get(),device.Get(),queue.Get(),width,height))return false;
+        if(!menu.Init(cpu_copy?ui_device.Get():device11.Get(),cpu_copy?nullptr:device.Get(),cpu_copy?nullptr:queue.Get(),width,height))return false;
 #endif
         initialized=true;Log("OpenXR headset dashboard ready: F8; controller mouse emulation; fixed 1024x640 quad");return true;
     }
@@ -175,8 +193,12 @@ struct Panel {
     }
     bool Fail(){fault=true;visible=false;if(controller)controller->visible=false;vr_dashboard_block::Set(false,window);return false;}
     bool Frame(XrTime time){
-        bool focused=Focus();bool down=focused&&(GetAsyncKeyState(VK_F8)&0x8000)!=0;
-        if(down&&!key_down){visible=!visible;if(visible)anchor_pending=true;input_armed=false;if(controller)controller->visible=visible;vr_dashboard_block::Set(visible,window);click_down=(GetAsyncKeyState(VK_LBUTTON)&0x8000)!=0;Log(visible?"OpenXR headset dashboard opened":"OpenXR headset dashboard closed");}
+        if(controller&&controller->input_failed.exchange(false))return Fail();
+        bool focused=Focus();bool down=(focused||(xr_focus_known&&xr_focused))&&(GetAsyncKeyState(VK_F8)&0x8000)!=0;
+        if(xr_focus_known&&!xr_focused){key_down=(GetAsyncKeyState(VK_F8)&0x8000)!=0;return false;}
+        if(controller)controller->RefreshVisible();
+        const bool controller_toggle=controller&&controller->toggle_pending.exchange(false);
+        if(!fault&&((down&&!key_down)||controller_toggle)){visible=!visible;if(visible)anchor_pending=true;input_armed=false;if(controller)controller->visible=visible;vr_dashboard_block::Set(visible,window);click_down=(GetAsyncKeyState(VK_LBUTTON)&0x8000)!=0;Log(visible?"OpenXR headset dashboard opened":"OpenXR headset dashboard closed");}
         key_down=down;if(!visible||fault)return false;
         if(!Init()){fault=true;visible=false;if(controller)controller->visible=false;vr_dashboard_block::Set(false,window);Log("OpenXR headset dashboard initialization failed; original game layers retained");return false;}
         if(anchor_pending){
@@ -189,6 +211,7 @@ struct Panel {
         }
         if(fence && fence->GetCompletedValue()==UINT64_MAX){return Fail();}
         if(fence && fence_value && fence->GetCompletedValue()<fence_value)return ready;
+        if(vulkan&&vk.Busy())return ready;if(vulkan&&vk.lost)return Fail();
         auto pointer=Input(time);
 #ifdef VR_DASHBOARD_TEST
         Native api;unsigned preset=0;unsigned long long cropped=0,full=0;bool available=api.read&&api.set&&api.read(&preset,&cropped,&full);
@@ -200,8 +223,16 @@ struct Panel {
         if(!acquired){XrSwapchainImageAcquireInfo ai{XR_TYPE_SWAPCHAIN_IMAGE_ACQUIRE_INFO};if(XR_FAILED(acquire(swapchain,&ai,&image_index)))return ready;acquired=true;}
         XrSwapchainImageWaitInfo wi{XR_TYPE_SWAPCHAIN_IMAGE_WAIT_INFO};wi.timeout=0;auto waited=wait(swapchain,&wi);
         if(waited==XR_TIMEOUT_EXPIRED)return ready;
-        if(XR_FAILED(waited)||image_index>=(device11?images11.size():images.size())){return Fail();}
-        if(device11){
+        if(XR_FAILED(waited)||image_index>=(vulkan?images_vk.size():opengl?images_gl.size():device11?images11.size():images.size())){return Fail();}
+#ifndef VR_DASHBOARD_TEST
+        if(cpu_copy){if(!menu.Render({(float)pointer.x,(float)pointer.y,pointer.down,pointer.scroll_x,pointer.scroll_y},nullptr)||!menu.ReadPixels(ui_pixels,width,height))return Fail();}
+#else
+        if(cpu_copy){ui_pixels.resize(size_t(width)*height*4);memcpy(ui_pixels.data(),surface.pixels,ui_pixels.size());}
+#endif
+        if(vulkan){if(!vk.Upload(images_vk[image_index],ui_pixels.data()))return Fail();}
+        else if(opengl){if(!gl.Upload(images_gl[image_index],ui_pixels.data()))return Fail();}
+        else if(cpu_copy&&device11){if(image_format==DXGI_FORMAT_R8G8B8A8_UNORM||image_format==DXGI_FORMAT_R8G8B8A8_UNORM_SRGB)for(size_t i=0;i<ui_pixels.size();i+=4)std::swap(ui_pixels[i],ui_pixels[i+2]);context11->UpdateSubresource(images11[image_index].Get(),0,nullptr,ui_pixels.data(),width*4,0);context11->Flush();}
+        else if(device11){
             #ifdef VR_DASHBOARD_TEST
             context11->UpdateSubresource(images11[image_index].Get(),0,nullptr,surface.pixels,width*4,0);
 #else
@@ -212,27 +243,45 @@ struct Panel {
             context11->Flush();
         }else{
 #ifndef VR_DASHBOARD_TEST
-        if(!menu.Render({(float)pointer.x,(float)pointer.y,pointer.down,pointer.scroll_x,pointer.scroll_y},queue.Get()))return Fail();
-#else
+        if(!cpu_copy&&!menu.Render({(float)pointer.x,(float)pointer.y,pointer.down,pointer.scroll_x,pointer.scroll_y},queue.Get()))return Fail();
+#endif
+        if(cpu_copy
+#ifdef VR_DASHBOARD_TEST
+           ||true
+#endif
+        ){
         void *mapped=nullptr;D3D12_RANGE read={0,0};
         if(FAILED(upload->Map(0,&read,&mapped))){return Fail();}
-        for(unsigned y=0;y<height;++y)memcpy((uint8_t *)mapped+footprint.Offset+y*footprint.Footprint.RowPitch,(uint8_t *)surface.pixels+y*width*4,width*4);
-        upload->Unmap(0,nullptr);
+        const uint8_t *pixels=nullptr;
+#ifdef VR_DASHBOARD_TEST
+        pixels=(const uint8_t *)surface.pixels;
+#else
+        pixels=ui_pixels.data();
 #endif
+        for(unsigned y=0;y<height;++y){auto row=(uint8_t *)mapped+footprint.Offset+y*footprint.Footprint.RowPitch;memcpy(row,pixels+y*width*4,width*4);
+            if(image_format==DXGI_FORMAT_R8G8B8A8_UNORM||image_format==DXGI_FORMAT_R8G8B8A8_UNORM_SRGB)for(unsigned x=0;x<width;++x)std::swap(row[x*4],row[x*4+2]);}
+        upload->Unmap(0,nullptr);
+        }
         if(FAILED(allocator->Reset())||FAILED(list->Reset(allocator.Get(),nullptr))){return Fail();}
         D3D12_RESOURCE_BARRIER barrier={};barrier.Type=D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;barrier.Transition.pResource=images[image_index].Get();
         barrier.Transition.Subresource=D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;barrier.Transition.StateBefore=D3D12_RESOURCE_STATE_RENDER_TARGET;barrier.Transition.StateAfter=D3D12_RESOURCE_STATE_COPY_DEST;
         list->ResourceBarrier(1,&barrier);
+        if(cpu_copy
 #ifdef VR_DASHBOARD_TEST
+          ||true
+#endif
+        ){
         D3D12_TEXTURE_COPY_LOCATION dst={};dst.pResource=images[image_index].Get();dst.Type=D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
         D3D12_TEXTURE_COPY_LOCATION src={};src.pResource=upload.Get();src.Type=D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;src.PlacedFootprint=footprint;
         list->CopyTextureRegion(&dst,0,0,0,&src,nullptr);
-#else
+        }else{
+#ifndef VR_DASHBOARD_TEST
         ComPtr<ID3D12Resource> buffer;if(FAILED(menu.chain->GetBuffer(0,IID_PPV_ARGS(&buffer))))return Fail();
         auto source_barrier=barrier;source_barrier.Transition.pResource=buffer.Get();source_barrier.Transition.StateBefore=D3D12_RESOURCE_STATE_PRESENT;source_barrier.Transition.StateAfter=D3D12_RESOURCE_STATE_COPY_SOURCE;
         list->ResourceBarrier(1,&source_barrier);list->CopyResource(images[image_index].Get(),buffer.Get());
         std::swap(source_barrier.Transition.StateBefore,source_barrier.Transition.StateAfter);list->ResourceBarrier(1,&source_barrier);
 #endif
+        }
         std::swap(barrier.Transition.StateBefore,barrier.Transition.StateAfter);list->ResourceBarrier(1,&barrier);
         if(FAILED(list->Close())){return Fail();}
         ID3D12CommandList *commands[]={list.Get()};queue->ExecuteCommandLists(1,commands);
@@ -246,6 +295,11 @@ struct Panel {
         if(fence && fence_value && fence->GetCompletedValue()<fence_value){
             auto event=CreateEventW(nullptr,FALSE,FALSE,nullptr);if(!event)return false;
             bool done=SUCCEEDED(fence->SetEventOnCompletion(fence_value,event))&&WaitForSingleObject(event,250)==WAIT_OBJECT_0;CloseHandle(event);if(!done)return false;}
+        if(vulkan&&!vk.Dispose())return false;if(opengl&&!gl.Dispose())return false;
+        if(acquired){XrSwapchainImageWaitInfo wi{XR_TYPE_SWAPCHAIN_IMAGE_WAIT_INFO};wi.timeout=250000000;
+            if(!wait)return false;auto waited=wait(swapchain,&wi);if(waited!=XR_SUCCESS&&waited!=XR_SESSION_LOSS_PENDING)return false;
+            XrSwapchainImageReleaseInfo ri{XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO};if(!release||XR_FAILED(release(swapchain,&ri)))return false;acquired=false;}
+
         if(swapchain&&destroy_swapchain)destroy_swapchain(swapchain);swapchain={};
         #ifndef VR_DASHBOARD_TEST
         menu.Dispose();
@@ -255,12 +309,14 @@ struct Panel {
         if(local_space&&destroy_space)destroy_space(local_space);local_space={};return true;
     }
 };
+inline bool Enabled(){wchar_t name[32768];if(!GetModuleFileNameW(nullptr,name,32768))return false;auto slash=wcsrchr(name,L'\\');if(!slash)return false;slash[1]=0;
+    if(wcscat_s(name,L"dlss5-openxr-menu.ini"))return false;return GetPrivateProfileIntW(L"OpenXRMenu",L"Enabled",1,name)!=0;}
 static std::mutex mutex;
 static std::map<XrSession,std::unique_ptr<Panel>> panels;
 // Retain in-flight GPU resources on a failed drain instead of freeing them.
 static std::vector<std::unique_ptr<Panel>> retired;
 inline void Attach(XrInstance instance,XrSession session,const XrGraphicsBindingD3D12KHR &binding,PFN_xrGetInstanceProcAddr gipa,XrSystemId system){
-    std::lock_guard<std::mutex> lock(mutex);if(panels.size()>=8)return;
+    std::lock_guard<std::mutex> lock(mutex);if(!Enabled()||panels.count(session)||panels.size()>=8)return;
     auto panel=std::make_unique<Panel>();panel->instance=instance;panel->session=session;panel->gipa=gipa;panel->device=binding.device;panel->queue=binding.queue;
     PFN_xrGetSystemProperties properties=nullptr;
     if(panel->Get("xrGetSystemProperties",properties)){XrSystemProperties info{XR_TYPE_SYSTEM_PROPERTIES};if(XR_SUCCEEDED(properties(instance,system,&info)))panel->max_layers=info.graphicsProperties.maxLayerCount;}
@@ -268,17 +324,34 @@ inline void Attach(XrInstance instance,XrSession session,const XrGraphicsBinding
     panels[session]=std::move(panel);Log("OpenXR D3D12 headset dashboard attached to existing session");
 }
 inline void Attach11(XrInstance instance,XrSession session,const XrGraphicsBindingD3D11KHR &binding,PFN_xrGetInstanceProcAddr gipa,XrSystemId system){
-    std::lock_guard<std::mutex> lock(mutex);if(panels.size()>=8)return;
+    std::lock_guard<std::mutex> lock(mutex);if(!Enabled()||panels.count(session)||panels.size()>=8)return;
     auto panel=std::make_unique<Panel>();panel->instance=instance;panel->session=session;panel->gipa=gipa;panel->device11=binding.device;
     PFN_xrGetSystemProperties properties=nullptr;
     if(panel->Get("xrGetSystemProperties",properties)){XrSystemProperties info{XR_TYPE_SYSTEM_PROPERTIES};if(XR_SUCCEEDED(properties(instance,system,&info)))panel->max_layers=info.graphicsProperties.maxLayerCount;}
     panel->controller=vr_dashboard_input::Create(instance,session,gipa);
     panels[session]=std::move(panel);Log("OpenXR D3D11 headset dashboard attached to existing session");
 }
+
+inline void AttachOther(XrInstance instance,XrSession session,const XrBaseInStructure *binding,PFN_xrGetInstanceProcAddr gipa,XrSystemId system){
+    std::lock_guard<std::mutex> lock(mutex);if(!Enabled()||panels.count(session)||panels.size()>=8||!binding)return;
+    auto panel=std::make_unique<Panel>();panel->instance=instance;panel->session=session;panel->gipa=gipa;
+    if(binding->type==XR_TYPE_GRAPHICS_BINDING_VULKAN_KHR){panel->vulkan=true;panel->vk.binding=*(const XrGraphicsBindingVulkanKHR *)binding;panel->vk.binding.next=nullptr;}
+    else if(binding->type==XR_TYPE_GRAPHICS_BINDING_OPENGL_WIN32_KHR){panel->opengl=true;panel->gl.binding=*(const XrGraphicsBindingOpenGLWin32KHR *)binding;panel->gl.binding.next=nullptr;}
+    else return;
+    PFN_xrGetSystemProperties properties=nullptr;
+    if(panel->Get("xrGetSystemProperties",properties)){XrSystemProperties info{XR_TYPE_SYSTEM_PROPERTIES};if(XR_SUCCEEDED(properties(instance,system,&info)))panel->max_layers=info.graphicsProperties.maxLayerCount;}
+    panel->controller=vr_dashboard_input::Create(instance,session,gipa);
+    panels[session]=std::move(panel);Log("OpenXR Vulkan/OpenGL full headset menu attached to existing session");
+}
 inline void Destroy(XrSession session){std::lock_guard<std::mutex> lock(mutex);auto it=panels.find(session);if(it==panels.end())return;
     vr_dashboard_input::Destroy(session);
     if(!it->second->Dispose())retired.push_back(std::move(it->second));panels.erase(it);}
-inline bool Layer(XrSession session,XrTime time,unsigned layer_count,XrCompositionLayerQuad &out){std::lock_guard<std::mutex> lock(mutex);auto it=panels.find(session);
-    if(it==panels.end()||!it->second->max_layers||layer_count>=it->second->max_layers||!it->second->Frame(time))return false;out=it->second->quad;return true;}
+inline bool Layer(XrSession session,XrTime time,unsigned layer_count,XrCompositionLayerQuad &out,bool from_capture=false){std::lock_guard<std::mutex> lock(mutex);auto it=panels.find(session);
+    if(it==panels.end()||(it->second->managed_by_capture&&!from_capture))return false;
+    if(!it->second->max_layers||layer_count>=it->second->max_layers){
+        auto &p=*it->second;if(p.visible){p.visible=false;if(p.controller)p.controller->visible=false;vr_dashboard_block::Set(false,p.window);Log("OpenXR menu closed: runtime layer capacity unavailable; game input restored");}
+        if(p.controller)p.controller->toggle_pending=false;return false;
+    }
+    if(!it->second->Frame(time))return false;out=it->second->quad;return true;}
 inline void Clear(){std::lock_guard<std::mutex> lock(mutex);for(auto &entry:panels){vr_dashboard_input::Destroy(entry.first);if(!entry.second->Dispose())retired.push_back(std::move(entry.second));}panels.clear();}
 }

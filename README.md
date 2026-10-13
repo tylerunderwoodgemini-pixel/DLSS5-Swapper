@@ -67,3 +67,7 @@ See [vr.3 compatibility coverage](docs/COMPATIBILITY_MATRIX.md) and the [new rel
 ## vr.4 update
 
 NMS + DFC now automatically uses the bundled native Vulkan DLSS mirror with Feeder evaluation disabled. Includes submitted OpenXR depth/convention/projection fixes, focus-transition history recovery, stale depth-binding restoration and duplicate configuration repair. See [vr.4 release notes](docs/RELEASE_NOTES_VR_4.md).
+
+## vr.5 update
+
+Full stationary OpenXR ReShade menu for DX11/DX12/Vulkan/desktop OpenGL, with both thumbstick clicks held for three seconds (Vive: both trackpad clicks). Includes renderer-independent capture-layer deployment, tracking-preserving input blocking and focus/layer/GPU recovery. [Usage](docs/USER_GUIDE.md) · [release notes](docs/RELEASE_NOTES_VR_5.md).

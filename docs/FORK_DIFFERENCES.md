@@ -197,3 +197,24 @@ Full stationary OpenXR ReShade menu/controller input blocking, working native D3
 - Adds actual installer/reinstall/original restore tests for NMS, binding-owner
   regressions, deterministic history-guard tests, source/payload integrity checks,
   and verified portable packaging with an independently staged versioned shell.
+
+## vr.5 additions since vr.4
+
+- Adds Vulkan and desktop OpenGL transport for the full stationary OpenXR
+  ReShade menu, retaining the existing DX11/DX12 panel. The actual GUI is
+  rendered independently and only its panel pixels are transferred.
+- The existing pose API layer loads only a game-local verified-interface menu
+  adapter, preserving the next-layer dispatch and adding exactly one quad.
+  Deployment covers all four Windows graphics bindings and late XR injection;
+  VR Off has tracked configuration. No new duplicate ReShade XR layer is added.
+- Adds a three-second both-thumbstick-click toggle; Vive wands use trackpad
+  clicks. One activation per hold, both-release rearm, focus-loss cancellation,
+  priority/context preservation and common modern controller profiles.
+- Game digital/analog input is masked while the menu owns interaction, with
+  tracking poses preserved. Input augmentation failures preserve original sync.
+- Focus loss, failed GPU/menu initialization and unavailable layer capacity
+  restore game controls. Vulkan upload fences and shared GL context/orientation
+  are managed without changing the game framebuffer or rendering resolution.
+- Adds actual Vulkan/GL pixel readback, full-menu CPU readback, capture-DLL
+  cross-binding/structure-chain dispatch and controller/context tests. New
+  headset coverage remains pending; this is not universal runtime certification.

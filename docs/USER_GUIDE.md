@@ -1,6 +1,6 @@
 # Using the CreatorBase DLSS 5 Swapper fork
 
-For the **2.2.3-vr.4 prerelease**, with feeder **v26.30**. These instructions use the English UI labels. The Swapper selects and installs files; ReShade provides the controls while the game is running.
+For the **2.2.3-vr.5 prerelease**, with feeder **v26.30**. These instructions use the English UI labels. The Swapper selects and installs files; ReShade provides the controls while the game is running.
 
 ## Quick start: VR or UEVR without native DLSS
 
@@ -156,16 +156,16 @@ For a report, include the game name, actual executable, API, GPU/driver, native 
 The guide's Swapper screens were checked in the running app; in-game control names were checked against the packaged source/config and component docs. Every described in-game combination has not been visually validated. See the fork README for supported paths and remaining limitations.
 
 
-### OpenXR headset menu (DX11 / DX12)
+### OpenXR headset menu (DX11 / DX12 / Vulkan / OpenGL)
+
+Press **F8**, or **hold both thumbstick clicks for three seconds**, to toggle the full ReShade menu inside the headset. Release both clicks before toggling again. Vive wand controllers use **both trackpad clicks for three seconds**. Touch, Touch Pro/Plus, Index, WMR, HP and Vive Cosmos/Focus controller profiles are included where the runtime supports them. Simple controllers and hand-only devices without stick/pad clicks can use F8 and the mouse-emulation fallback.
 
 Press **F8** to open the full ReShade menu inside the headset. It appears in front
 of you at your opening position and stays stationary as you turn or lean. Close
 and reopen it with F8 to place it in front of you again. Point your right controller
 at the visible mouse cursor and use the trigger to click or drag controls. Drag
 scrollbars to reach longer settings pages, or use the **right thumbstick** to
-scroll up/down and left/right (Vive controllers use the right trackpad). The game receives no OpenXR action-set,
-keyboard, mouse or XInput controls while the panel is open; closing it restores
-those controls. Home continues to open the desktop menu.
+scroll up/down and left/right (Vive controllers use the right trackpad). Game button and movement inputs, keyboard, mouse and XInput controls are blocked while the panel is open. Tracking poses remain active. Closing the panel restores game controls. Home continues to open the desktop menu.
 
 All ReShade and registered add-on tabs appear in the panel. Shader parameter,
 technique and preset changes are forwarded to the headset effect runtimes. The
@@ -177,8 +177,7 @@ use **Native DLSS VR foveation**. A Feeder running status alone does not establi
 that its neural result reached the headset. Unsupported crop layouts keep the
 full-frame Feeder path; they must not disable feeding entirely.
 
-The F8 panel currently supports OpenXR with DX11/DX12. Vulkan/OpenGL headset
-menus are not implemented.
+The full F8 panel supports 64-bit Windows OpenXR sessions with DX11, DX12, Vulkan and desktop OpenGL. It attaches to the existing OpenXR session, so it works with VDXR and other OpenXR runtimes without SteamVR. SteamVR/OpenVR's existing menu is unchanged.
 
 ## Compatibility reports and recovery (vr.3)
 
@@ -222,3 +221,35 @@ game does not expose. The whole-view spatial AA filter is a fallback and was
 reported insufficient in Nivalis. Feeder's reconstructed guides and zero jitter
 do not constitute full-view engine-integrated DLAA. Unsupported APIs or layouts
 still require their own integration and testing.
+
+## Universal OpenXR menu deployment (vr.5)
+
+Repair/reinstall the game from this version to update its local menu adapter and
+the shared OpenXR capture layer. Close VR games before updating the shared layer.
+The installer now deploys the menu for Vulkan/OpenGL too, including games that
+initialize OpenXR later through a mod. It preserves the selected graphics owner
+and does not install a DXGI proxy into Vulkan or OpenGL games. **VR mode Off**
+disables this menu through tracked `dlss5-openxr-menu.ini` configuration.
+
+The panel remains anchored at its opening position. Point with the right
+controller, press its trigger to select, and use the right stick/pad to scroll.
+The controller shortcut works without making the desktop window foreground.
+F8 also works when the OpenXR session is focused, even if the desktop mirror
+is not focused. Losing headset focus closes the panel and restores input.
+
+Private action sets match the active game input priority while the panel is
+closed. While open, game button/movement queries are neutralized but tracking
+poses remain available. Failed input augmentation falls back to the original
+game action sync. GPU/menu failures or exhausted compositor layer capacity
+close the menu rather than leaving game input blocked.
+
+Vulkan/OpenGL render the real ReShade GUI on an independent UI surface and
+upload only the small panel texture. No shader, Feeder or neural evaluation is
+run on the menu texture. Graphics state, image orientation and GPU retirement
+are checked. This menu support does not add new foveation or AA capabilities.
+
+Validation includes actual modified-ReShade menu rendering/click/scroll/readback,
+real Vulkan/OpenGL texture uploads, controller/input/focus logic and installer
+paths. End-to-end headset confirmation of the new Vulkan/OpenGL and controller
+shortcut paths is still pending; unrecognized profiles or image formats remain
+reported runtime limitations. See `dlss5-vr-compat.log` for menu diagnostics.

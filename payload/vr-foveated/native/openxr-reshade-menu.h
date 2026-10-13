@@ -22,7 +22,7 @@ static std::recursive_mutex runtime_mutex;
 static std::vector<reshade::api::effect_runtime *> targets;
 static reshade::api::effect_runtime *menu_runtime=nullptr;
 inline void Clear(){std::lock_guard<std::recursive_mutex> lock(runtime_mutex);targets.clear();menu_runtime=nullptr;if(begin){DetourTransactionBegin();DetourUpdateThread(GetCurrentThread());DetourDetach((PVOID *)&begin,(PVOID)Begin);DetourTransactionCommit();begin=nullptr;}}
-inline void Track(reshade::api::effect_runtime *rt){if(!building&&!rt->get_hwnd()){std::lock_guard<std::recursive_mutex> lock(runtime_mutex);targets.push_back(rt);}}
+inline void Track(reshade::api::effect_runtime *rt){if(!building){std::lock_guard<std::recursive_mutex> lock(runtime_mutex);targets.push_back(rt);}}
 inline void Forget(reshade::api::effect_runtime *rt){std::lock_guard<std::recursive_mutex> lock(runtime_mutex);targets.erase(std::remove(targets.begin(),targets.end(),rt),targets.end());if(menu_runtime==rt)menu_runtime=nullptr;}
 inline bool Uniform(reshade::api::effect_runtime *rt,reshade::api::effect_uniform_variable variable,const void *data,size_t size){
     std::lock_guard<std::recursive_mutex> lock(runtime_mutex);if(rt!=menu_runtime||!data||size>4096||size%4)return false;
@@ -48,7 +48,7 @@ struct Menu {
     HWND window=nullptr;ComPtr<IDXGISwapChain3> chain;
     reshade::api::effect_runtime *runtime=nullptr;ImGuiIO *io=nullptr;
     ComPtr<ID3D11DeviceContext> context11;
-    ComPtr<ID3D11RenderTargetView> rtv11;
+    ComPtr<ID3D11RenderTargetView> rtv11;ComPtr<ID3D11Texture2D> readback;
     ComPtr<ID3D12DescriptorHeap> heap;
     ComPtr<ID3D12CommandAllocator> allocator;
     ComPtr<ID3D12GraphicsCommandList> list;
@@ -92,6 +92,16 @@ struct Menu {
 
         if(!Hook())return false;
         Log("Full ReShade OpenXR menu runtime created; all ReShade/add-on tabs enabled");return true;
+    }
+
+    bool ReadPixels(std::vector<uint8_t> &pixels,unsigned width,unsigned height){
+        if(!context11||!chain)return false;ComPtr<ID3D11Texture2D> buffer;if(FAILED(chain->GetBuffer(0,IID_PPV_ARGS(&buffer))))return false;
+        if(!readback){D3D11_TEXTURE2D_DESC desc{};buffer->GetDesc(&desc);desc.BindFlags=0;desc.MiscFlags=0;desc.Usage=D3D11_USAGE_STAGING;desc.CPUAccessFlags=D3D11_CPU_ACCESS_READ;
+            ComPtr<ID3D11Device> device;context11->GetDevice(&device);if(FAILED(device->CreateTexture2D(&desc,nullptr,&readback)))return false;}
+        context11->CopyResource(readback.Get(),buffer.Get());D3D11_MAPPED_SUBRESOURCE map{};
+        if(FAILED(context11->Map(readback.Get(),0,D3D11_MAP_READ,0,&map)))return false;
+        pixels.resize(size_t(width)*height*4);for(unsigned y=0;y<height;++y)memcpy(pixels.data()+size_t(y)*width*4,(uint8_t *)map.pData+size_t(y)*map.RowPitch,width*4);
+        context11->Unmap(readback.Get(),0);return true;
     }
     bool Render(const Input &pointer,ID3D12CommandQueue *queue){
         const float black[4]={0.025f,0.025f,0.025f,1};

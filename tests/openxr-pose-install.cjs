@@ -4,6 +4,7 @@ const file=path.resolve('src/core/openxr-pose-install.js'),native=createRequire(
 const payload=path.join(temp,'payload'),game=path.join(temp,'game');fs.mkdirSync(path.join(payload,'vr-foveated'),{recursive:true});fs.mkdirSync(game);
 fs.writeFileSync(path.join(payload,'vr-foveated/DLSS5OpenXRPose.dll'),'capture');fs.writeFileSync(path.join(payload,'vr-foveated/vr-pose-bridge-v1.addon64'),'Pose bridge v2 registered');
 for(const name of ['vr-depth-bridge.addon64','vr-current-input.addon64','vr-projection-bridge.addon64','dlss5-vr-compat.addon64'])fs.writeFileSync(path.join(payload,'vr-foveated',name),name);
+fs.appendFileSync(path.join(payload,'vr-foveated/dlss5-vr-compat.addon64'),' DLSS5MenuAttach DLSS5MenuHook');
 let enabled=false,copies=0;
 const context={module:{exports:{}},Buffer,process:{...process,env:{...process.env,LOCALAPPDATA:temp}},require:n=>{
  if(n==='child_process')return {execFileSync:(exe,args)=>{if(args[0]==='add'){enabled=true;return '';}return enabled?'REG_DWORD 0x0':'';}};

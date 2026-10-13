@@ -9,6 +9,8 @@ function verifyPayload(payloadDir) {
   for(const name of [LAYER,BRIDGE,'vr-depth-bridge.addon64','vr-projection-bridge.addon64','vr-current-input.addon64','dlss5-vr-compat.addon64'])if(!fs.existsSync(path.join(root,name)))throw new Error(`OpenXR pose payload missing: ${name}`);
   if(!fs.readFileSync(path.join(root,BRIDGE)).includes(Buffer.from('Pose bridge v2 registered')))
     throw new Error('The bundled VR pose bridge does not include OpenXR v2 support.');
+  const adapter=fs.readFileSync(path.join(root,'dlss5-vr-compat.addon64'));
+  if(!adapter.includes(Buffer.from('DLSS5MenuAttach'))||!adapter.includes(Buffer.from('DLSS5MenuHook')))throw new Error('The OpenXR adapter lacks the universal full-menu interface; restore or rebuild the current payload.');
   return root;
 }
 function query(root) {
@@ -77,7 +79,7 @@ async function install({payloadDir,gameDir,exePath,manifest},send=()=>{}) {
     const dest=path.join(path.dirname(exePath),'dlss5-vr-compat.addon64');
     if(manifest)await core.copyTracked(manifest,gameDir,compatSource,dest,{kind:'dlss5-vr-compat'});
     else fs.copyFileSync(compatSource,dest);
-    if(hash(dest)!==hash(compatSource))throw new Error('VR compatibility adapter copy failed verification.');
+    if(hash(dest)!==hash(compatSource))throw new Error('OpenXR full-menu adapter copy failed verification.');
   }
   // Keep separate headset and mirror settings. Never disable the ordinary flat
   // runtime globally just because a VR mod might be injected later.

@@ -299,8 +299,8 @@ function runOpenXRSetup(payloadDir, exePath, api, bitness = 64, send = () => {})
 
 async function preflight({ mode, api, bitness, reshadeSetup, neuralProvider, payloadDir }, send = () => {}) {
   verifyUniversalPayload(payloadDir, send);
-  if (mode==='openxr' || (Number(bitness)===64 && ['dxgi','d3d10','d3d11','d3d12'].includes(apiArg(api)))) {
-    openXRSetupArgs('',api);
+  if (mode==='openxr' || (Number(bitness)===64 && ['dxgi','d3d10','d3d11','d3d12','vulkan','opengl'].includes(apiArg(api)))) {
+    if(['dxgi','d3d10','d3d11','d3d12'].includes(apiArg(api)))openXRSetupArgs('',api);
     require('./openxr-pose-install').verifyPayload(payloadDir);
     if (Number(bitness || 64)!==64) throw new Error('The bundled V19 OpenXR verification requires a 64-bit target.');
     if (!findV19OpenXRSetup(payloadDir) || !findV19OpenXRDll(payloadDir)) throw new Error(`OpenXR VR game detected, but ${V19_OPENXR_DLL} is missing from the active Swapper OpenXR payload.`);
@@ -313,8 +313,12 @@ async function preflight({ mode, api, bitness, reshadeSetup, neuralProvider, pay
 async function finalize({ mode, gameDir, exePath, api, bitness, reshadeSetup, neuralProvider, payloadDir, manifest, route, vrFoveation: foveation='off', installReShade=true, enableVR=true }, send = () => {}) {
   const direct64=Number(bitness || 64)===64 && ['dxgi','d3d10','d3d11','d3d12'].includes(apiArg(api));
   await require('./vr-compatibility-plan').install({mode,gameDir,exePath,api,bitness,manifest,route,neuralProvider,vrFoveation:foveation,vrMode:enableVR?'auto':'off'});
-  if(mode==='none'&&!direct64)return;
+  const menu64=Number(bitness||64)===64&&['dxgi','d3d10','d3d11','d3d12','vulkan','opengl'].includes(apiArg(api));
   const exeDir=path.dirname(exePath);
+  if(menu64&&manifest){const core=require('./apply'),ini=require('./feeder-config'),config=path.join(exeDir,'dlss5-openxr-menu.ini');
+    let text=ini.readText(config);text=ini.setIni(text,'OpenXRMenu','Enabled',enableVR!==false?'1':'0');
+    await core.writeTracked(manifest,gameDir,config,text,{kind:'config'});await core.saveActiveManifest(gameDir,manifest);}
+  if(mode==='none'&&!menu64)return;
   if(apiArg(api)==='vulkan' && Number(bitness||64)===64 && enableVR!==false && manifest && manifest.vulkanLayer) {
     const vkManifest=manifest.vulkanLayer.manifest;
     const layer=JSON.parse(await fs.promises.readFile(vkManifest,'utf8'));
@@ -349,7 +353,7 @@ async function finalize({ mode, gameDir, exePath, api, bitness, reshadeSetup, ne
     }
     send({ code:'vrUniversalReady', params:{ mode:'OpenXR', version:VERSION } });
   }
-  if(direct64&&enableVR!==false)await require('./openxr-pose-install').install({payloadDir,gameDir,exePath,manifest},send);
+  if(menu64&&enableVR!==false)await require('./openxr-pose-install').install({payloadDir,gameDir,exePath,manifest},send);
   if(route==='native'&&direct64&&enableVR!==false)await require('./native-foveation-install').install({payloadDir,gameDir,exePath,manifest,preset:foveation},send);
   if(route==='feeder' && apiArg(api)==='vulkan' && Number(bitness||64)===64 && enableVR!==false && mode!=='none' && neuralProvider==='deep-fried-chicken')
     await require('./native-foveation-install').install({payloadDir,gameDir,exePath,manifest,preset:foveation,feederVulkan:true,stereoLayout:(mode==='openvr'||/^nms\.exe$/i.test(path.basename(exePath)))?1:0},send);
@@ -376,7 +380,8 @@ function wrapBackendManager(backends) {
     const foveation=vrFoveation.normalizePreset(opts.vrFoveation);
     trace(opts.gameDir, `backend install entered route=${route} provider=${neuralProvider} requestedVR=${requestedMode} detected=${detected} resolved=${mode} foveation=${foveation}`);
     const direct64=vrEligible && Number(opts.bitness)===64 && ['dxgi','d3d10','d3d11','d3d12'].includes(apiArg(opts.api));
-    if(mode==='none'&&!direct64){
+    const menu64=vrEligible&&Number(opts.bitness)===64&&['dxgi','d3d10','d3d11','d3d12','vulkan','opengl'].includes(apiArg(opts.api));
+    if(mode==='none'&&!menu64){
       const manifest=await original({...opts,vrFoveation:'off'},send);
       await require('./vr-compatibility-plan').install({...opts,mode,manifest});return manifest;
     }

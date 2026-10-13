@@ -27,6 +27,26 @@ struct DepthSwapchain {XrSession session{};Instance dispatch{};std::vector<Micro
 static std::map<XrSwapchain,DepthSwapchain> depth_swapchains;
 static uint64_t epoch_counter=1;
 static PFN_xrGetInstanceProcAddr null_gipa=nullptr;
+using MenuAttach=void (__cdecl *)(XrInstance,XrSession,const XrSessionCreateInfo *,PFN_xrGetInstanceProcAddr);
+using MenuFrame=bool (__cdecl *)(XrSession,XrTime,unsigned,XrCompositionLayerQuad *);
+using MenuFocus=void (__cdecl *)(XrSession,XrSessionState);using MenuDestroy=void (__cdecl *)(XrSession);using MenuHook=void (__cdecl *)(const char *,PFN_xrVoidFunction *);
+struct MenuApi {HMODULE module{};MenuAttach attach{};MenuFrame frame{};MenuDestroy destroy{};MenuHook hook{};MenuFocus focus{};};
+static MenuApi menu_api;static INIT_ONCE menu_once=INIT_ONCE_STATIC_INIT;
+static BOOL CALLBACK LoadMenu(PINIT_ONCE,PVOID,PVOID *){
+    wchar_t name[32768];if(!GetModuleFileNameW(nullptr,name,32768))return TRUE;auto slash=wcsrchr(name,L'\\');if(!slash)return TRUE;slash[1]=0;
+    if(wcscat_s(name,L"dlss5-vr-compat.addon64"))return TRUE;
+    // Only an installed game-local adapter is loaded. Unmanaged games get pose capture alone.
+    if(GetFileAttributesW(name)==INVALID_FILE_ATTRIBUTES)return TRUE;
+    wchar_t config[32768];wcscpy_s(config,name);auto file=wcsrchr(config,L'\\');file[1]=0;wcscat_s(config,L"dlss5-openxr-menu.ini");
+    if(!GetPrivateProfileIntW(L"OpenXRMenu",L"Enabled",1,config))return TRUE;
+    auto module=LoadLibraryExW(name,nullptr,LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR|LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);if(!module)return TRUE;
+    auto attach=(MenuAttach)GetProcAddress(module,"DLSS5MenuAttach");auto destroy=(MenuDestroy)GetProcAddress(module,"DLSS5MenuDestroy");
+    auto frame=(MenuFrame)GetProcAddress(module,"DLSS5MenuFrame");auto hook=(MenuHook)GetProcAddress(module,"DLSS5MenuHook");
+    if(!attach||!destroy||!frame||!hook){FreeLibrary(module);return TRUE;}
+    menu_api={module,attach,frame,destroy,hook,(MenuFocus)GetProcAddress(module,"DLSS5MenuFocus")};return TRUE;
+}
+static const MenuApi &Menu(){InitOnceExecuteOnce(&menu_once,LoadMenu,nullptr,nullptr);return menu_api;}
+
 static Instance Find(XrInstance h){Instance r={};AcquireSRWLockShared(&lock);for(auto &i:instances)if(i.handle==h){r=i;break;}ReleaseSRWLockShared(&lock);return r;}
 static Instance ForSession(XrSession h){Instance r={};AcquireSRWLockShared(&lock);for(auto &s:sessions)if(s.handle==h){r=s.dispatch;break;}ReleaseSRWLockShared(&lock);return r;}
 static void Invalidate(XrSession h){AcquireSRWLockExclusive(&lock);for(auto &s:sessions)if(s.handle==h){s.frame.valid=0;s.depth={};s.epoch=++epoch_counter;}ReleaseSRWLockExclusive(&lock);}
@@ -78,11 +98,12 @@ static XrResult XRAPI_CALL CreateSession(XrInstance h,const XrSessionCreateInfo 
     if(XR_SUCCEEDED(r)&&out){bool stored=false;AcquireSRWLockExclusive(&lock);for(auto &s:sessions)if(!s.handle){s.handle=*out;s.dispatch=d;s.epoch=++epoch_counter;
         auto chain=info?reinterpret_cast<const XrBaseInStructure *>(info->next):nullptr;
         for(unsigned n=0;chain&&n<32;++n,chain=chain->next)if(chain->type==XR_TYPE_GRAPHICS_BINDING_D3D11_KHR)s.d3d11=true;stored=true;break;}ReleaseSRWLockExclusive(&lock);
-        if(!stored){if(d.destroy_session)d.destroy_session(*out);*out=XR_NULL_HANDLE;return XR_ERROR_LIMIT_REACHED;}}
+        if(!stored){if(d.destroy_session)d.destroy_session(*out);*out=XR_NULL_HANDLE;return XR_ERROR_LIMIT_REACHED;}
+        if(Menu().attach)Menu().attach(h,*out,info,d.gipa);}
     return r;
 }
 static XrResult XRAPI_CALL DestroySession(XrSession h){
-    auto d=ForSession(h);if(!d.destroy_session)return XR_ERROR_HANDLE_INVALID;auto r=d.destroy_session(h);
+    auto d=ForSession(h);if(!d.destroy_session)return XR_ERROR_HANDLE_INVALID;if(Menu().destroy)Menu().destroy(h);auto r=d.destroy_session(h);
     if(XR_SUCCEEDED(r)){AcquireSRWLockExclusive(&lock);for(auto i=depth_swapchains.begin();i!=depth_swapchains.end();)if(i->second.session==h)i=depth_swapchains.erase(i);else ++i;for(auto &s:sessions)if(s.handle==h)s={};ReleaseSRWLockExclusive(&lock);}return r;
 }
 template<class Fn> static Fn DepthProc(const Instance &d,const char *name){Fn fn=nullptr;if(d.gipa)d.gipa(d.handle,name,reinterpret_cast<PFN_xrVoidFunction *>(&fn));return fn;}
@@ -158,7 +179,13 @@ extern "C" __declspec(dllexport) bool __cdecl DLSS5CaptureOpenXRSubmittedFrame(X
 static XrResult XRAPI_CALL EndFrame(XrSession h,const XrFrameEndInfo *info){
     auto d=ForSession(h);if(!d.end_frame)return XR_ERROR_HANDLE_INVALID;
     DLSS5CaptureOpenXRSubmittedFrame(h,info);
-    auto result=d.end_frame(h,info);if(XR_FAILED(result))Invalidate(h);return result;
+    XrCompositionLayerQuad quad{XR_TYPE_COMPOSITION_LAYER_QUAD};
+    XrResult result;
+    if(info&&info->layers&&info->layerCount&&info->layerCount<256&&Menu().frame&&Menu().frame(h,info->displayTime,info->layerCount,&quad)){
+        std::vector<const XrCompositionLayerBaseHeader *> layers(info->layers,info->layers+info->layerCount);layers.push_back((const XrCompositionLayerBaseHeader *)&quad);
+        auto copy=*info;copy.layerCount=(uint32_t)layers.size();copy.layers=layers.data();result=d.end_frame(h,&copy);
+    }else result=d.end_frame(h,info);
+    if(XR_FAILED(result))Invalidate(h);return result;
 }
 static XrResult XRAPI_CALL PollEvent(XrInstance h,XrEventDataBuffer *event){
     auto d=Find(h);if(!d.poll)return XR_ERROR_HANDLE_INVALID;auto r=d.poll(h,event);
@@ -174,7 +201,7 @@ static XrResult XRAPI_CALL PollEvent(XrInstance h,XrEventDataBuffer *event){
                 if(focus_change || (stopping && s.state!=e->state)){s.frame.valid=0;s.depth={};s.epoch=++epoch_counter;}
                 s.state=e->state;break;
             }
-            ReleaseSRWLockExclusive(&lock);}
+            ReleaseSRWLockExclusive(&lock);if(Menu().focus)Menu().focus(e->session,e->state);}
     }return r;
 }
 static XrResult XRAPI_CALL GetProc(XrInstance h,const char *name,PFN_xrVoidFunction *out){
@@ -197,6 +224,7 @@ static XrResult XRAPI_CALL GetProc(XrInstance h,const char *name,PFN_xrVoidFunct
     else HOOK("xrEndFrame",EndFrame);
     else HOOK("xrPollEvent",PollEvent);
 #undef HOOK
+    if(Menu().hook)Menu().hook(name,out);
     return result;
 }
 static XrResult XRAPI_CALL CreateLayer(const XrInstanceCreateInfo *info,const XrApiLayerCreateInfo *layer,XrInstance *out){

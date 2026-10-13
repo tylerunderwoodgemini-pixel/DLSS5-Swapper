@@ -95,3 +95,7 @@ The native foveation source includes Dear ImGui 1.92.5 headers by Omar Cornut an
 ## NMS native Vulkan mirror
 
 The supplied NIGos bridge 1.4.13-pre7 / NMS-VR-v8.1 is packaged without a new binary patch. Its original bridge and Alan Z/NIGos Vulkan-shader MIT notices remain in `payload/deep-fried-chicken`, alongside `NMS-NATIVE-MIRROR-PROVENANCE.txt`. Complete transformed source for this supplied build is not tracked.
+
+## OpenXR menu Vulkan headers
+
+Khronos Vulkan-Headers from the locally preserved Vulkan-Headers-main dependency are retained under their per-file SPDX licenses. The complete supplied `LICENSE.md` and `LICENSES` notices are in `payload/vr-foveated/native/vulkan-headers`. The upload implementation is original fork code; the headers are not relicensed by this project.

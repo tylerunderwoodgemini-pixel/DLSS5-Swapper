@@ -25,7 +25,7 @@ const context={module:{exports:{}},Buffer,console,process:{...process,env:{...pr
         return {status:0};
       }
     };
-    if(name==='./apply')return {trackBeforeWrite:async(m,g,f)=>events.push('track '+path.basename(f)),saveActiveManifest:async()=>events.push('save')};
+    if(name==='./apply')return {writeTracked:async(m,g,file,text)=>{events.push('write '+path.basename(file));fs.writeFileSync(file,text);},trackBeforeWrite:async(m,g,f)=>events.push('track '+path.basename(f)),saveActiveManifest:async()=>events.push('save')};
     if(name==='./vr-foveation')return {normalizePreset:v=>v||'off',VERSION:26,ensureBuilt:()=>({addon64:'fixed-26.30',bridge:'pose',depthBridge:'depth',feedShader:'shader',shaderRoot:'shaders',version:'26.30'})};
     if(name==='./native-foveation-install')return {verifyPayload:()=>events.push('native payload verified'),install:async opts=>{events.push('native foveation installed');assert.equal(opts.preset,'balanced');}};
     if(name==='./openxr-pose-install')return {verifyPayload:()=>{},install:async()=>events.push('pose installed')};
@@ -75,5 +75,12 @@ fs.writeFileSync(path.join(dir,'dxgi.dll'),"crosire's ReShade stock");return {mo
   await api.finalize({...noVR,route:'native',vrFoveation:'balanced',mode:'none',enableVR:false});assert(!events.includes('setup'));assert(!events.includes('pose installed'));assert(!events.includes('native foveation installed'));
   const noReShade=fixture('no-reshade');events.length=0;
   await api.finalize({...noReShade,installReShade:false});assert(!events.includes('setup'),'honors opt-out');assert(events.includes('pose installed'));
+
+  for(const graphics of ['vulkan','opengl'])for(const mode of ['none','openxr']){
+    const current=fixture(graphics+'-'+mode);events.length=0;
+    await api.finalize({...current,api:graphics,mode});assert(events.includes('pose installed'),graphics+' gets the menu/capture layer even before late XR injection');assert(!events.includes('setup'),graphics+' retains its graphics owner without a DXGI install');
+    assert.match(fs.readFileSync(path.join(current.gameDir,'dlss5-openxr-menu.ini'),'utf8'),/Enabled=1/);
+    events.length=0;await api.finalize({...current,api:graphics,mode:'none',enableVR:false});assert(!events.includes('pose installed'));assert.match(fs.readFileSync(path.join(current.gameDir,'dlss5-openxr-menu.ini'),'utf8'),/Enabled=0/);
+  }
   console.log('PASS: modified installer selection, dual API arguments, local module reuse, tracking, exact hash and manifest checks, failure handling, unrelated proxy preservation, flat/OpenXR/OpenVR install routes and opt-outs');
 }finally{fs.rmSync(temp,{recursive:true,force:true});}})().catch(e=>{console.error(e);process.exitCode=1;});

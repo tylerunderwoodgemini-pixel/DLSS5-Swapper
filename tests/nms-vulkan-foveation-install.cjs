@@ -1,5 +1,6 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path');
-const core=require('../src/core/apply'),auto=require('../src/core/vr-auto');
+const core=require('../src/core/apply'),auto=require('../src/core/vr-auto'),pose=require('../src/core/openxr-pose-install');
+const originalPose=pose.install;pose.install=async()=>{};
 const root=fs.mkdtempSync(path.join(os.tmpdir(),'dlss5-nms-vulkan-install-'));
 const previous=process.env.LOCALAPPDATA;process.env.LOCALAPPDATA=path.join(root,'local');
 (async()=>{try{
@@ -17,4 +18,4 @@ const previous=process.env.LOCALAPPDATA;process.env.LOCALAPPDATA=path.join(root,
  assert(!fs.existsSync(path.join(game,'dlss5-native-foveation.ini')));
  assert(!fs.existsSync(path.join(game,'dlss5-openxr-vulkan.ini')));
  console.log('PASS: NMS Vulkan/OpenXR Feeder finalization installs packed-eye crop bridge, routing config and restores added files');
-}finally{if(previous===undefined)delete process.env.LOCALAPPDATA;else process.env.LOCALAPPDATA=previous;fs.rmSync(root,{recursive:true,force:true});}})().catch(e=>{console.error(e);process.exitCode=1;});
+}finally{pose.install=originalPose;if(previous===undefined)delete process.env.LOCALAPPDATA;else process.env.LOCALAPPDATA=previous;fs.rmSync(root,{recursive:true,force:true});}})().catch(e=>{console.error(e);process.exitCode=1;});

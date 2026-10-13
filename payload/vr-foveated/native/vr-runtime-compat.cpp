@@ -2,6 +2,11 @@
 #define XR_NO_PROTOTYPES
 #define XR_USE_GRAPHICS_API_D3D12
 #define XR_USE_GRAPHICS_API_D3D11
+#define XR_USE_GRAPHICS_API_VULKAN
+#define XR_USE_GRAPHICS_API_OPENGL
+#define XR_USE_PLATFORM_WIN32
+#define VK_NO_PROTOTYPES
+#include "vulkan-headers/include/vulkan/vulkan_core.h"
 #include <windows.h>
 #include <d3d12.h>
 #include <d3d11.h>
@@ -143,7 +148,7 @@ static bool ArmDesktop(reshade::api::effect_runtime *desktop) {
     Log("UEVR desktop Present bridge armed on existing ReShade swapchain");return true;
 }
 static reshade::api::effect_runtime *desktop_runtime;
-static void InitRuntime(reshade::api::effect_runtime *rt){vr_menu::Track(rt);if(!vr_menu::building&&rt->get_hwnd())desktop_runtime=rt;}
+static void InitRuntime(reshade::api::effect_runtime *rt){if(!building_ui)vr_menu::Track(rt);if(!vr_menu::building&&rt->get_hwnd())desktop_runtime=rt;}
 static void DestroyRuntime(reshade::api::effect_runtime *rt){vr_menu::Forget(rt);if(desktop_runtime==rt){desktop_runtime=nullptr;desktop_native=nullptr;desktop_proxy=nullptr;}}
 static void Present(reshade::api::command_queue *queue,reshade::api::swapchain *chain,const reshade::api::rect *,const reshade::api::rect *,uint32_t,const reshade::api::rect *){
     if(vr_menu::building)return;
@@ -219,7 +224,17 @@ static XrResult XRAPI_CALL CreateSession(XrInstance instance,const XrSessionCrea
         if(XR_SUCCEEDED(result)&&out&&*out)vr_dashboard::Attach11(instance,*out,*(const XrGraphicsBindingD3D11KHR *)head,owner_gipa,info->systemId);
         return result;
     }
-    if(!head||head->type!=XR_TYPE_GRAPHICS_BINDING_D3D12_KHR)return next(instance,info,out);
+    if(!head||head->type!=XR_TYPE_GRAPHICS_BINDING_D3D12_KHR){
+        auto result=next(instance,info,out);
+        if(XR_SUCCEEDED(result)&&out&&*out){auto binding=head;
+            for(unsigned n=0;binding&&n<32;++n,binding=binding->next){
+                if(binding->type==XR_TYPE_GRAPHICS_BINDING_VULKAN_KHR||binding->type==XR_TYPE_GRAPHICS_BINDING_OPENGL_WIN32_KHR){vr_dashboard::AttachOther(instance,*out,binding,owner_gipa,info->systemId);break;}
+                if(binding->type==XR_TYPE_GRAPHICS_BINDING_D3D11_KHR){vr_dashboard::Attach11(instance,*out,*(const XrGraphicsBindingD3D11KHR *)binding,owner_gipa,info->systemId);break;}
+                if(binding->type==XR_TYPE_GRAPHICS_BINDING_D3D12_KHR){vr_dashboard::Attach(instance,*out,*(const XrGraphicsBindingD3D12KHR *)binding,owner_gipa,info->systemId);break;}
+            }
+        }
+        return result;
+    }
     auto binding=*(const XrGraphicsBindingD3D12KHR *)head;
     auto finish=[&](const XrSessionCreateInfo *ci) {
         auto result=next(instance,ci,out);
@@ -249,6 +264,27 @@ static XrResult XRAPI_CALL CreateSession(XrInstance instance,const XrSessionCrea
     r=finish(&copy);proxy->Release();
     sprintf_s(message,"OpenXR session with validated ReShade queue proxy: %d",r);Log(message);return r;
 }
+// The existing pose API layer provides a renderer-independent menu entry point.
+// Its next-layer GIPA remains the dispatch authority; no second XR instance/session.
+extern "C" __declspec(dllexport) void __cdecl DLSS5MenuAttach(XrInstance instance,XrSession session,const XrSessionCreateInfo *info,PFN_xrGetInstanceProcAddr next){
+    if(!info||!next)return;auto binding=(const XrBaseInStructure *)info->next;
+    for(unsigned n=0;binding&&n<32;++n,binding=binding->next){
+        if(binding->type==XR_TYPE_GRAPHICS_BINDING_D3D11_KHR){vr_dashboard::Attach11(instance,session,*(const XrGraphicsBindingD3D11KHR *)binding,next,info->systemId);break;}
+        if(binding->type==XR_TYPE_GRAPHICS_BINDING_D3D12_KHR){vr_dashboard::Attach(instance,session,*(const XrGraphicsBindingD3D12KHR *)binding,next,info->systemId);break;}
+        if(binding->type==XR_TYPE_GRAPHICS_BINDING_VULKAN_KHR||binding->type==XR_TYPE_GRAPHICS_BINDING_OPENGL_WIN32_KHR){vr_dashboard::AttachOther(instance,session,binding,next,info->systemId);break;}
+    }
+    std::lock_guard<std::mutex> lock(vr_dashboard::mutex);auto it=vr_dashboard::panels.find(session);if(it!=vr_dashboard::panels.end())it->second->managed_by_capture=true;
+}
+extern "C" __declspec(dllexport) bool __cdecl DLSS5MenuFrame(XrSession session,XrTime time,unsigned count,XrCompositionLayerQuad *quad){return quad&&vr_dashboard::Layer(session,time,count,*quad,true);}
+extern "C" __declspec(dllexport) void __cdecl DLSS5MenuDestroy(XrSession session){vr_dashboard::Destroy(session);}
+
+extern "C" __declspec(dllexport) void __cdecl DLSS5MenuFocus(XrSession session,XrSessionState state){
+    std::lock_guard<std::mutex> lock(vr_dashboard::mutex);auto it=vr_dashboard::panels.find(session);if(it==vr_dashboard::panels.end())return;
+    auto &p=*it->second;p.xr_focus_known=true;p.xr_focused=state==XR_SESSION_STATE_FOCUSED;
+    if(!p.xr_focused&&p.visible){p.visible=false;if(p.controller)p.controller->visible=false;vr_dashboard_block::Set(false,p.window);p.key_down=(GetAsyncKeyState(VK_F8)&0x8000)!=0;Log("OpenXR headset focus lost; menu closed and game input restored");}
+}
+extern "C" __declspec(dllexport) void __cdecl DLSS5MenuHook(const char *name,PFN_xrVoidFunction *fn){vr_dashboard_input::Hook(name,fn);}
+
 static PFN_xrDestroySession original_destroy_session;
 static XrResult XRAPI_CALL DashboardDestroySession(XrSession session){
     vr_dashboard::Destroy(session);

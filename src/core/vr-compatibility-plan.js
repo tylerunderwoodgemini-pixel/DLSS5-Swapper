@@ -27,6 +27,7 @@ function plan(options={}) {
     enabled:!!geometry.enabled&&path!=='unavailable',
     effectiveProducer:options.manifest?.nativeDlssMirror?.producer || (route==='feeder'?'synthetic-feeder':route==='native'||route==='optiscaler'?'game-native-dlss':'unknown'),
     requiresGameDlss:!!options.manifest?.nativeDlssMirror,
+    headsetMenu:bits===64&&requested!=='off'&&['dxgi','d3d11','d3d12','vulkan','opengl'].includes(api)?{key:'F8',controller:'both thumbstick clicks for 3 seconds; both trackpad clicks on Vive',stationary:true}:null,
     runtimeValidationRequired:true,runtimeStatusFile:path.includes('nr')?'dlss5-native-foveation-status.json':null,
     checks:['active headset submission','per-eye viewport and guides','resource states and queue identity','history reset and fenced retirement'],
     limits:['No universal game certification','Native Vulkan and native D3D11 NR cropping are not implemented','Packed layouts require explicit matching configuration']};

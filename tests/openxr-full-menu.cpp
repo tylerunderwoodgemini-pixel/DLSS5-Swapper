@@ -47,6 +47,9 @@ int main(int argc,char **argv){
     std::vector<unsigned char> pixels(1024*640*4);assert(menu.runtime->capture_screenshot(pixels.data()));
     size_t colored=0;for(size_t i=0;i<pixels.size();i+=4)if(pixels[i]>25||pixels[i+1]>25||pixels[i+2]>25)++colored;
     assert(colored>10000);
+    if(!twelve){std::vector<uint8_t> bridge;assert(menu.ReadPixels(bridge,1024,640)&&bridge.size()==1024*640*4);size_t ui=0;
+        for(size_t i=0;i<bridge.size();i+=4)if(bridge[i]>25||bridge[i+1]>25||bridge[i+2]>25)++ui;assert(ui>10000);}
+
     FILE *f=nullptr;fopen_s(&f,"full-menu-rgba.raw","wb");assert(f);fwrite(pixels.data(),1,pixels.size(),f);fclose(f);
     reshade::unregister_event<reshade::addon_event::reshade_overlay>(TestOverlay);
     menu.Dispose();AddonUninit(GetModuleHandleW(nullptr),owner);

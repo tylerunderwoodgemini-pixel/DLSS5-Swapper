@@ -20,3 +20,12 @@ test('Vulkan Feeder cropping requires its DFC bridge and a selected headset rout
   for(const provider of ['renodx','true-upstream'])assert.equal(plan({api:'vulkan',route:'feeder',mode:'openxr',neuralProvider:provider,vrFoveation:'large'}).enabled,false);
   assert.equal(plan({api:'vulkan',route:'feeder',mode:'none',neuralProvider:'deep-fried-chicken',vrFoveation:'large'}).enabled,false);
 });
+
+test('OpenXR full menu covers all supported Windows graphics bindings without claiming new foveation paths',()=>{
+ for(const api of ['dxgi','d3d11','d3d12','vulkan','opengl']){
+  const p=plan({api,bitness:64,route:'feeder',vrFoveation:'off'});assert.equal(p.headsetMenu.key,'F8');assert.equal(p.headsetMenu.stationary,true);assert.match(p.headsetMenu.controller,/3 seconds/);
+ }
+ assert.equal(plan({api:'vulkan',bitness:32,route:'feeder'}).headsetMenu,null);
+ assert.equal(plan({api:'opengl',vrMode:'off',route:'feeder'}).headsetMenu,null);
+ assert.equal(plan({api:'opengl',route:'feeder',vrFoveation:'small'}).enabled,false);
+});
