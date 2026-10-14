@@ -1,7 +1,7 @@
 {
   "auditDate": "2026-10-11",
   "scope": "Runtime code snapshot and complete active payload; later documentation edits are outside this snapshot.",
-  "runtimeCodeCommit": "cd767788b3f7088f44dc9432280ff4c998577981",
+  "runtimeCodeCommit": "e4547846d55127d3afbfdef1e5127b0608151ade",
   "base": {
     "tag": "v2.2.0",
     "commit": "cc1633f6ceff6166b970d63f7fbf3c8eb80b5d1c"
@@ -110,6 +110,14 @@
     },
     {
       "status": "A",
+      "path": "docs/OPENXR_FOCUS_CRASH.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/OPENXR_NULL_SWAPCHAIN_CRASH.md"
+    },
+    {
+      "status": "A",
       "path": "docs/RELEASE_NOTES_VR_3.md"
     },
     {
@@ -119,6 +127,10 @@
     {
       "status": "A",
       "path": "docs/RELEASE_NOTES_VR_5.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/RESHADE_SETTINGS_CRASH.md"
     },
     {
       "status": "A",
@@ -191,6 +203,10 @@
     {
       "status": "A",
       "path": "payload/deep-fried-chicken/LICENSE-dlss5-bridge-vulkan-shader.md"
+    },
+    {
+      "status": "A",
+      "path": "payload/deep-fried-chicken/LOADER-STACK-REPAIR.md"
     },
     {
       "status": "A",
@@ -394,6 +410,10 @@
     },
     {
       "status": "A",
+      "path": "payload/vr-foveated/native/openxr-swapchain-guard.h"
+    },
+    {
+      "status": "A",
       "path": "payload/vr-foveated/native/openxr/LICENSE"
     },
     {
@@ -463,6 +483,10 @@
     {
       "status": "A",
       "path": "payload/vr-foveated/native/reshade-internals/source/reshade_api_object_impl.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade-settings-sync-guard.h"
     },
     {
       "status": "A",
@@ -678,6 +702,10 @@
     },
     {
       "status": "A",
+      "path": "scripts/patch-dfc-loader-stack.py"
+    },
+    {
+      "status": "A",
       "path": "scripts/patch-dfc-nms-device-identity.py"
     },
     {
@@ -842,6 +870,14 @@
     },
     {
       "status": "A",
+      "path": "tests/dfc-loader-stack-native.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/dfc-loader-stack.py"
+    },
+    {
+      "status": "A",
       "path": "tests/dfc-queue-identity.py"
     },
     {
@@ -894,6 +930,10 @@
     },
     {
       "status": "A",
+      "path": "tests/openxr-focus-reentry.cpp"
+    },
+    {
+      "status": "A",
       "path": "tests/openxr-full-menu.cpp"
     },
     {
@@ -934,7 +974,19 @@
     },
     {
       "status": "A",
+      "path": "tests/reshade-settings-sync.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/run-dfc-loader-stack.cmd"
+    },
+    {
+      "status": "A",
       "path": "tests/run-native-foveation-test.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/run-openxr-focus-reentry.cmd"
     },
     {
       "status": "A",
@@ -947,6 +999,10 @@
     {
       "status": "A",
       "path": "tests/run-openxr-pose-test.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/run-reshade-settings-sync.cmd"
     },
     {
       "status": "A",
@@ -1224,6 +1280,14 @@
     },
     {
       "status": "A",
+      "path": "docs/OPENXR_FOCUS_CRASH.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/OPENXR_NULL_SWAPCHAIN_CRASH.md"
+    },
+    {
+      "status": "A",
       "path": "docs/RELEASE_NOTES_VR_3.md"
     },
     {
@@ -1233,6 +1297,10 @@
     {
       "status": "A",
       "path": "docs/RELEASE_NOTES_VR_5.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/RESHADE_SETTINGS_CRASH.md"
     },
     {
       "status": "A",
@@ -1472,6 +1540,10 @@
     },
     {
       "status": "A",
+      "path": "payload/deep-fried-chicken/LOADER-STACK-REPAIR.md"
+    },
+    {
+      "status": "A",
       "path": "payload/deep-fried-chicken/NMS-NATIVE-MIRROR-PROVENANCE.txt"
     },
     {
@@ -1672,6 +1744,10 @@
     },
     {
       "status": "A",
+      "path": "payload/vr-foveated/native/openxr-swapchain-guard.h"
+    },
+    {
+      "status": "A",
       "path": "payload/vr-foveated/native/openxr/LICENSE"
     },
     {
@@ -1741,6 +1817,10 @@
     {
       "status": "A",
       "path": "payload/vr-foveated/native/reshade-internals/source/reshade_api_object_impl.hpp"
+    },
+    {
+      "status": "A",
+      "path": "payload/vr-foveated/native/reshade-settings-sync-guard.h"
     },
     {
       "status": "A",
@@ -1965,6 +2045,10 @@
     {
       "status": "A",
       "path": "scripts/patch-dfc-dlaa-padding.py"
+    },
+    {
+      "status": "A",
+      "path": "scripts/patch-dfc-loader-stack.py"
     },
     {
       "status": "A",
@@ -2520,6 +2604,14 @@
     },
     {
       "status": "A",
+      "path": "tests/dfc-loader-stack-native.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/dfc-loader-stack.py"
+    },
+    {
+      "status": "A",
       "path": "tests/dfc-queue-identity.py"
     },
     {
@@ -2572,6 +2664,10 @@
     },
     {
       "status": "A",
+      "path": "tests/openxr-focus-reentry.cpp"
+    },
+    {
+      "status": "A",
       "path": "tests/openxr-full-menu.cpp"
     },
     {
@@ -2612,7 +2708,19 @@
     },
     {
       "status": "A",
+      "path": "tests/reshade-settings-sync.cpp"
+    },
+    {
+      "status": "A",
+      "path": "tests/run-dfc-loader-stack.cmd"
+    },
+    {
+      "status": "A",
       "path": "tests/run-native-foveation-test.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/run-openxr-focus-reentry.cmd"
     },
     {
       "status": "A",
@@ -2625,6 +2733,10 @@
     {
       "status": "A",
       "path": "tests/run-openxr-pose-test.cmd"
+    },
+    {
+      "status": "A",
+      "path": "tests/run-reshade-settings-sync.cmd"
     },
     {
       "status": "A",
@@ -2808,8 +2920,8 @@
     },
     {
       "path": "deep-fried-chicken/deep-fried-chicken-nms.addon64",
-      "bytes": 676864,
-      "sha256": "7a50dc8ddd6c1a7e389106c7fe8b1ed49abd5f045cc133de477675f25a5d882d"
+      "bytes": 694272,
+      "sha256": "261bfbfb0848bfaba411c2f2866d2ac7549af4604492011f768e96d425582433"
     },
     {
       "path": "deep-fried-chicken/deep-fried-chicken-nvngx.dll",
@@ -2818,8 +2930,8 @@
     },
     {
       "path": "deep-fried-chicken/deep-fried-chicken.addon64",
-      "bytes": 658432,
-      "sha256": "7076f85df1c883800d714ed66c36461170a13dabadf7b3d77824587b941cd972"
+      "bytes": 675840,
+      "sha256": "469c86ec9b1df32387e0f8afe2170f0ca1b1475164cd4b206df9105fa32e5b0b"
     },
     {
       "path": "deep-fried-chicken/deep-fried-chicken.cfg",
@@ -2843,8 +2955,8 @@
     },
     {
       "path": "deep-fried-chicken/DLAA-ALIGNMENT-REPAIR.md",
-      "bytes": 1698,
-      "sha256": "c16e530b6c3ec56e1dffab055d727bee4b2fa27efe3175b9aafb5382ba35cb10"
+      "bytes": 1980,
+      "sha256": "d0db116dd8fad0d11cb8a26ec3690d5ebf4c0bbc10a9a06c4563c10641cdeb43"
     },
     {
       "path": "deep-fried-chicken/dlss5-dx11-bridge.addon64",
@@ -2905,6 +3017,11 @@
       "path": "deep-fried-chicken/LICENSE-ReShade.md",
       "bytes": 1490,
       "sha256": "d2bb5eb908e9aa7ac2f7f4cf6441d62e1f6ac1256cf22bb5289516c9f30e5f0a"
+    },
+    {
+      "path": "deep-fried-chicken/LOADER-STACK-REPAIR.md",
+      "bytes": 2203,
+      "sha256": "c3e8cf34f59f3d11775d10abc3e1b1390ccaa5cb72329691c17a58838e7b7110"
     },
     {
       "path": "deep-fried-chicken/NMS-NATIVE-MIRROR-PROVENANCE.txt",
@@ -3308,8 +3425,8 @@
     },
     {
       "path": "vr-foveated/dlss5-vr-compat.addon64",
-      "bytes": 394240,
-      "sha256": "f862b3932fa65145a18abdc6763eb371ed1f416cb0d04429a1bd420579ab9c40"
+      "bytes": 399872,
+      "sha256": "a3f37549e5ce7e80fb280fee12bd1e1020a1d17e2e23bd0962c8f7a6ac6abe31"
     },
     {
       "path": "vr-foveated/DLSS5OpenXRPose.dll",
@@ -3403,8 +3520,8 @@
     },
     {
       "path": "vr-foveated/native/openxr-dashboard-input.h",
-      "bytes": 23567,
-      "sha256": "cec0294682624430b4462056b16c5ca7f5a4477d20f9148188b0d59f767d8421"
+      "bytes": 23741,
+      "sha256": "a32f99a368294113129757b3621f640bca12962e6cc588277d32435e81603122"
     },
     {
       "path": "vr-foveated/native/openxr-dashboard-transport.h",
@@ -3413,8 +3530,8 @@
     },
     {
       "path": "vr-foveated/native/openxr-dashboard.h",
-      "bytes": 30410,
-      "sha256": "9c9573bea717a14f663d2208f704b425b06aa5744e4b2983cd34973e8ac42128"
+      "bytes": 32307,
+      "sha256": "009f955a6920b33556e9250d1d62f9a28c665335d57e343245dbd5c162651acf"
     },
     {
       "path": "vr-foveated/native/openxr-menu-gesture.h",
@@ -3428,8 +3545,13 @@
     },
     {
       "path": "vr-foveated/native/openxr-reshade-menu.h",
-      "bytes": 11734,
-      "sha256": "3e8d8f2fd54d2e5159338b1074d1da42bdda9f7f65e6c4786ac39ca066dacc00"
+      "bytes": 12408,
+      "sha256": "292a4cc0528ada3d31b6bd5759ad9900e1bb5d3785c3314ff6e323de0f584786"
+    },
+    {
+      "path": "vr-foveated/native/openxr-swapchain-guard.h",
+      "bytes": 2603,
+      "sha256": "452b473c278bfbaaf5c28e1db5e764c7bcd2eb58fdc9a2231075f59febf6f19d"
     },
     {
       "path": "vr-foveated/native/Patch-D3D12-VRFoveation.ps1",
@@ -3547,6 +3669,11 @@
       "sha256": "74cace805b93c923e2220a78966a1a65526e2c81bd05c4cf5949dfbba4557a70"
     },
     {
+      "path": "vr-foveated/native/reshade-settings-sync-guard.h",
+      "bytes": 3205,
+      "sha256": "88e3363c504d062b2afb443fa46f24143aa53d6cae3e993eeaf3f871ab9cd7e3"
+    },
+    {
       "path": "vr-foveated/native/submitted-depth.h",
       "bytes": 1299,
       "sha256": "9eceed097eef3b7ced9660e72766f905794603f2bfaa0e2034d7a9bed1ca9a2d"
@@ -3593,8 +3720,8 @@
     },
     {
       "path": "vr-foveated/native/vr-runtime-compat.cpp",
-      "bytes": 27258,
-      "sha256": "cf7b6164a2e8358babfa293b908c342346e21c127a4f1aefc17dbb25df0f89bc"
+      "bytes": 27313,
+      "sha256": "743bb90740dab407b53cbb2b5c68331134d8e4bde3a5b712af3f08c9e211659e"
     },
     {
       "path": "vr-foveated/native/vulkan-headers/include/vk_video/vulkan_video_codec_av1std_decode.h",
@@ -3714,7 +3841,7 @@
     {
       "path": "vr-foveated/prebuilt/build-manifest.json",
       "bytes": 842,
-      "sha256": "734d7616301802e9b51c1765023618605d6ada4bad8006b450390793d77c88fd"
+      "sha256": "bc0820f9d364eade44af886256d7af855fe702b67766f79c4f1d63d61dc2a994"
     },
     {
       "path": "vr-foveated/prebuilt/DLSS5_Feed.fx",
