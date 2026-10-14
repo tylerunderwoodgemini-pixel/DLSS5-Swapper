@@ -38,7 +38,7 @@ function configureChickenReShadeCompat(text, { earlyLoad = true } = {}) {
 
 // Exact binaries used for automatic NMS-vs-normal DFC selection.
 const DFC_STOCK_SHA256 = '106143de0d74853b966a7141c19c2bb0fb46e7ce32c7f67d830d2dc5cddf80ec';
-const DFC_NMS_SHA256 = '7a50dc8ddd6c1a7e389106c7fe8b1ed49abd5f045cc133de477675f25a5d882d';
+const DFC_NMS_SHA256 = '261bfbfb0848bfaba411c2f2866d2ac7549af4604492011f768e96d425582433';
 
 function sha256File(file) {
   try {

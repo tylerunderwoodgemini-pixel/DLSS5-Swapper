@@ -591,7 +591,7 @@ function scanSource(sourceDir) {
     catch { return null; }
   };
   deepFriedChicken.ok = fs.existsSync(deepFriedChicken.config) &&
-    [deepFriedChicken.expected.addon64, '1c88c0ffddb46ceb6b97ddff60e96ed3dd7bbe478546b38a8d67ce9b0d31047a', '7076f85df1c883800d714ed66c36461170a13dabadf7b3d77824587b941cd972'].includes(digest(deepFriedChicken.addon64)) &&
+    [deepFriedChicken.expected.addon64, '1c88c0ffddb46ceb6b97ddff60e96ed3dd7bbe478546b38a8d67ce9b0d31047a', '7076f85df1c883800d714ed66c36461170a13dabadf7b3d77824587b941cd972', '469c86ec9b1df32387e0f8afe2170f0ca1b1475164cd4b206df9105fa32e5b0b'].includes(digest(deepFriedChicken.addon64)) &&
     [deepFriedChicken.expected.nvngx, 'cc4bfcc10921e3c3157711328e7754d36c9ada6a39587c62cfb99d700cece395'].includes(digest(deepFriedChicken.nvngx));
 
   const upstream3Dir = path.join(sourceDir, 'upstream3');

@@ -19,10 +19,12 @@
 #include <mutex>
 #include <map>
 #include <cassert>
+#include <thread>
 #include "../payload/vr-foveated/native/openxr/openxr.h"
 #include "../payload/vr-foveated/native/openxr/openxr_platform.h"
 static void Log(const char *s){puts(s);}
 #include "../payload/vr-foveated/native/openxr-dashboard.h"
+#include "../payload/vr-foveated/native/openxr-swapchain-guard.h"
 using Microsoft::WRL::ComPtr;
 static ComPtr<ID3D12Resource> image;
 static ComPtr<ID3D11Texture2D> image11;
@@ -70,6 +72,29 @@ static XrResult XRAPI_CALL Gipa(XrInstance,const char *name,PFN_xrVoidFunction *
  *out=nullptr;return XR_ERROR_FUNCTION_UNSUPPORTED;
 }
 static void Drain(vr_dashboard::Panel &p){if(!p.fence)return;auto event=CreateEventW(nullptr,FALSE,FALSE,nullptr);assert(SUCCEEDED(p.fence->SetEventOnCompletion(p.fence_value,event)));assert(WaitForSingleObject(event,5000)==WAIT_OBJECT_0);CloseHandle(event);}
+static unsigned wrapper_depth=0;static bool recursive_dispatch=false;
+static XrResult create_result=XR_SUCCESS;static XrSwapchain created_handle=(XrSwapchain)0x60;static unsigned cleanup_calls=0;
+static XrResult XRAPI_CALL GuardCreate(XrSession,const XrSwapchainCreateInfo *,XrSwapchain *out){*out=created_handle;return create_result;}
+static XrResult XRAPI_CALL GuardDestroy(XrSwapchain handle){assert(handle);++cleanup_calls;return XR_SUCCESS;}
+static XrResult XRAPI_CALL LayerSet(XrInstance i,const XrActionSetCreateInfo *c,XrActionSet *o){
+    if(++wrapper_depth>8){recursive_dispatch=true;--wrapper_depth;return XR_ERROR_RUNTIME_FAILURE;}
+    auto r=vr_dashboard_input::GameSet(i,c,o);--wrapper_depth;return r;
+}
+static XrResult XRAPI_CALL LayerSuggest(XrInstance i,const XrInteractionProfileSuggestedBinding *c){
+    if(++wrapper_depth>8){recursive_dispatch=true;--wrapper_depth;return XR_ERROR_RUNTIME_FAILURE;}
+    auto r=vr_dashboard_input::Suggest(i,c);--wrapper_depth;return r;
+}
+static XrResult XRAPI_CALL LayerAttach(XrSession s,const XrSessionActionSetsAttachInfo *c){return vr_dashboard_input::Attach(s,c);}
+static XrResult XRAPI_CALL LayerSync(XrSession s,const XrActionsSyncInfo *c){return vr_dashboard_input::Sync(s,c);}
+static XrResult XRAPI_CALL LayeredGipa(XrInstance i,const char *n,PFN_xrVoidFunction *out){
+    auto r=Gipa(i,n,out);if(XR_FAILED(r))return r;
+    vr_dashboard_input::Hook(n,out); // inner capture layer publishes raw target
+    if(!strcmp(n,"xrCreateActionSet"))*out=(PFN_xrVoidFunction)LayerSet;
+    if(!strcmp(n,"xrSuggestInteractionProfileBindings"))*out=(PFN_xrVoidFunction)LayerSuggest;
+    if(!strcmp(n,"xrAttachSessionActionSets"))*out=(PFN_xrVoidFunction)LayerAttach;
+    if(!strcmp(n,"xrSyncActions"))*out=(PFN_xrVoidFunction)LayerSync;
+    return r; // ReShade surrounds the capture hook
+}
 static SHORT WINAPI FakeKey(int){return (SHORT)0x8001;}
 static BOOL WINAPI FakeKeys(PBYTE keys){memset(keys,0x80,256);return TRUE;}
 static DWORD WINAPI FakePad(DWORD,XINPUT_STATE *state){memset(state,0xff,sizeof(*state));return ERROR_SUCCESS;}
@@ -77,6 +102,59 @@ static int window_inputs=0;
 static LRESULT CALLBACK FakeWindow(HWND,UINT,WPARAM,LPARAM){++window_inputs;return 123;}
 
 int main(){
+    {
+        PFN_xrVoidFunction fn=(PFN_xrVoidFunction)GuardCreate;vr_swapchain_guard::Hook("xrCreateSwapchain",&fn);
+        auto create=(PFN_xrCreateSwapchain)fn;
+        fn=(PFN_xrVoidFunction)GuardDestroy;vr_swapchain_guard::Hook("xrDestroySwapchain",&fn);
+        auto destroy=(PFN_xrDestroySwapchain)fn;
+        XrSwapchainCreateInfo info{XR_TYPE_SWAPCHAIN_CREATE_INFO};info.width=3080;info.height=3272;info.arraySize=2;info.format=91;info.usageFlags=0x79;
+        XrSwapchain out{};assert(create((XrSession)1,&info,&out)==XR_SUCCESS&&out==created_handle);
+        assert(destroy(out)==XR_SUCCESS&&cleanup_calls==1);
+        assert(destroy(out)==XR_ERROR_HANDLE_INVALID&&cleanup_calls==1);
+        assert(create((XrSession)1,&info,&out)==XR_SUCCESS);
+        XrResult first{},second{};std::thread one([&]{first=destroy(out);});std::thread two([&]{second=destroy(out);});one.join();two.join();
+        assert(cleanup_calls==2&&((first==XR_SUCCESS&&second==XR_ERROR_HANDLE_INVALID)||(second==XR_SUCCESS&&first==XR_ERROR_HANDLE_INVALID)));
+        create_result=XR_ERROR_RUNTIME_FAILURE;assert(create((XrSession)1,&info,&out)==create_result&&!out);
+        assert(destroy(out)==XR_ERROR_HANDLE_INVALID&&cleanup_calls==2);
+        create_result=XR_SUCCESS;created_handle={};assert(create((XrSession)1,&info,&out)==XR_ERROR_RUNTIME_FAILURE&&!out);
+        assert(destroy(out)==XR_ERROR_HANDLE_INVALID&&cleanup_calls==2);
+        create_result=XR_SUCCESS;created_handle=(XrSwapchain)0x60;assert(create((XrSession)1,&info,&out)==XR_SUCCESS);
+        vr_swapchain_guard::ForgetSession((XrSession)1);assert(destroy(out)==XR_ERROR_HANDLE_INVALID&&cleanup_calls==2);
+        assert(create((XrSession)2,&info,&out)==XR_SUCCESS);assert(destroy(out)==XR_SUCCESS&&cleanup_calls==3);
+        puts("PASS: null, repeated and concurrent cleanup never reaches ReShade twice; destroyed sessions and reused handles tracked; valid calls preserved");
+    }
+    {
+        XrInstance i=(XrInstance)0x10;PFN_xrVoidFunction fn=nullptr;
+        LayeredGipa(i,"xrCreateActionSet",&fn);
+        vr_dashboard_input::Hook("xrCreateActionSet",&fn); // reproduce former outer wrapping
+        XrActionSetCreateInfo ci{XR_TYPE_ACTION_SET_CREATE_INFO};XrActionSet set{};
+        assert(XR_FAILED(((PFN_xrCreateActionSet)fn)(i,&ci,&set))&&recursive_dispatch);
+        recursive_dispatch=false;wrapper_depth=0;
+        vr_dashboard_input::suggest=nullptr;vr_dashboard_input::attach=nullptr;vr_dashboard_input::sync=nullptr;
+        auto state=vr_dashboard_input::Create(i,(XrSession)0x11,LayeredGipa);assert(state&&!recursive_dispatch);
+        assert(vr_dashboard_input::suggest==Suggest&&vr_dashboard_input::attach==Attach&&vr_dashboard_input::sync==Sync);
+        for(unsigned n=0;n<100;++n){LayeredGipa(i,"xrCreateActionSet",&fn);assert(XR_SUCCEEDED(((PFN_xrCreateActionSet)fn)(i,&ci,&set)));}
+        vr_dashboard_input::Destroy((XrSession)0x11);assert(!recursive_dispatch);
+        suggestions.clear();
+        puts("PASS: former two-layer controller recursion reproduced; inner raw targets survive outer dispatch and menu initialization");
+    }
+    // A real XR callback can arrive on the thread already holding the panel
+    // mutex. Preserve the event without recursive acquisition or lost focus.
+    {
+        auto test_session=(XrSession)0xf0;
+        std::lock_guard<std::mutex> lock(vr_dashboard::mutex);
+        auto panel=std::make_unique<vr_dashboard::Panel>();panel->controller=std::make_shared<vr_dashboard_input::State>();
+        panel->visible=true;panel->controller->visible=true;
+        vr_dashboard::panels[test_session]=std::move(panel);
+        vr_dashboard_block::active=true;
+        vr_dashboard::Focus(test_session,XR_SESSION_STATE_VISIBLE);
+        vr_dashboard::ApplyFocus();auto &p=*vr_dashboard::panels[test_session];
+        assert(p.xr_focus_known&&!p.xr_focused&&!p.visible&&!p.controller->visible&&!vr_dashboard_block::active.load());
+        vr_dashboard::Focus(test_session,XR_SESSION_STATE_FOCUSED);vr_dashboard::ApplyFocus();assert(p.xr_focused);
+        vr_dashboard::panels.erase(test_session);vr_dashboard::ForgetFocus(test_session);
+        vr_dashboard::Focus(test_session,XR_SESSION_STATE_FOCUSED);
+        vr_dashboard::ForgetFocus(test_session); // destroyed handles cannot inherit pending focus
+    }
     vr_dashboard::Surface preview;assert(preview.valid());preview.Draw(2,42,18,{512,260,false},true);
     BITMAPFILEHEADER file={};file.bfType=0x4d42;file.bfOffBits=sizeof(file)+sizeof(BITMAPINFOHEADER);file.bfSize=file.bfOffBits+1024*640*4;
     BITMAPINFOHEADER info={};info.biSize=sizeof(info);info.biWidth=1024;info.biHeight=-640;info.biPlanes=1;info.biBitCount=32;

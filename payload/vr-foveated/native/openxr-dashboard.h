@@ -313,6 +313,35 @@ inline bool Enabled(){wchar_t name[32768];if(!GetModuleFileNameW(nullptr,name,32
     if(wcscat_s(name,L"dlss5-openxr-menu.ini"))return false;return GetPrivateProfileIntW(L"OpenXRMenu",L"Enabled",1,name)!=0;}
 static std::mutex mutex;
 static std::map<XrSession,std::unique_ptr<Panel>> panels;
+// PollEvent may re-enter while panel setup/rendering holds mutex. Never block
+// that callback on the same mutex: retain its latest state for the owner.
+struct FocusEvent {XrSession session{};XrSessionState state{};};
+static SRWLOCK focus_lock=SRWLOCK_INIT;
+static FocusEvent pending_focus[16]{};
+inline void ApplyFocus(){
+    FocusEvent ready[16]{};unsigned count=0;
+    AcquireSRWLockExclusive(&focus_lock);
+    for(auto &event:pending_focus)if(event.session&&panels.count(event.session)){ready[count++]=event;event={};}
+    ReleaseSRWLockExclusive(&focus_lock);
+    for(unsigned i=0;i<count;++i){auto it=panels.find(ready[i].session);if(it==panels.end())continue;
+        auto &p=*it->second;p.xr_focus_known=true;p.xr_focused=ready[i].state==XR_SESSION_STATE_FOCUSED;
+        if(!p.xr_focused){if(p.controller)p.controller->visible=false;
+            if(p.visible){p.visible=false;vr_dashboard_block::Set(false,p.window);p.key_down=(GetAsyncKeyState(VK_F8)&0x8000)!=0;Log("OpenXR headset focus lost; menu closed and game input restored");}}
+    }
+}
+inline void Focus(XrSession session,XrSessionState state){
+    if(!session)return;
+    AcquireSRWLockExclusive(&focus_lock);
+    FocusEvent *slot=nullptr;for(auto &event:pending_focus)if(event.session==session){slot=&event;break;}
+    if(!slot)for(auto &event:pending_focus)if(!event.session){slot=&event;break;}
+    if(slot)*slot={session,state};
+    ReleaseSRWLockExclusive(&focus_lock);
+    std::unique_lock<std::mutex> lock(mutex,std::try_to_lock);
+    if(lock.owns_lock())ApplyFocus();
+}
+inline void ForgetFocus(XrSession session){
+    AcquireSRWLockExclusive(&focus_lock);for(auto &event:pending_focus)if(!session||event.session==session)event={};ReleaseSRWLockExclusive(&focus_lock);
+}
 // Retain in-flight GPU resources on a failed drain instead of freeing them.
 static std::vector<std::unique_ptr<Panel>> retired;
 inline void Attach(XrInstance instance,XrSession session,const XrGraphicsBindingD3D12KHR &binding,PFN_xrGetInstanceProcAddr gipa,XrSystemId system){
@@ -321,7 +350,7 @@ inline void Attach(XrInstance instance,XrSession session,const XrGraphicsBinding
     PFN_xrGetSystemProperties properties=nullptr;
     if(panel->Get("xrGetSystemProperties",properties)){XrSystemProperties info{XR_TYPE_SYSTEM_PROPERTIES};if(XR_SUCCEEDED(properties(instance,system,&info)))panel->max_layers=info.graphicsProperties.maxLayerCount;}
     panel->controller=vr_dashboard_input::Create(instance,session,gipa);
-    panels[session]=std::move(panel);Log("OpenXR D3D12 headset dashboard attached to existing session");
+    panels[session]=std::move(panel);ApplyFocus();Log("OpenXR D3D12 headset dashboard attached to existing session");
 }
 inline void Attach11(XrInstance instance,XrSession session,const XrGraphicsBindingD3D11KHR &binding,PFN_xrGetInstanceProcAddr gipa,XrSystemId system){
     std::lock_guard<std::mutex> lock(mutex);if(!Enabled()||panels.count(session)||panels.size()>=8)return;
@@ -329,7 +358,7 @@ inline void Attach11(XrInstance instance,XrSession session,const XrGraphicsBindi
     PFN_xrGetSystemProperties properties=nullptr;
     if(panel->Get("xrGetSystemProperties",properties)){XrSystemProperties info{XR_TYPE_SYSTEM_PROPERTIES};if(XR_SUCCEEDED(properties(instance,system,&info)))panel->max_layers=info.graphicsProperties.maxLayerCount;}
     panel->controller=vr_dashboard_input::Create(instance,session,gipa);
-    panels[session]=std::move(panel);Log("OpenXR D3D11 headset dashboard attached to existing session");
+    panels[session]=std::move(panel);ApplyFocus();Log("OpenXR D3D11 headset dashboard attached to existing session");
 }
 
 inline void AttachOther(XrInstance instance,XrSession session,const XrBaseInStructure *binding,PFN_xrGetInstanceProcAddr gipa,XrSystemId system){
@@ -341,17 +370,17 @@ inline void AttachOther(XrInstance instance,XrSession session,const XrBaseInStru
     PFN_xrGetSystemProperties properties=nullptr;
     if(panel->Get("xrGetSystemProperties",properties)){XrSystemProperties info{XR_TYPE_SYSTEM_PROPERTIES};if(XR_SUCCEEDED(properties(instance,system,&info)))panel->max_layers=info.graphicsProperties.maxLayerCount;}
     panel->controller=vr_dashboard_input::Create(instance,session,gipa);
-    panels[session]=std::move(panel);Log("OpenXR Vulkan/OpenGL full headset menu attached to existing session");
+    panels[session]=std::move(panel);ApplyFocus();Log("OpenXR Vulkan/OpenGL full headset menu attached to existing session");
 }
-inline void Destroy(XrSession session){std::lock_guard<std::mutex> lock(mutex);auto it=panels.find(session);if(it==panels.end())return;
+inline void Destroy(XrSession session){std::lock_guard<std::mutex> lock(mutex);ForgetFocus(session);auto it=panels.find(session);if(it==panels.end())return;
     vr_dashboard_input::Destroy(session);
     if(!it->second->Dispose())retired.push_back(std::move(it->second));panels.erase(it);}
-inline bool Layer(XrSession session,XrTime time,unsigned layer_count,XrCompositionLayerQuad &out,bool from_capture=false){std::lock_guard<std::mutex> lock(mutex);auto it=panels.find(session);
+inline bool Layer(XrSession session,XrTime time,unsigned layer_count,XrCompositionLayerQuad &out,bool from_capture=false){std::lock_guard<std::mutex> lock(mutex);ApplyFocus();auto it=panels.find(session);
     if(it==panels.end()||(it->second->managed_by_capture&&!from_capture))return false;
     if(!it->second->max_layers||layer_count>=it->second->max_layers){
         auto &p=*it->second;if(p.visible){p.visible=false;if(p.controller)p.controller->visible=false;vr_dashboard_block::Set(false,p.window);Log("OpenXR menu closed: runtime layer capacity unavailable; game input restored");}
         if(p.controller)p.controller->toggle_pending=false;return false;
     }
-    if(!it->second->Frame(time))return false;out=it->second->quad;return true;}
-inline void Clear(){std::lock_guard<std::mutex> lock(mutex);for(auto &entry:panels){vr_dashboard_input::Destroy(entry.first);if(!entry.second->Dispose())retired.push_back(std::move(entry.second));}panels.clear();}
+    bool ready=it->second->Frame(time);ApplyFocus();if(!ready||!it->second->visible)return false;out=it->second->quad;return true;}
+inline void Clear(){std::lock_guard<std::mutex> lock(mutex);for(auto &entry:panels){vr_dashboard_input::Destroy(entry.first);if(!entry.second->Dispose())retired.push_back(std::move(entry.second));}panels.clear();ForgetFocus(XR_NULL_HANDLE);}
 }

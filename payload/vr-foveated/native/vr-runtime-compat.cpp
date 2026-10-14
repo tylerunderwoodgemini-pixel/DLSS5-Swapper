@@ -38,6 +38,7 @@ static std::mutex guard;
 static std::map<ID3D12CommandQueue *, ID3D12CommandQueue *> queues;
 static HMODULE reshade_owner;
 static PFN_xrGetInstanceProcAddr owner_gipa;
+static std::atomic<bool> capture_input_hooks{false};
 static PFN_xrEndFrame owner_end_frame;
 static unsigned submitted_pose_frames;
 static std::atomic<ULONGLONG> last_xr_submission{0};
@@ -67,7 +68,9 @@ static void Log(const char *s) {
     HANDLE f=CreateFileW(path,FILE_APPEND_DATA,FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_ALWAYS,0,nullptr);
     if(f!=INVALID_HANDLE_VALUE){DWORD n;WriteFile(f,s,(DWORD)strlen(s),&n,nullptr);WriteFile(f,"\r\n",2,&n,nullptr);CloseHandle(f);}
 }
+#include "reshade-settings-sync-guard.h"
 #include "openxr-dashboard.h"
+#include "openxr-swapchain-guard.h"
 static bool NeedsDesktopMirrorUI() {
 #ifdef PALIA_QUEUE_TEST
     extern bool test_mirror_active;
@@ -279,15 +282,14 @@ extern "C" __declspec(dllexport) bool __cdecl DLSS5MenuFrame(XrSession session,X
 extern "C" __declspec(dllexport) void __cdecl DLSS5MenuDestroy(XrSession session){vr_dashboard::Destroy(session);}
 
 extern "C" __declspec(dllexport) void __cdecl DLSS5MenuFocus(XrSession session,XrSessionState state){
-    std::lock_guard<std::mutex> lock(vr_dashboard::mutex);auto it=vr_dashboard::panels.find(session);if(it==vr_dashboard::panels.end())return;
-    auto &p=*it->second;p.xr_focus_known=true;p.xr_focused=state==XR_SESSION_STATE_FOCUSED;
-    if(!p.xr_focused&&p.visible){p.visible=false;if(p.controller)p.controller->visible=false;vr_dashboard_block::Set(false,p.window);p.key_down=(GetAsyncKeyState(VK_F8)&0x8000)!=0;Log("OpenXR headset focus lost; menu closed and game input restored");}
+    vr_dashboard::Focus(session,state);
 }
-extern "C" __declspec(dllexport) void __cdecl DLSS5MenuHook(const char *name,PFN_xrVoidFunction *fn){vr_dashboard_input::Hook(name,fn);}
+extern "C" __declspec(dllexport) void __cdecl DLSS5MenuHook(const char *name,PFN_xrVoidFunction *fn){capture_input_hooks=true;vr_dashboard_input::Hook(name,fn);}
 
 static PFN_xrDestroySession original_destroy_session;
 static XrResult XRAPI_CALL DashboardDestroySession(XrSession session){
     vr_dashboard::Destroy(session);
+    vr_swapchain_guard::ForgetSession(session);
     return original_destroy_session?original_destroy_session(session):XR_ERROR_FUNCTION_UNSUPPORTED;
 }
 static XrResult XRAPI_CALL Gipa(XrInstance instance,const char *name,PFN_xrVoidFunction *fn) {
@@ -296,7 +298,10 @@ static XrResult XRAPI_CALL Gipa(XrInstance instance,const char *name,PFN_xrVoidF
     if(XR_SUCCEEDED(r)&&fn&&*fn&&!strcmp(name,"xrEndFrame")&&*fn!=(PFN_xrVoidFunction)SubmittedEndFrame){
         owner_end_frame=(PFN_xrEndFrame)*fn;*fn=(PFN_xrVoidFunction)SubmittedEndFrame;
     }
-    if(XR_SUCCEEDED(r))vr_dashboard_input::Hook(name,fn);
+    // Capture is inside ReShade's dispatch chain. Wrapping again outside it
+    // would replace our raw target with ReShade's wrapper around our hook.
+    if(XR_SUCCEEDED(r)&&!capture_input_hooks.load())vr_dashboard_input::Hook(name,fn);
+    if(XR_SUCCEEDED(r))vr_swapchain_guard::Hook(name,fn);
     if(XR_SUCCEEDED(r)&&fn&&*fn&&!strcmp(name,"xrDestroySession")&&*fn!=(PFN_xrVoidFunction)DashboardDestroySession){
         original_destroy_session=(PFN_xrDestroySession)*fn;*fn=(PFN_xrVoidFunction)DashboardDestroySession;
     }
@@ -352,6 +357,7 @@ extern "C" __declspec(dllexport) BOOL AddonInit(HMODULE module,HMODULE owner) {
     reshade::register_event<reshade::addon_event::reshade_set_current_preset_path>(vr_menu::Preset);
     reshade::register_event<reshade::addon_event::reshade_set_effects_state>(vr_menu::Effects);
     reshade_owner=owner;
+    vr_settings_sync::Arm(owner);
     reshade::register_event<reshade::addon_event::reshade_overlay>(vr_menu::Overlay);
     vr_dashboard_block::Init(module);
     reshade::register_event<reshade::addon_event::init_command_queue>(InitQueue);
@@ -364,6 +370,7 @@ extern "C" __declspec(dllexport) BOOL AddonInit(HMODULE module,HMODULE owner) {
     reshade::register_event<reshade::addon_event::destroy_swapchain>(DestroySwapchain);return TRUE;
 }
 extern "C" __declspec(dllexport) void AddonUninit(HMODULE module,HMODULE) {
+    vr_settings_sync::Clear();
     vr_dashboard::Clear();
     vr_dashboard_block::Clear();
     vr_menu::Clear();

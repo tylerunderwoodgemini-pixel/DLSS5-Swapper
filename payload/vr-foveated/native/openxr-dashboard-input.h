@@ -196,9 +196,11 @@ inline XrResult XRAPI_CALL Sync(XrSession session,const XrActionsSyncInfo *info)
 inline std::shared_ptr<State> Create(XrInstance instance,XrSession session,PFN_xrGetInstanceProcAddr gipa){
     auto state=std::make_shared<State>();state->instance=instance;state->session=session;state->gipa=gipa;
     if(!state->Init()){state->Dispose();return {};}
-    if(!suggest){PFN_xrVoidFunction fn=nullptr;gipa(instance,"xrSuggestInteractionProfileBindings",&fn);if(fn!=(PFN_xrVoidFunction)Suggest)suggest=(PFN_xrSuggestInteractionProfileBindings)fn;}
-    if(!attach){PFN_xrVoidFunction fn=nullptr;gipa(instance,"xrAttachSessionActionSets",&fn);if(fn!=(PFN_xrVoidFunction)Attach)attach=(PFN_xrAttachSessionActionSets)fn;}
-    if(!sync){PFN_xrVoidFunction fn=nullptr;gipa(instance,"xrSyncActions",&fn);if(fn!=(PFN_xrVoidFunction)Sync)sync=(PFN_xrSyncActions)fn;}
+    // GIPA itself can publish the raw target via the inner capture hook.
+    // Do not overwrite that target with an outer layer's wrapping function.
+    if(!suggest){PFN_xrVoidFunction fn=nullptr;gipa(instance,"xrSuggestInteractionProfileBindings",&fn);if(!suggest&&fn!=(PFN_xrVoidFunction)Suggest)suggest=(PFN_xrSuggestInteractionProfileBindings)fn;}
+    if(!attach){PFN_xrVoidFunction fn=nullptr;gipa(instance,"xrAttachSessionActionSets",&fn);if(!attach&&fn!=(PFN_xrVoidFunction)Attach)attach=(PFN_xrAttachSessionActionSets)fn;}
+    if(!sync){PFN_xrVoidFunction fn=nullptr;gipa(instance,"xrSyncActions",&fn);if(!sync&&fn!=(PFN_xrVoidFunction)Sync)sync=(PFN_xrSyncActions)fn;}
     if(!suggest||!attach||!sync){state->Dispose();return {};}
     std::vector<std::pair<XrPath,std::vector<XrActionSuggestedBinding>>> profiles;
     {std::lock_guard<std::mutex> lock(mutex);sessions[session]=state;

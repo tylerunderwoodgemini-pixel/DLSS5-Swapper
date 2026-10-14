@@ -21,14 +21,17 @@ inline void Overlay(reshade::api::effect_runtime *){if(capture){*capture=&ImGui:
 static std::recursive_mutex runtime_mutex;
 static std::vector<reshade::api::effect_runtime *> targets;
 static reshade::api::effect_runtime *menu_runtime=nullptr;
+static thread_local bool forwarding_settings=false;
+struct SettingsScope {SettingsScope(){forwarding_settings=true;}~SettingsScope(){forwarding_settings=false;}};
 inline void Clear(){std::lock_guard<std::recursive_mutex> lock(runtime_mutex);targets.clear();menu_runtime=nullptr;if(begin){DetourTransactionBegin();DetourUpdateThread(GetCurrentThread());DetourDetach((PVOID *)&begin,(PVOID)Begin);DetourTransactionCommit();begin=nullptr;}}
-inline void Track(reshade::api::effect_runtime *rt){if(!building){std::lock_guard<std::recursive_mutex> lock(runtime_mutex);targets.push_back(rt);}}
+inline void Track(reshade::api::effect_runtime *rt){if(!building){std::lock_guard<std::recursive_mutex> lock(runtime_mutex);if(rt&&rt!=menu_runtime&&std::find(targets.begin(),targets.end(),rt)==targets.end())targets.push_back(rt);}}
 inline void Forget(reshade::api::effect_runtime *rt){std::lock_guard<std::recursive_mutex> lock(runtime_mutex);targets.erase(std::remove(targets.begin(),targets.end(),rt),targets.end());if(menu_runtime==rt)menu_runtime=nullptr;}
 inline bool Uniform(reshade::api::effect_runtime *rt,reshade::api::effect_uniform_variable variable,const void *data,size_t size){
-    std::lock_guard<std::recursive_mutex> lock(runtime_mutex);if(rt!=menu_runtime||!data||size>4096||size%4)return false;
+    if(vr_settings_sync::forwarding)return false;
+    std::lock_guard<std::recursive_mutex> lock(runtime_mutex);if(forwarding_settings||rt!=menu_runtime||!data||size>4096||size%4)return false;SettingsScope scope;
     char effect[512]={},name[512]={};rt->get_uniform_variable_effect_name(variable,effect);rt->get_uniform_variable_name(variable,name);
     reshade::api::format type;rt->get_uniform_variable_type(variable,&type);size_t count=size/4;
-    for(auto target:targets){auto v=target->find_uniform_variable(effect,name);if(!v.handle)continue;
+    for(auto target:targets){if(target==rt)continue;auto v=target->find_uniform_variable(effect,name);if(!v.handle)continue;
         if(type==reshade::api::format::r32_float)target->set_uniform_value_float(v,(const float *)data,count);
         else if(type==reshade::api::format::r32_sint)target->set_uniform_value_int(v,(const int32_t *)data,count);
         else if(type==reshade::api::format::r32_uint)target->set_uniform_value_uint(v,(const uint32_t *)data,count);
@@ -36,12 +39,13 @@ inline bool Uniform(reshade::api::effect_runtime *rt,reshade::api::effect_unifor
     return false;
 }
 inline bool Technique(reshade::api::effect_runtime *rt,reshade::api::effect_technique technique,bool enabled){
-    std::lock_guard<std::recursive_mutex> lock(runtime_mutex);if(rt!=menu_runtime)return false;
+    if(vr_settings_sync::forwarding)return false;
+    std::lock_guard<std::recursive_mutex> lock(runtime_mutex);if(forwarding_settings||rt!=menu_runtime)return false;SettingsScope scope;
     char effect[512]={},name[512]={};rt->get_technique_effect_name(technique,effect);rt->get_technique_name(technique,name);
-    for(auto target:targets){auto t=target->find_technique(effect,name);if(t.handle)target->set_technique_state(t,enabled);}return false;
+    for(auto target:targets){if(target==rt)continue;auto t=target->find_technique(effect,name);if(t.handle)target->set_technique_state(t,enabled);}return false;
 }
-inline bool Effects(reshade::api::effect_runtime *rt,bool enabled){std::lock_guard<std::recursive_mutex> lock(runtime_mutex);if(rt==menu_runtime)for(auto target:targets)target->set_effects_state(enabled);return false;}
-inline void Preset(reshade::api::effect_runtime *rt,const char *path){std::lock_guard<std::recursive_mutex> lock(runtime_mutex);if(rt==menu_runtime&&path)for(auto target:targets)target->set_current_preset_path(path);}
+inline bool Effects(reshade::api::effect_runtime *rt,bool enabled){if(vr_settings_sync::forwarding)return false;std::lock_guard<std::recursive_mutex> lock(runtime_mutex);if(!forwarding_settings&&rt==menu_runtime){SettingsScope scope;for(auto target:targets)if(target!=rt)target->set_effects_state(enabled);}return false;}
+inline void Preset(reshade::api::effect_runtime *rt,const char *path){if(vr_settings_sync::forwarding)return;std::lock_guard<std::recursive_mutex> lock(runtime_mutex);if(!forwarding_settings&&rt==menu_runtime&&path){SettingsScope scope;for(auto target:targets)if(target!=rt)target->set_current_preset_path(path);}}
 
 inline LRESULT CALLBACK Window(HWND h,UINT m,WPARAM w,LPARAM l){return DefWindowProcW(h,m,w,l);}
 struct Menu {

@@ -5,7 +5,7 @@ import pefile
 root = Path(__file__).resolve().parents[1]
 payload = root / "payload/deep-fried-chicken/deep-fried-chicken-nms.addon64"
 data = payload.read_bytes()
-assert hashlib.sha256(data).hexdigest() == "7a50dc8ddd6c1a7e389106c7fe8b1ed49abd5f045cc133de477675f25a5d882d"
+assert hashlib.sha256(data).hexdigest() == "261bfbfb0848bfaba411c2f2866d2ac7549af4604492011f768e96d425582433"
 pe = pefile.PE(data=data)
 for entry, target in ((0x25d40, 0x25e0d), (0x25f56, 0x2602b)):
     code = pe.get_data(entry, 6)

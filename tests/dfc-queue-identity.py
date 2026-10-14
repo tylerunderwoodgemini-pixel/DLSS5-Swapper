@@ -69,4 +69,4 @@ before[patch.ENTRY-0x1000:patch.ENTRY-0x1000+7]=after[patch.ENTRY-0x1000:patch.E
 assert before==after,'Unrelated retirement/fence code changed'
 print('PASS: original proxy mismatch reproduced; 100 raw and 100 proxy registrations preserve hook; QI failure stays fail-safe; references balanced; retirement code unchanged')
 
-assert (root/'payload/deep-fried-chicken/deep-fried-chicken.addon64').read_bytes()==patched
+assert (root/'payload/deep-fried-chicken/deep-fried-chicken.addon64').read_bytes()==module('patch-dfc-loader-stack').repair(patched)
